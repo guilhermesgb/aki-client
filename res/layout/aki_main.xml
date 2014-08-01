@@ -1,0 +1,54 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".AkiMain" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4" >
+
+            <TextView
+                android:id="@+id/chatRoom"
+                android:layout_width="match_parent"
+                android:layout_height="79dp"
+                android:gravity="center"
+                android:keepScreenOn="true"
+                android:text="@string/chat_room"
+                android:textColor="#33b5e5"
+                android:textSize="50sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/loginRoom"
+                android:layout_width="match_parent"
+                android:layout_height="79dp"
+                android:gravity="center"
+                android:keepScreenOn="true"
+                android:text="@string/login_room"
+                android:textColor="#33b5e5"
+                android:textSize="50sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4" >
+
+            <com.facebook.widget.LoginButton
+                android:id="@+id/authButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="30dp" />
+        </RelativeLayout>
+    </LinearLayout>
+</FrameLayout>

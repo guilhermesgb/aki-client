@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Aki</string>
+    <string name="fb_app_id">1515152225364929</string>
+    <string name="project_name">Aki</string>
+    <string name="chat_room">Chatroom!</string>
+    <string name="login_room">Loginroom!</string>
+    
+</resources>
