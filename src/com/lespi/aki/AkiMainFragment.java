@@ -6,7 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -38,8 +38,8 @@ public class AkiMainFragment extends Fragment{
 	}
 
 	private void onSessionStateChange(Session session, SessionState state, Exception exception) {
-		final TextView chatRoom = (TextView) this.getActivity().findViewById(R.id.chatRoom);
-		final TextView loginRoom = (TextView) this.getActivity().findViewById(R.id.loginRoom);
+		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
+		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
 
 		if (state.isOpened()) {
 		
@@ -49,15 +49,17 @@ public class AkiMainFragment extends Fragment{
 				  @Override
 				  public void onCompleted(GraphUser user, Response response) {
 					  if ( user != null ){
-						  loginRoom.setVisibility(View.GONE);
-						  chatRoom.setVisibility(View.VISIBLE);
+
+						  loginArea.setVisibility(View.GONE);
+						  chatArea.setVisibility(View.VISIBLE);
 						  AkiServerCalls.sendPresenceToServer(getActivity().getApplicationContext(), user.getId());
 					  }
 				  }
 				}).executeAsync();
 	    } else if (state.isClosed()) {
-			loginRoom.setVisibility(View.VISIBLE);
-			chatRoom.setVisibility(View.GONE);
+	    	
+			chatArea.setVisibility(View.GONE);
+	    	loginArea.setVisibility(View.VISIBLE);
 			if ( AkiServerCalls.isActiveOnServer() ){
 				AkiServerCalls.leaveServer(getActivity().getApplicationContext());
 			}
@@ -79,6 +81,14 @@ public class AkiMainFragment extends Fragment{
 	    if (session != null &&
 	           (session.isOpened() || session.isClosed()) ) {
 	        onSessionStateChange(session, session.getState(), null);
+	    }
+	    else {
+	    	if ( !AkiServerCalls.getPresenceFromServer(getActivity().getApplicationContext()) ){
+	    		LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
+	    		LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
+	    		chatArea.setVisibility(View.GONE);
+	    		loginArea.setVisibility(View.VISIBLE);
+	    	}
 	    }
 	    uiHelper.onResume();
 	}

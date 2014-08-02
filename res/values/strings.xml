@@ -6,5 +6,6 @@
     <string name="project_name">Aki</string>
     <string name="chat_room">Chatroom!</string>
     <string name="login_room">Loginroom!</string>
-    
+    <string name="loading">Loading...</string>
+
 </resources>
