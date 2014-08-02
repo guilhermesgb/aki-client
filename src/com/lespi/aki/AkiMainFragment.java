@@ -77,20 +77,22 @@ public class AkiMainFragment extends Fragment{
 	public void onResume() {
 	    super.onResume();
 	    
+	    uiHelper.onResume();
+
 	    Session session = Session.getActiveSession();
 	    if (session != null &&
 	           (session.isOpened() || session.isClosed()) ) {
 	        onSessionStateChange(session, session.getState(), null);
 	    }
 	    else {
-	    	if ( !AkiServerCalls.getPresenceFromServer(getActivity().getApplicationContext()) ){
-	    		LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
-	    		LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
-	    		chatArea.setVisibility(View.GONE);
-	    		loginArea.setVisibility(View.VISIBLE);
+	    	if ( AkiServerCalls.getPresenceFromServer(getActivity().getApplicationContext()) ){
+	    		AkiServerCalls.leaveServer(getActivity().getApplicationContext());
 	    	}
+	    	LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
+	    	LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
+	    	chatArea.setVisibility(View.GONE);
+	    	loginArea.setVisibility(View.VISIBLE);
 	    }
-	    uiHelper.onResume();
 	}
 
 	@Override
