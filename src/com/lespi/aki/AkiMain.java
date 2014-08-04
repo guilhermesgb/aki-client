@@ -3,9 +3,9 @@ package com.lespi.aki;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.EditText;
 
 import com.facebook.Session;
 
@@ -13,13 +13,11 @@ public class AkiMain extends FragmentActivity {
 
 	private AkiMainFragment mainFragment;
 
-	public void sendMessage(View view){
-		Log.e(AkiApplication.TAG, "HERE!!");
-	}
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		System.out.println("This was called...");
 		
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -35,11 +33,25 @@ public class AkiMain extends FragmentActivity {
 	    }
 	}
 
+	public void sendMessage(View view){
+		
+		EditText chatBox = (EditText) findViewById(R.id.chatBox);
+		AkiServerCalls.sendMessage(getApplicationContext(), chatBox.getText().toString());
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		super.onActivityResult(requestCode, resultCode, data);
 
+		System.out.println("Received result data: " + data.getAction() + "!");
+		
 		Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
+	}
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+		System.out.println("This was called when a new message arrived!!!!");
 	}
 	
 	@Override
@@ -50,5 +62,4 @@ public class AkiMain extends FragmentActivity {
 			AkiServerCalls.leaveServer(getApplicationContext());
 		}
 	}
-	
 }

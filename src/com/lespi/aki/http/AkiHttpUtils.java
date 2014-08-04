@@ -55,7 +55,8 @@ public abstract class AkiHttpUtils {
 						urlConn.setRequestMethod("POST");
 						if ( payload != null ){
 							urlConn.setDoOutput(true);
-							urlConn.setChunkedStreamingMode(payload.length());
+//							payload = URLEncoder.encode(payload, "utf-8");
+//							urlConn.setFixedLengthStreamingMode(payload.length());
 							OutputStream out = new BufferedOutputStream(urlConn.getOutputStream(), payload.length());
 							out.write(payload.getBytes());
 						}
@@ -110,6 +111,7 @@ public abstract class AkiHttpUtils {
 			JsonValue responseCode = response.get("code");
 			if ( responseCode != null && responseCode.asInt() != 200 ){
 				Log.e(AkiApplication.TAG, "HTTP Request fail.");
+				return;
 			}
 			JsonObject content = response.get("content").asObject();
 			String endpointResponseCode = content.get("code").asString();
@@ -160,7 +162,7 @@ public abstract class AkiHttpUtils {
 	}
 
 	public static JsonObject doPOSTHttpRequest(String url, JsonObject payload){
-		Log.i(AkiApplication.TAG, "POST " + url);
+		Log.i(AkiApplication.TAG, "POST " + url + " " + payload.toString());
 		return doHttpRequest("POST", url, getBasicHeaders(), payload);
 	}
 	

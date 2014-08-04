@@ -93,6 +93,10 @@ public class AkiServerCalls {
 					if ( currentChatRoom.equals(newChatRoom) ){
 						Log.i(AkiApplication.TAG, "No need to update current chat room, which" +
 								" has address {" + currentChatRoom + "}.");
+						if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
+				    		PushService.subscribe(context, newChatRoom, AkiMain.class);
+							Log.i(AkiApplication.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
+						}
 						return;
 					}
 					else{
@@ -140,7 +144,7 @@ public class AkiServerCalls {
 			Log.e(AkiApplication.TAG, "Cleanup -> unsubscribing from chat room address: {" + remainingChatRoom + "}.");
 		}
 	}
-	
+
 	private static String getCurrentChatRoom(Context context) throws FileNotFoundException, IOException{
 
 		FileInputStream fis = context.openFileInput("current-chat-room");
@@ -168,6 +172,38 @@ public class AkiServerCalls {
 		
 		File file = new File(context.getFilesDir(), "current-chat-room");
 		file.delete();
+	}
+
+	public static boolean sendMessage(Context context, String message) {
+
+		JsonObject payload = new JsonObject();
+		payload.add("message", message);
+		try {
+			payload.add("chat_room", getCurrentChatRoom(context));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			Log.e(AkiApplication.TAG, "Chat room address is not cached!");
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			Log.e(AkiApplication.TAG, "A problem occurred while trying to retrieve Chat room address from cache!");
+			return false;
+		}
+		
+		JsonObject response = AkiHttpUtils.doPOSTHttpRequest("/message", payload);
+		if ( response != null ){
+			String responseCode = response.get("code").asString();
+			if ( responseCode.equals("ok") ){
+				CharSequence toastText = "Message sent!";
+				Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+				toast.show();
+				return true;
+			}
+		}
+		CharSequence toastText = "You could not send message!";
+		Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+		toast.show();
+		return false;
 	}
 	
 }
