@@ -3,6 +3,7 @@ package com.lespi.aki;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,10 @@ import com.facebook.widget.LoginButton;
 
 public class AkiMainFragment extends Fragment{
 
+	public void sendMessage(View view){
+		Log.e(AkiApplication.TAG, "NO, HERE!!");
+	}
+	
 	private UiLifecycleHelper uiHelper;
 	
 	private Session.StatusCallback callback = new Session.StatusCallback() {
@@ -34,6 +39,7 @@ public class AkiMainFragment extends Fragment{
 		View view = inflater.inflate(R.layout.aki_main, container, false);
 		LoginButton authButton = (LoginButton) view.findViewById(R.id.authButton);
 		authButton.setFragment(this);
+		authButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
 		return view;
 	}
 

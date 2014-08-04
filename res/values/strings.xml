@@ -5,7 +5,13 @@
     <string name="fb_app_id">1515152225364929</string>
     <string name="project_name">Aki</string>
     <string name="chat_room">Chatroom!</string>
-    <string name="login_room">Loginroom!</string>
-    <string name="loading">Loading...</string>
+    <string name="chat_box_hint">
+        Type to compose
+    </string>
+    <string name="send_message_description">
+        Type to send a message
+    </string>
+    <string name="login_text">Login to Aki with Facebook</string>
+    <string name="logout_text">Log out from Aki</string>
 
 </resources>

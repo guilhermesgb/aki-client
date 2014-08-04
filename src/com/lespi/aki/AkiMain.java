@@ -3,6 +3,9 @@ package com.lespi.aki;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.View;
+import android.view.Window;
 
 import com.facebook.Session;
 
@@ -10,9 +13,15 @@ public class AkiMain extends FragmentActivity {
 
 	private AkiMainFragment mainFragment;
 
+	public void sendMessage(View view){
+		Log.e(AkiApplication.TAG, "HERE!!");
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 	    if (savedInstanceState == null) {
 	        mainFragment = new AkiMainFragment();
