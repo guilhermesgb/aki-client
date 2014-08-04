@@ -151,29 +151,24 @@ public abstract class AkiHttpUtils {
 	
 	public static JsonObject doGETHttpRequest(String url){
 		Log.i(AkiApplication.TAG, "GET " + url);
-		JsonObject headers = new JsonObject();
-		headers.add("Host", API_LOCATION);
-		headers.add("Content-Type", "application/json; charset=utf-8");
-		headers.add("Accept", "application/json");
-		return doHttpRequest("GET", url, headers, null);
+		return doHttpRequest("GET", url, getBasicHeaders(), null);
 	}
 	
 	public static JsonObject doPOSTHttpRequest(String url){
 		Log.i(AkiApplication.TAG, "POST " + url);
-		JsonObject headers = new JsonObject();
-		headers.add("Host", API_LOCATION);
-		headers.add("Content-Type", "application/json; charset=utf-8");
-		headers.add("Accept", "application/json");
-		return doHttpRequest("POST", url, headers, null);
+		return doHttpRequest("POST", url, getBasicHeaders(), null);
 	}
 
 	public static JsonObject doPOSTHttpRequest(String url, JsonObject payload){
 		Log.i(AkiApplication.TAG, "POST " + url);
+		return doHttpRequest("POST", url, getBasicHeaders(), payload);
+	}
+	
+	private static JsonObject getBasicHeaders(){
 		JsonObject headers = new JsonObject();
 		headers.add("Host", API_LOCATION);
 		headers.add("Content-Type", "application/json; charset=utf-8");
-		headers.add("Accept", "application/json");
-		return doHttpRequest("POST", url, headers, payload);
+		headers.add("Accept", "application/json");		
+		return headers;
 	}
-	
 }

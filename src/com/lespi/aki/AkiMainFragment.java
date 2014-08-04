@@ -15,7 +15,6 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
-import com.parse.PushService;
 
 public class AkiMainFragment extends Fragment{
 
@@ -62,23 +61,19 @@ public class AkiMainFragment extends Fragment{
 	}
 	
 	public void switchToLoginArea(){
+		AkiServerCalls.leaveChatRoom(getActivity().getApplicationContext());
 		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
 		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
 		chatArea.setVisibility(View.GONE);
     	loginArea.setVisibility(View.VISIBLE);
-    	if ( PushService.getSubscriptions(getActivity().getApplicationContext()).contains("chatroom") ){
-    		PushService.unsubscribe(getActivity().getApplicationContext(), "chatroom");
-    	}
 	}
 	
 	public void switchToChatArea(){
+		AkiServerCalls.enterChatRoom(getActivity().getApplicationContext());
 		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
 		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
 		chatArea.setVisibility(View.VISIBLE);
     	loginArea.setVisibility(View.GONE);
-    	if ( !PushService.getSubscriptions(getActivity().getApplicationContext()).contains("chatroom") ){
-    		PushService.subscribe(getActivity().getApplicationContext(), "chatroom", getActivity().getClass());
-    	}
 	}
 	
 	@Override
