@@ -15,6 +15,7 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
+import com.parse.PushService;
 
 public class AkiMainFragment extends Fragment{
 
@@ -38,32 +39,46 @@ public class AkiMainFragment extends Fragment{
 	}
 
 	private void onSessionStateChange(Session session, SessionState state, Exception exception) {
-		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
-		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
-
 		if (state.isOpened()) {
 		
 			Request.newMeRequest(session, new Request.GraphUserCallback() {
 
-				  // callback after Graph API response with user object
 				  @Override
 				  public void onCompleted(GraphUser user, Response response) {
 					  if ( user != null ){
 
-						  loginArea.setVisibility(View.GONE);
-						  chatArea.setVisibility(View.VISIBLE);
+						  switchToChatArea();
 						  AkiServerCalls.sendPresenceToServer(getActivity().getApplicationContext(), user.getId());
 					  }
 				  }
 				}).executeAsync();
 	    } else if (state.isClosed()) {
 	    	
-			chatArea.setVisibility(View.GONE);
-	    	loginArea.setVisibility(View.VISIBLE);
+	    	switchToLoginArea();
 			if ( AkiServerCalls.isActiveOnServer() ){
 				AkiServerCalls.leaveServer(getActivity().getApplicationContext());
 			}
 	    }
+	}
+	
+	public void switchToLoginArea(){
+		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
+		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
+		chatArea.setVisibility(View.GONE);
+    	loginArea.setVisibility(View.VISIBLE);
+    	if ( PushService.getSubscriptions(getActivity().getApplicationContext()).contains("chatroom") ){
+    		PushService.unsubscribe(getActivity().getApplicationContext(), "chatroom");
+    	}
+	}
+	
+	public void switchToChatArea(){
+		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
+		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
+		chatArea.setVisibility(View.VISIBLE);
+    	loginArea.setVisibility(View.GONE);
+    	if ( !PushService.getSubscriptions(getActivity().getApplicationContext()).contains("chatroom") ){
+    		PushService.subscribe(getActivity().getApplicationContext(), "chatroom", getActivity().getClass());
+    	}
 	}
 	
 	@Override
@@ -88,10 +103,7 @@ public class AkiMainFragment extends Fragment{
 	    	if ( AkiServerCalls.getPresenceFromServer(getActivity().getApplicationContext()) ){
 	    		AkiServerCalls.leaveServer(getActivity().getApplicationContext());
 	    	}
-	    	LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
-	    	LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
-	    	chatArea.setVisibility(View.GONE);
-	    	loginArea.setVisibility(View.VISIBLE);
+	    	switchToLoginArea();
 	    }
 	}
 
