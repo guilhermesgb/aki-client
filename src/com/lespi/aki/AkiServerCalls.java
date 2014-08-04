@@ -102,7 +102,7 @@ public class AkiServerCalls {
 								"address {" + newChatRoom + "}.");
 					}
 				} catch (FileNotFoundException e) {
-					Log.i(AkiApplication.TAG, "No current chat room set.");
+					Log.i(AkiApplication.TAG, "No current chat room address set.");
 				} catch (IOException e) {
 					e.printStackTrace();
 					leaveChatRoom(context);
@@ -111,7 +111,7 @@ public class AkiServerCalls {
 							"Performed cleanup operations.");
 				}
 				if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
-		    		PushService.subscribe(context, "chatroom", AkiMain.class);
+		    		PushService.subscribe(context, newChatRoom, AkiMain.class);
 					Log.i(AkiApplication.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
 				}
 				setCurrentChatRoom(context, newChatRoom);
@@ -121,12 +121,14 @@ public class AkiServerCalls {
 	}
 	
 	public static void leaveChatRoom(Context context) {
+
 		try {
+
 			String currentChatRoom = getCurrentChatRoom(context);
 			PushService.unsubscribe(context, currentChatRoom);
 			Log.i(AkiApplication.TAG, "Unsubscribed from chat room address {" + currentChatRoom + "}.");
 		} catch ( FileNotFoundException e ){ 
-			Log.e(AkiApplication.TAG, "No current chat room address set.");
+			Log.i(AkiApplication.TAG, "No need to unsubscribe as no current chat room address is set.");
 		} catch ( IOException e ){
 			e.printStackTrace();
 			Log.e(AkiApplication.TAG, "Could NOT figure out current chat room address.");
@@ -139,12 +141,9 @@ public class AkiServerCalls {
 		}
 	}
 	
-	public static String getCurrentChatRoom(Context context) throws FileNotFoundException, IOException{
+	private static String getCurrentChatRoom(Context context) throws FileNotFoundException, IOException{
 
-		StringBuilder filePath = new StringBuilder();
-		filePath.append(File.separator);
-		filePath.append("current_chat_room");
-		FileInputStream fis = context.openFileInput(filePath.toString());
+		FileInputStream fis = context.openFileInput("current-chat-room");
 		StringBuilder currentChatRoom = new StringBuilder();
 		int content;
 		while ( (content=fis.read()) != -1 ){
@@ -156,11 +155,8 @@ public class AkiServerCalls {
 	
 	private static void setCurrentChatRoom(Context context, String newChatRoom) {
 		
-		StringBuilder filePath = new StringBuilder();
-		filePath.append(File.separator);
-		filePath.append("current_chat_room");
 		try {
-			FileOutputStream fos = context.openFileOutput(filePath.toString(), Context.MODE_PRIVATE);
+			FileOutputStream fos = context.openFileOutput("current-chat-room", Context.MODE_PRIVATE);
 			fos.write(newChatRoom.getBytes());
 			fos.close();
 		} catch (IOException e) {
@@ -170,10 +166,8 @@ public class AkiServerCalls {
 	
 	private static void unsetCurrentChatRoom(Context context) {
 		
-		StringBuilder filePath = new StringBuilder();
-		filePath.append(File.separator);
-		filePath.append("current_chat_room");
-		File file = new File(filePath.toString());
+		File file = new File(context.getFilesDir(), "current-chat-room");
 		file.delete();
 	}
+	
 }

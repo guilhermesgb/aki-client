@@ -46,8 +46,9 @@ public class AkiMainFragment extends Fragment{
 				  public void onCompleted(GraphUser user, Response response) {
 					  if ( user != null ){
 
-						  switchToChatArea();
-						  AkiServerCalls.sendPresenceToServer(getActivity().getApplicationContext(), user.getId());
+                          switchToChatArea();
+                          AkiServerCalls.sendPresenceToServer(getActivity().getApplicationContext(), user.getId());
+                          AkiServerCalls.enterChatRoom(getActivity().getApplicationContext());
 					  }
 				  }
 				}).executeAsync();
@@ -69,7 +70,6 @@ public class AkiMainFragment extends Fragment{
 	}
 	
 	public void switchToChatArea(){
-		AkiServerCalls.enterChatRoom(getActivity().getApplicationContext());
 		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
 		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
 		chatArea.setVisibility(View.VISIBLE);
@@ -87,14 +87,17 @@ public class AkiMainFragment extends Fragment{
 	public void onResume() {
 	    super.onResume();
 	    
-	    uiHelper.onResume();
-
 	    Session session = Session.getActiveSession();
 	    if (session != null &&
 	           (session.isOpened() || session.isClosed()) ) {
 	        onSessionStateChange(session, session.getState(), null);
 	    }
-	    else {
+	    
+	    uiHelper.onResume();
+
+	    session = Session.getActiveSession();
+	    if (session == null || 
+	           !(session.isOpened() || session.isClosed()) ) {
 	    	if ( AkiServerCalls.getPresenceFromServer(getActivity().getApplicationContext()) ){
 	    		AkiServerCalls.leaveServer(getActivity().getApplicationContext());
 	    	}
