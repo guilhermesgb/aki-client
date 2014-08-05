@@ -36,7 +36,7 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 		intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 	}
-
+	
 	private void storeNewMessage(Context context, String chat_room, String from, String message) {
 		
 		try {
@@ -48,5 +48,5 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 			e.printStackTrace();
 		}
 	}
-	
+
 }

@@ -1,5 +1,11 @@
 package com.lespi.aki;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,7 +13,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -16,13 +24,11 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
+import com.lespi.aki.json.JsonArray;
+import com.lespi.aki.json.JsonObject;
 
 public class AkiMainFragment extends Fragment{
 
-	public void sendMessage(View view){
-		Log.e(AkiApplication.TAG, "NO, HERE!!");
-	}
-	
 	private UiLifecycleHelper uiHelper;
 	
 	private Session.StatusCallback callback = new Session.StatusCallback() {
@@ -81,6 +87,59 @@ public class AkiMainFragment extends Fragment{
 		chatArea.setVisibility(View.VISIBLE);
     	loginArea.setVisibility(View.GONE);
 	}
+
+	public void sendMessage() {
+		
+		EditText chatBox = (EditText) getActivity().findViewById(R.id.chatBox);
+		AkiServerCalls.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString());		
+	}
+	
+	private JsonArray retrieveLastXMessages(Context context, String chat_room, int amount) {
+		
+		JsonArray lastXMessages = new JsonArray();
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(context.openFileInput(chat_room)));
+			String messageRaw;
+			while ((messageRaw = reader.readLine()) != null && amount > 0) {
+				String sender = messageRaw.substring(0, messageRaw.indexOf(":["));
+				String content = messageRaw.substring(messageRaw.indexOf(":["), messageRaw.lastIndexOf("]"));
+				JsonObject message = new JsonObject();
+				message.add("sender", sender);
+				message.add("message", content);
+				lastXMessages.add(message);
+				amount--;
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			Log.i(AkiApplication.TAG, "There are no messages in chat room " + chat_room + ".");
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "Could not retrieve last " + amount + " messages in chat room " + chat_room + ".");
+			e.printStackTrace();
+		}
+		return lastXMessages;
+	}
+	
+	public void refreshReceivedMessages() {
+
+		Context context = getActivity().getApplicationContext();
+		try {
+			JsonArray messages = retrieveLastXMessages(context, AkiServerCalls.getCurrentChatRoom(context), 10);
+			if ( messages.size() > 0 ){
+				ListView listView = (ListView) getActivity().findViewById(R.id.listMessages);
+				if (listView != null){
+					/**
+					 * DO STUFF WITH THE LIST VIEW AND THE LAST 10 INCOMING MESSAGES
+					 */
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			Log.e(AkiApplication.TAG, "No current chat room address is set, so could not retrieve messages!");
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "A problem happened while trying to retrieve current chat room address!");
+			e.printStackTrace();
+		}
+	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -122,7 +181,7 @@ public class AkiMainFragment extends Fragment{
 	    super.onPause();
 	    uiHelper.onPause();
 	}
-
+	
 	@Override
 	public void onDestroy() {
 	    super.onDestroy();
@@ -134,5 +193,5 @@ public class AkiMainFragment extends Fragment{
 	    super.onSaveInstanceState(outState);
 	    uiHelper.onSaveInstanceState(outState);
 	}
-	
+
 }

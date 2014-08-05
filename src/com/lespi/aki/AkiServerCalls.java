@@ -131,11 +131,11 @@ public class AkiServerCalls {
 			String currentChatRoom = getCurrentChatRoom(context);
 			PushService.unsubscribe(context, currentChatRoom);
 			Log.i(AkiApplication.TAG, "Unsubscribed from chat room address {" + currentChatRoom + "}.");
-		} catch ( FileNotFoundException e ){ 
+		} catch ( FileNotFoundException e ){
 			Log.i(AkiApplication.TAG, "No need to unsubscribe as no current chat room address is set.");
 		} catch ( IOException e ){
-			e.printStackTrace();
 			Log.e(AkiApplication.TAG, "Could NOT figure out current chat room address.");
+			e.printStackTrace();
 			unsetCurrentChatRoom(context);
 			Log.e(AkiApplication.TAG, "Cleanup -> removed current chat room cache file.");
 		}
@@ -145,7 +145,7 @@ public class AkiServerCalls {
 		}
 	}
 
-	private static String getCurrentChatRoom(Context context) throws FileNotFoundException, IOException{
+	public static String getCurrentChatRoom(Context context) throws FileNotFoundException, IOException{
 
 		FileInputStream fis = context.openFileInput("current-chat-room");
 		StringBuilder currentChatRoom = new StringBuilder();
@@ -181,12 +181,12 @@ public class AkiServerCalls {
 		try {
 			payload.add("chat_room", getCurrentChatRoom(context));
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 			Log.e(AkiApplication.TAG, "Chat room address is not cached!");
+			e.printStackTrace();
 			return false;
 		} catch (IOException e) {
-			e.printStackTrace();
 			Log.e(AkiApplication.TAG, "A problem occurred while trying to retrieve Chat room address from cache!");
+			e.printStackTrace();
 			return false;
 		}
 		
