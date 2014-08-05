@@ -15,7 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -102,7 +102,7 @@ public class AkiMainFragment extends Fragment{
 			String messageRaw;
 			while ((messageRaw = reader.readLine()) != null && amount > 0) {
 				String sender = messageRaw.substring(0, messageRaw.indexOf(":["));
-				String content = messageRaw.substring(messageRaw.indexOf(":["), messageRaw.lastIndexOf("]"));
+				String content = messageRaw.substring(messageRaw.indexOf(":[") + 2, messageRaw.lastIndexOf("]"));
 				JsonObject message = new JsonObject();
 				message.add("sender", sender);
 				message.add("message", content);
@@ -125,12 +125,26 @@ public class AkiMainFragment extends Fragment{
 		try {
 			JsonArray messages = retrieveLastXMessages(context, AkiServerCalls.getCurrentChatRoom(context), 10);
 			if ( messages.size() > 0 ){
-				ListView listView = (ListView) getActivity().findViewById(R.id.listMessages);
-				if (listView != null){
-					/**
-					 * DO STUFF WITH THE LIST VIEW AND THE LAST 10 INCOMING MESSAGES
-					 */
-				}
+				/**
+				 * DO STUFF WITH THE LIST VIEW AND THE LAST 10 INCOMING MESSAGES
+				 */
+//				ListView listView = (ListView) getActivity().findViewById(R.id.listMessages);
+				CharSequence toastText = messages.size() + " messages in this chat room!!";
+				Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+				toast.show();
+				
+				JsonObject message = messages.get(messages.size()-1).asObject();
+				toastText = message.get("sender").asString() + ": " + message.get("message").asString();
+				toast = Toast.makeText(context, toastText, Toast.LENGTH_LONG);
+				toast.show();
+			}
+			else {
+				/**
+				 * SHOW A GOOD "WELCOME TO THIS CHAT ROOM" MESSAGE!
+				 */
+				CharSequence toastText = "No messages yet in this chat room!!";
+				Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+				toast.show();
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

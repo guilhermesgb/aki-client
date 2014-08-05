@@ -45,9 +45,7 @@ public class AkiMain extends FragmentActivity {
 	protected void onResume(){
 		super.onResume();
 		
-		if ( getIntent().getAction().equals("com.lespi.aki.receivers.INCOMING_MESSAGE") ){
-			mainFragment.refreshReceivedMessages();
-		}
+		mainFragment.refreshReceivedMessages();
 	}
 	
 	@Override
