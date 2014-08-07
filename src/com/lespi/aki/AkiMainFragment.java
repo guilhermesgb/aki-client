@@ -24,6 +24,7 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
 import com.lespi.aki.json.JsonArray;
+import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
 
@@ -102,6 +103,9 @@ public class AkiMainFragment extends Fragment{
 		try {
 			JsonArray messages = AkiInternalStorageUtil.retrieveMessages(context,
 					AkiInternalStorageUtil.getCurrentChatRoom(context));
+
+			LinearLayout logo = (LinearLayout) getActivity().findViewById(R.id.com_lespi_aki_main_chat_logo);
+
 			if ( messages.size() > 0 ){
 
 				if ( AkiApplication.DEBUG_MODE ){
@@ -109,6 +113,8 @@ public class AkiMainFragment extends Fragment{
 					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 					toast.show();
 				}
+				
+				logo.setVisibility(View.GONE);
 
 				ListView listView = (ListView) getActivity().findViewById(R.id.com_lespi_aki_main_messages_list);
 
@@ -122,12 +128,30 @@ public class AkiMainFragment extends Fragment{
 				listView.setSelection(chatAdapter.getCount() - 1);
 			}
 			else {
-				/**
-				 * SHOW A GOOD "WELCOME TO THIS CHAT ROOM" MESSAGE!
-				 */
-				CharSequence toastText = "No messages yet in this chat room!!";
-				Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-				toast.show();
+
+				logo.setVisibility(View.VISIBLE);
+				
+				ListView listView = (ListView) getActivity().findViewById(R.id.com_lespi_aki_main_messages_list);
+
+				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(getActivity().getApplicationContext());
+				chatAdapter.setCurrentUser(currentUser);
+				chatAdapter.setCurrentSession(session);
+				chatAdapter.clear();
+				JsonObject welcome = new JsonObject();
+				welcome.add("sender", currentUser.getId());
+				welcome.add("message", "Bem vindo ao Aki, " + currentUser.getName() + "!");
+				chatAdapter.add(welcome);
+				welcome = new JsonObject();
+				welcome.add("sender", currentUser.getId());
+				welcome.add("message", "Por enquanto não há nenhuma mensagem nessa sala de bate papo.");
+				chatAdapter.add(welcome);
+				listView.setAdapter(chatAdapter);
+				
+				if ( AkiApplication.DEBUG_MODE ){
+					CharSequence toastText = "No messages yet in this chat room!!";
+					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+					toast.show();
+				}
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
