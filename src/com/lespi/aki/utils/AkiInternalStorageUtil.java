@@ -60,12 +60,18 @@ public class AkiInternalStorageUtil {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(context.openFileInput("chat-room_"+chatRoom)));
 			String messageRaw;
 			while ((messageRaw = reader.readLine()) != null) {
-				String sender = messageRaw.substring(0, messageRaw.indexOf(":["));
-				String content = messageRaw.substring(messageRaw.indexOf(":[") + 2, messageRaw.lastIndexOf("]"));
-				JsonObject message = new JsonObject();
-				message.add("sender", sender);
-				message.add("message", content);
-				allMessages.add(message);
+				try{
+					String sender = messageRaw.substring(0, messageRaw.indexOf(":["));
+					String content = messageRaw.substring(messageRaw.indexOf(":[") + 2, messageRaw.lastIndexOf("]"));
+					JsonObject message = new JsonObject();
+					message.add("sender", sender);
+					message.add("message", content);
+					allMessages.add(message);
+				}
+				catch (NullPointerException e){
+					Log.e(AkiApplication.TAG, "Skipped malformed message: "+messageRaw);
+					e.printStackTrace();
+				}
 			}
 			reader.close();
 		} catch (FileNotFoundException e) {
