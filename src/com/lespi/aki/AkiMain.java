@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.Window;
 
 import com.facebook.Session;
+import com.lespi.aki.utils.AkiServerUtil;
 
 public class AkiMain extends FragmentActivity {
 
@@ -45,15 +46,17 @@ public class AkiMain extends FragmentActivity {
 	protected void onResume(){
 		super.onResume();
 		
-		mainFragment.refreshReceivedMessages();
+		if ( AkiServerUtil.isActiveOnServer() ){
+			mainFragment.onResume();
+		}
 	}
 	
 	@Override
 	protected void onStop(){
 		super.onStop();
 
-		if ( AkiServerCalls.isActiveOnServer() ){
-			AkiServerCalls.leaveServer(getApplicationContext());
+		if ( AkiServerUtil.isActiveOnServer() ){
+			AkiServerUtil.leaveServer(getApplicationContext());
 		}
 	}
 }

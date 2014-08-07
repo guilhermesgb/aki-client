@@ -16,6 +16,7 @@ import com.parse.PushService;
 public class AkiApplication extends Application {
 
 	public final static String TAG = "com.lespi.aki";
+	public final static boolean DEBUG_MODE = false;
 
 	public static CookieManager cookieManager;
 	static {

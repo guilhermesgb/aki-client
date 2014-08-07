@@ -1,9 +1,7 @@
 package com.lespi.aki;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.facebook.Request;
@@ -25,7 +24,8 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
 import com.lespi.aki.json.JsonArray;
-import com.lespi.aki.json.JsonObject;
+import com.lespi.aki.utils.AkiInternalStorageUtil;
+import com.lespi.aki.utils.AkiServerUtil;
 
 public class AkiMainFragment extends Fragment{
 
@@ -43,13 +43,13 @@ public class AkiMainFragment extends Fragment{
 			ViewGroup container, Bundle savedInstanceState){
 
 		View view = inflater.inflate(R.layout.aki_main, container, false);
-		LoginButton authButton = (LoginButton) view.findViewById(R.id.authButton);
+		LoginButton authButton = (LoginButton) view.findViewById(R.id.com_lespi_aki_main_login_auth_btn);
 		authButton.setFragment(this);
 		authButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
 		return view;
 	}
 
-	private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
 		if (state.isOpened()) {
 		
 			Request.newMeRequest(session, new Request.GraphUserCallback() {
@@ -59,84 +59,64 @@ public class AkiMainFragment extends Fragment{
 					  if ( user != null ){
 
                           switchToChatArea();
-                          AkiServerCalls.sendPresenceToServer(getActivity().getApplicationContext(), user.getId());
-                          AkiServerCalls.enterChatRoom(getActivity().getApplicationContext());
+                          AkiServerUtil.sendPresenceToServer(getActivity().getApplicationContext(), user.getId());
+                          AkiServerUtil.enterChatRoom(getActivity().getApplicationContext());
+                          refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
 					  }
 				  }
 				}).executeAsync();
 	    } else if (state.isClosed()) {
 	    	
 	    	switchToLoginArea();
-			if ( AkiServerCalls.isActiveOnServer() ){
-				AkiServerCalls.leaveServer(getActivity().getApplicationContext());
+			if ( AkiServerUtil.isActiveOnServer() ){
+				AkiServerUtil.leaveServer(getActivity().getApplicationContext());
 			}
 	    }
 	}
 	
 	public void switchToLoginArea(){
-		AkiServerCalls.leaveChatRoom(getActivity().getApplicationContext());
-		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
-		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
+		AkiServerUtil.leaveChatRoom(getActivity().getApplicationContext());
+		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_chat);
+		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.GONE);
     	loginArea.setVisibility(View.VISIBLE);
 	}
 	
 	public void switchToChatArea(){
-		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.chatArea);
-		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.loginArea);
+		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_chat);
+		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.VISIBLE);
     	loginArea.setVisibility(View.GONE);
 	}
 
 	public void sendMessage() {
 		
-		EditText chatBox = (EditText) getActivity().findViewById(R.id.chatBox);
-		AkiServerCalls.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString());		
+		EditText chatBox = (EditText) getActivity().findViewById(R.id.com_lespi_aki_main_chat_input);
+		AkiServerUtil.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString());
 	}
 	
-	private JsonArray retrieveLastXMessages(Context context, String chat_room, int amount) {
-		
-		JsonArray lastXMessages = new JsonArray();
-		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(context.openFileInput(chat_room)));
-			String messageRaw;
-			while ((messageRaw = reader.readLine()) != null && amount > 0) {
-				String sender = messageRaw.substring(0, messageRaw.indexOf(":["));
-				String content = messageRaw.substring(messageRaw.indexOf(":[") + 2, messageRaw.lastIndexOf("]"));
-				JsonObject message = new JsonObject();
-				message.add("sender", sender);
-				message.add("message", content);
-				lastXMessages.add(message);
-				amount--;
-			}
-			reader.close();
-		} catch (FileNotFoundException e) {
-			Log.i(AkiApplication.TAG, "There are no messages in chat room " + chat_room + ".");
-		} catch (IOException e) {
-			Log.e(AkiApplication.TAG, "Could not retrieve last " + amount + " messages in chat room " + chat_room + ".");
-			e.printStackTrace();
-		}
-		return lastXMessages;
-	}
-	
-	public void refreshReceivedMessages() {
+	public void refreshReceivedMessages(Context context, Session session, GraphUser currentUser) {
 
-		Context context = getActivity().getApplicationContext();
 		try {
-			JsonArray messages = retrieveLastXMessages(context, AkiServerCalls.getCurrentChatRoom(context), 10);
+			JsonArray messages = AkiInternalStorageUtil.retrieveMessages(context,
+					AkiInternalStorageUtil.getCurrentChatRoom(context));
 			if ( messages.size() > 0 ){
-				/**
-				 * DO STUFF WITH THE LIST VIEW AND THE LAST 10 INCOMING MESSAGES
-				 */
-//				ListView listView = (ListView) getActivity().findViewById(R.id.listMessages);
-				CharSequence toastText = messages.size() + " messages in this chat room!!";
-				Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-				toast.show();
-				
-				JsonObject message = messages.get(messages.size()-1).asObject();
-				toastText = message.get("sender").asString() + ": " + message.get("message").asString();
-				toast = Toast.makeText(context, toastText, Toast.LENGTH_LONG);
-				toast.show();
+
+				if ( AkiApplication.DEBUG_MODE ){
+					CharSequence toastText = messages.size() + " messages in this chat room!!";
+					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+					toast.show();
+				}
+
+				ListView listView = (ListView) getActivity().findViewById(R.id.com_lespi_aki_main_messages_list);
+
+				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(getActivity().getApplicationContext());
+				chatAdapter.setCurrentUser(currentUser);
+				chatAdapter.setCurrentSession(session);
+				chatAdapter.clear();
+				chatAdapter.addAll(AkiChatAdapter.toJsonObjectList(messages));
+
+				listView.setAdapter(chatAdapter);
 			}
 			else {
 				/**
@@ -177,8 +157,8 @@ public class AkiMainFragment extends Fragment{
 	    session = Session.getActiveSession();
 	    if (session == null || 
 	           !(session.isOpened() || session.isClosed()) ) {
-	    	if ( AkiServerCalls.getPresenceFromServer(getActivity().getApplicationContext()) ){
-	    		AkiServerCalls.leaveServer(getActivity().getApplicationContext());
+	    	if ( AkiServerUtil.getPresenceFromServer(getActivity().getApplicationContext()) ){
+	    		AkiServerUtil.leaveServer(getActivity().getApplicationContext());
 	    	}
 	    	switchToLoginArea();
 	    }
