@@ -2,9 +2,11 @@ package com.lespi.aki;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -31,14 +33,14 @@ import com.lespi.aki.utils.AkiServerUtil;
 public class AkiMainFragment extends Fragment{
 
 	private UiLifecycleHelper uiHelper;
-	
+
 	private Session.StatusCallback callback = new Session.StatusCallback() {
-	    @Override
-	    public void call(Session session, SessionState state, Exception exception) {
-	        onSessionStateChange(session, state, exception);
-	    }
+		@Override
+		public void call(Session session, SessionState state, Exception exception) {
+			onSessionStateChange(session, state, exception);
+		}
 	};
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 			ViewGroup container, Bundle savedInstanceState){
@@ -52,167 +54,157 @@ public class AkiMainFragment extends Fragment{
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
 		if (state.isOpened()) {
-		
+
 			Request.newMeRequest(session, new Request.GraphUserCallback() {
 
-				  @Override
-				  public void onCompleted(GraphUser user, Response response) {
-					  if ( user != null ){
+				@Override
+				public void onCompleted(GraphUser user, Response response) {
+					if ( user != null ){
 
-                          switchToChatArea();
-                          AkiServerUtil.sendPresenceToServer(getActivity().getApplicationContext(), user.getId());
-                          AkiServerUtil.enterChatRoom(getActivity().getApplicationContext());
-                          refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
-					  }
-				  }
-				}).executeAsync();
-	    } else if (state.isClosed()) {
-	    	
-	    	switchToLoginArea();
+						switchToChatArea();
+						AkiServerUtil.sendPresenceToServer(getActivity().getApplicationContext(), user.getId());
+						AkiServerUtil.enterChatRoom(getActivity().getApplicationContext());
+						refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
+					}
+				}
+			}).executeAsync();
+		} else if (state.isClosed()) {
+
+			switchToLoginArea();
 			if ( AkiServerUtil.isActiveOnServer() ){
 				AkiServerUtil.leaveServer(getActivity().getApplicationContext());
 			}
-	    }
+		}
 	}
-	
+
 	public void switchToLoginArea(){
 		AkiServerUtil.leaveChatRoom(getActivity().getApplicationContext());
 		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_chat);
 		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.GONE);
-    	loginArea.setVisibility(View.VISIBLE);
+		loginArea.setVisibility(View.VISIBLE);
 	}
-	
+
 	public void switchToChatArea(){
 		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_chat);
 		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.VISIBLE);
-    	loginArea.setVisibility(View.GONE);
+		loginArea.setVisibility(View.GONE);
 	}
 
 	public void sendMessage() {
-		
+
 		EditText chatBox = (EditText) getActivity().findViewById(R.id.com_lespi_aki_main_chat_input);
-		if ( AkiServerUtil.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString()) ){
-			chatBox.setText("");
+		if ( !chatBox.getText().toString().trim().isEmpty() ){
+			if ( AkiServerUtil.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString()) ){
+				chatBox.setText("");
+			}
 		}
 	}
-	
-	public void refreshReceivedMessages(Context context, Session session, GraphUser currentUser) {
 
-		try {
-			JsonArray messages = AkiInternalStorageUtil.retrieveMessages(context,
-					AkiInternalStorageUtil.getCurrentChatRoom(context));
+	public void refreshReceivedMessages(final Context context, final Session session, final GraphUser currentUser) {
 
-			LinearLayout logo = (LinearLayout) getActivity().findViewById(R.id.com_lespi_aki_main_chat_logo);
+		new AsyncTask<Void, Void, List<JsonObject>>(){
 
-			if ( messages.size() > 0 ){
+			@Override
+			protected List<JsonObject> doInBackground(Void... params) {
+				try {
+					JsonArray messages = AkiInternalStorageUtil.retrieveMessages(context,
+							AkiInternalStorageUtil.getCurrentChatRoom(context));
 
-				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = messages.size() + " messages in this chat room!!";
-					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-					toast.show();
+					if ( messages.size() > 0 ){
+
+						if ( AkiApplication.DEBUG_MODE ){
+							CharSequence toastText = messages.size() + " messages in this chat room!!";
+							Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+							toast.show();
+						}
+					}
+					else {
+
+						CharSequence toastText = "No messages yet in this chat room!!";
+						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+						toast.show();
+					}
+					return AkiChatAdapter.toJsonObjectList(messages);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+					Log.e(AkiApplication.TAG, "No current chat room address is set, so could not retrieve messages!");
+				} catch (IOException e) {
+					Log.e(AkiApplication.TAG, "A problem happened while trying to retrieve current chat room address!");
+					e.printStackTrace();
 				}
+				return null;
+			}
+			
+			@Override
+			public void onPostExecute(List<JsonObject> messages){
 				
-				logo.setVisibility(View.GONE);
-
-				ListView listView = (ListView) getActivity().findViewById(R.id.com_lespi_aki_main_messages_list);
-
 				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(getActivity().getApplicationContext());
 				chatAdapter.setCurrentUser(currentUser);
 				chatAdapter.setCurrentSession(session);
 				chatAdapter.clear();
-				chatAdapter.addAll(AkiChatAdapter.toJsonObjectList(messages));
-
-				listView.setAdapter(chatAdapter);
-				listView.setSelection(chatAdapter.getCount() - 1);
-			}
-			else {
-
-				logo.setVisibility(View.VISIBLE);
-				
-				ListView listView = (ListView) getActivity().findViewById(R.id.com_lespi_aki_main_messages_list);
-
-				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(getActivity().getApplicationContext());
-				chatAdapter.setCurrentUser(currentUser);
-				chatAdapter.setCurrentSession(session);
-				chatAdapter.clear();
-				JsonObject welcome = new JsonObject();
-				welcome.add("sender", currentUser.getId());
-				welcome.add("message", "Bem vindo ao Aki, " + currentUser.getName() + "!");
-				chatAdapter.add(welcome);
-				welcome = new JsonObject();
-				welcome.add("sender", currentUser.getId());
-				welcome.add("message", "Por enquanto não há nenhuma mensagem nessa sala de bate papo.");
-				chatAdapter.add(welcome);
-				listView.setAdapter(chatAdapter);
-				
-				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = "No messages yet in this chat room!!";
-					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-					toast.show();
+				if ( messages != null ){
+					chatAdapter.addAll(messages);
 				}
+				ListView listView = (ListView) getActivity().findViewById(R.id.com_lespi_aki_main_messages_list);
+				listView.setAdapter(chatAdapter);
+				listView.setSelection(chatAdapter.getCount() - 1);				
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			Log.e(AkiApplication.TAG, "No current chat room address is set, so could not retrieve messages!");
-		} catch (IOException e) {
-			Log.e(AkiApplication.TAG, "A problem happened while trying to retrieve current chat room address!");
-			e.printStackTrace();
-		}
+		}.execute();
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-	    super.onCreate(savedInstanceState);
-	    uiHelper = new UiLifecycleHelper(getActivity(), callback);
-	    uiHelper.onCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);
+		uiHelper = new UiLifecycleHelper(getActivity(), callback);
+		uiHelper.onCreate(savedInstanceState);
 	}
-	
+
 	@Override
 	public void onResume() {
-	    super.onResume();
-	    
-	    Session session = Session.getActiveSession();
-	    if (session != null &&
-	           (session.isOpened() || session.isClosed()) ) {
-	        onSessionStateChange(session, session.getState(), null);
-	    }
-	    
-	    uiHelper.onResume();
+		super.onResume();
 
-	    session = Session.getActiveSession();
-	    if (session == null || 
-	           !(session.isOpened() || session.isClosed()) ) {
-	    	if ( AkiServerUtil.getPresenceFromServer(getActivity().getApplicationContext()) ){
-	    		AkiServerUtil.leaveServer(getActivity().getApplicationContext());
-	    	}
-	    	switchToLoginArea();
-	    }
+		Session session = Session.getActiveSession();
+		if (session != null &&
+				(session.isOpened() || session.isClosed()) ) {
+			onSessionStateChange(session, session.getState(), null);
+		}
+
+		uiHelper.onResume();
+
+		session = Session.getActiveSession();
+		if (session == null || 
+				!(session.isOpened() || session.isClosed()) ) {
+			if ( AkiServerUtil.getPresenceFromServer(getActivity().getApplicationContext()) ){
+				AkiServerUtil.leaveServer(getActivity().getApplicationContext());
+			}
+			switchToLoginArea();
+		}
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-	    super.onActivityResult(requestCode, resultCode, data);
-	    uiHelper.onActivityResult(requestCode, resultCode, data);
+		super.onActivityResult(requestCode, resultCode, data);
+		uiHelper.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
 	public void onPause() {
-	    super.onPause();
-	    uiHelper.onPause();
+		super.onPause();
+		uiHelper.onPause();
 	}
-	
+
 	@Override
 	public void onDestroy() {
-	    super.onDestroy();
-	    uiHelper.onDestroy();
+		super.onDestroy();
+		uiHelper.onDestroy();
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-	    super.onSaveInstanceState(outState);
-	    uiHelper.onSaveInstanceState(outState);
+		super.onSaveInstanceState(outState);
+		uiHelper.onSaveInstanceState(outState);
 	}
 
 }

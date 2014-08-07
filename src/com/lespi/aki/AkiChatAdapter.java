@@ -150,12 +150,9 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				new Request(currentSession, "/"+senderId, null,	HttpMethod.GET,
 					new Request.Callback() {
 						public void onCompleted(Response response) {
-							if ( response.getError() == null &&
-									JsonValue.readFrom(response.getRawResponse())
-										.asObject().get("data") != null ){
+							if ( response.getError() == null ){
 
-								JsonObject information = JsonValue.readFrom(response.getRawResponse())
-										.asObject().get("data").asObject();
+								JsonObject information = JsonValue.readFrom(response.getRawResponse()).asObject();
 								String firstName = information.get("first_name").asString();
 								holder.senderName.setText(firstName);
 								AkiInternalStorageUtil.cacheUserFirstName(context, senderId, firstName);
