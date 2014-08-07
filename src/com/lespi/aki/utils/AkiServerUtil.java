@@ -193,8 +193,8 @@ public class AkiServerUtil {
 					CharSequence toastText = "Message sent!";
 					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 					toast.show();
-					return true;
 				}
+				return true;
 			}
 		}
 		if ( AkiApplication.DEBUG_MODE ){

@@ -92,7 +92,9 @@ public class AkiMainFragment extends Fragment{
 	public void sendMessage() {
 		
 		EditText chatBox = (EditText) getActivity().findViewById(R.id.com_lespi_aki_main_chat_input);
-		AkiServerUtil.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString());
+		if ( AkiServerUtil.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString()) ){
+			chatBox.setText("");
+		}
 	}
 	
 	public void refreshReceivedMessages(Context context, Session session, GraphUser currentUser) {
@@ -117,6 +119,7 @@ public class AkiMainFragment extends Fragment{
 				chatAdapter.addAll(AkiChatAdapter.toJsonObjectList(messages));
 
 				listView.setAdapter(chatAdapter);
+				listView.setSelection(chatAdapter.getCount() - 1);
 			}
 			else {
 				/**
