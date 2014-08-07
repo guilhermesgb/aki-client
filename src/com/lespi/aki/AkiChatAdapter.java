@@ -86,10 +86,14 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		
 		View rowView = convertView;
 		boolean canReuse = false;
-		int rowLayout = R.layout.aki_message_from_others;
-		
+
 		final String senderId = newViewData.get("sender").asString();
 
+		int rowLayout = R.layout.aki_message_from_others;
+		if ( senderId.equals(currentUser.getId()) ){
+			rowLayout = R.layout.aki_message_from_me;
+		}
+		
 		if ( rowView != null ){
 			
 			TextView senderIdView = (TextView) rowView.findViewById(R.id.com_lespi_aki_message_sender_id);
@@ -112,6 +116,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			}
 		}
 
+		
 		if ( !canReuse ){
 
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -145,13 +150,20 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				new Request(currentSession, "/"+senderId, null,	HttpMethod.GET,
 					new Request.Callback() {
 						public void onCompleted(Response response) {
-							JsonObject information = JsonValue.readFrom(response.getRawResponse())
-									.asObject().get("data").asObject();
-							
+							if ( response.getError() == null ){
+								JsonObject information = JsonValue.readFrom(response.getRawResponse())
+										.asObject().get("data").asObject();
+								String firstName = information.get("first_name").asString();
+								holder.senderName.setText(firstName);
+								AkiInternalStorageUtil.cacheUserFirstName(context, senderId, firstName);
+							}
+							else{
+								Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
+										"first name from Facebook.");
+								Log.e(AkiApplication.TAG, response.getError().getErrorMessage());
+								holder.senderName.setText(senderId);
+							}
 							holder.senderId.setText(senderId);
-							String firstName = information.get("first_name").asString();
-							holder.senderName.setText(firstName);
-							AkiInternalStorageUtil.cacheUserFirstName(context, senderId, firstName);
 							holder.message.setText(newViewData.get("message").asString());
 						}
 					}
@@ -169,10 +181,16 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 			Bundle params = new Bundle();
 			params.putBoolean("redirect", false);
-			params.putString("type", "square");
+			params.putString("type", "large");
 			new Request(currentSession, "/"+senderId+"/picture", params, HttpMethod.GET,
 				new Request.Callback() {
 					public void onCompleted(Response response) {
+						if ( response.getError() != null ){
+							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
+									"picture from Facebook.");
+							Log.e(AkiApplication.TAG, response.getError().getErrorMessage());
+							return;
+						}
 						JsonObject information = JsonValue.readFrom(response.getRawResponse())
 								.asObject().get("data").asObject();
 						

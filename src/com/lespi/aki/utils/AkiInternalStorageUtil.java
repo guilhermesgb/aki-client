@@ -161,7 +161,6 @@ public class AkiInternalStorageUtil {
 		}
 		catch (FileNotFoundException e){
 			Log.i(AkiApplication.TAG, "There is no cached name for this user "+userId+".");
-			e.printStackTrace();
 			return null;
 		}
 		catch (IOException e){

@@ -18,9 +18,7 @@
         android:layout_height="70dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-		android:scaleType="centerCrop"
         android:src="@drawable/no_picture"
-        android:background="@drawable/rounded_shape"
         android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint" />
 
     <TextView
