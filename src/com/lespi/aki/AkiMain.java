@@ -43,8 +43,17 @@ public class AkiMain extends FragmentActivity {
 	}
 	
 	@Override
+	protected void onPause(){
+		super.onPause();
+		
+		AkiApplication.isNowInBackground();
+	}
+	
+	@Override
 	protected void onResume(){
 		super.onResume();
+		
+		AkiApplication.isNowInForeground();
 		
 		if ( AkiServerUtil.isActiveOnServer() ){
 			mainFragment.onResume();
