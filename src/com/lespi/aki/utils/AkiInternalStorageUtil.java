@@ -1,13 +1,11 @@
 package com.lespi.aki.utils;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -57,38 +55,37 @@ public class AkiInternalStorageUtil {
 		
 		JsonArray allMessages = new JsonArray();
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(context.openFileInput("chat-room_"+chatRoom)));
-			String messageRaw;
-			while ((messageRaw = reader.readLine()) != null) {
-				try{
-					String sender = messageRaw.substring(0, messageRaw.indexOf(":["));
-					String content = messageRaw.substring(messageRaw.indexOf(":[") + 2, messageRaw.lastIndexOf("]"));
-					JsonObject message = new JsonObject();
-					message.add("sender", sender);
-					message.add("message", content);
-					allMessages.add(message);
-				}
-				catch (NullPointerException e){
-					Log.e(AkiApplication.TAG, "Skipped malformed message: "+messageRaw);
-					e.printStackTrace();
-				}
-			}
-			reader.close();
+			
+			ObjectInputStream ois = new ObjectInputStream(context.openFileInput("chat-room_"+chatRoom));
+			allMessages = (JsonArray) ois.readObject();
+			ois.close();
 		} catch (FileNotFoundException e) {
 			Log.i(AkiApplication.TAG, "There are no messages in chat room " + chatRoom + ".");
 		} catch (IOException e) {
 			Log.e(AkiApplication.TAG, "Could not retrieve the messages in chat room " + chatRoom + ".");
 			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			Log.e(AkiApplication.TAG, "Could not retrieve the messages in chat room " + chatRoom + ".");
+			e.printStackTrace();			
 		}
 		return allMessages;
 	}
 	
-	public static void storeNewMessage(Context context, String chatRoom, String from, String message) {
+	public static void storeNewMessage(Context context, String chatRoom, String from, String content) {
 		
 		try {
-			FileOutputStream fos = context.openFileOutput("chat-room_"+chatRoom, Context.MODE_PRIVATE | Context.MODE_APPEND);
-			fos.write(String.format("%s:[%s]\n", from, message).getBytes());
-			fos.close();
+			
+			JsonArray allMessages = retrieveMessages(context, chatRoom);
+			
+			JsonObject newMessage = new JsonObject();
+			newMessage.add("sender", from);
+			newMessage.add("message", content);
+			
+			allMessages.add(newMessage);
+			
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput("chat-room_"+chatRoom, Context.MODE_PRIVATE));
+			oos.writeObject(allMessages);
+			oos.close();
 		} catch (IOException e) {
 			Log.e(AkiApplication.TAG, "Message received from " + from + " could not be stored.");
 			e.printStackTrace();
@@ -101,7 +98,7 @@ public class AkiInternalStorageUtil {
 		file.delete();
 	}
 	
-	protected static class BitmapDataObject implements Serializable {
+	protected static class AkiBitmapDataObject implements Serializable {
 	    private static final long serialVersionUID = 222707456230422059L;
 	    public byte[] imageByteArray;
 	}
@@ -112,7 +109,7 @@ public class AkiInternalStorageUtil {
 		try{
 			ObjectInputStream ois = new ObjectInputStream(context.openFileInput("user-picture_"+userId));
 		
-			BitmapDataObject bitmapDataObject = (BitmapDataObject) ois.readObject();
+			AkiBitmapDataObject bitmapDataObject = (AkiBitmapDataObject) ois.readObject();
 			picture = BitmapFactory.decodeByteArray(bitmapDataObject.imageByteArray,
 					0, bitmapDataObject.imageByteArray.length);
 
@@ -141,7 +138,7 @@ public class AkiInternalStorageUtil {
 			
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		    picture.compress(Bitmap.CompressFormat.PNG, 100, stream);
-		    BitmapDataObject bitmapDataObject = new BitmapDataObject();     
+		    AkiBitmapDataObject bitmapDataObject = new AkiBitmapDataObject();     
 		    bitmapDataObject.imageByteArray = stream.toByteArray();
 			oos.writeObject(bitmapDataObject);
 		    
