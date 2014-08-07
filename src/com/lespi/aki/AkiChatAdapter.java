@@ -150,7 +150,10 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				new Request(currentSession, "/"+senderId, null,	HttpMethod.GET,
 					new Request.Callback() {
 						public void onCompleted(Response response) {
-							if ( response.getError() == null ){
+							if ( response.getError() == null &&
+									JsonValue.readFrom(response.getRawResponse())
+										.asObject().get("data") != null ){
+
 								JsonObject information = JsonValue.readFrom(response.getRawResponse())
 										.asObject().get("data").asObject();
 								String firstName = information.get("first_name").asString();
@@ -160,7 +163,6 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 							else{
 								Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
 										"first name from Facebook.");
-								Log.e(AkiApplication.TAG, response.getError().getErrorMessage());
 								holder.senderName.setText(senderId);
 							}
 							holder.senderId.setText(senderId);
@@ -185,10 +187,12 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			new Request(currentSession, "/"+senderId+"/picture", params, HttpMethod.GET,
 				new Request.Callback() {
 					public void onCompleted(Response response) {
-						if ( response.getError() != null ){
+						if ( response.getError() != null ||
+								JsonValue.readFrom(response.getRawResponse())
+									.asObject().get("data") == null ){
+
 							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
 									"picture from Facebook.");
-							Log.e(AkiApplication.TAG, response.getError().getErrorMessage());
 							return;
 						}
 						JsonObject information = JsonValue.readFrom(response.getRawResponse())
