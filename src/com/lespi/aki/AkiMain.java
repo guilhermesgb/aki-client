@@ -64,6 +64,8 @@ public class AkiMain extends FragmentActivity {
 	protected void onStop(){
 		super.onStop();
 
+		AkiApplication.isNowInBackground();
+
 		if ( AkiServerUtil.isActiveOnServer() ){
 			AkiServerUtil.leaveServer(getApplicationContext());
 		}
