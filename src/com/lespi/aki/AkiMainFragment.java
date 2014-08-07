@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -111,21 +110,6 @@ public class AkiMainFragment extends Fragment{
 				try {
 					JsonArray messages = AkiInternalStorageUtil.retrieveMessages(context,
 							AkiInternalStorageUtil.getCurrentChatRoom(context));
-
-					if ( messages.size() > 0 ){
-
-						if ( AkiApplication.DEBUG_MODE ){
-							CharSequence toastText = messages.size() + " messages in this chat room!!";
-							Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-							toast.show();
-						}
-					}
-					else {
-
-						CharSequence toastText = "No messages yet in this chat room!!";
-						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-						toast.show();
-					}
 					return AkiChatAdapter.toJsonObjectList(messages);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
