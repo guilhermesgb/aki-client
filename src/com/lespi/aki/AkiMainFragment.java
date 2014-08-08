@@ -28,6 +28,7 @@ import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
+import com.parse.internal.AsyncCallback;
 
 public class AkiMainFragment extends Fragment{
 
@@ -57,13 +58,30 @@ public class AkiMainFragment extends Fragment{
 			Request.newMeRequest(session, new Request.GraphUserCallback() {
 
 				@Override
-				public void onCompleted(GraphUser user, Response response) {
+				public void onCompleted(final GraphUser user, Response response) {
 					if ( user != null ){
 
 						switchToChatArea();
-						AkiServerUtil.sendPresenceToServer(getActivity().getApplicationContext(), user.getId());
-						AkiServerUtil.enterChatRoom(getActivity().getApplicationContext());
-						refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
+						AkiServerUtil.sendPresenceToServer(getActivity().getApplicationContext(), user.getId(), new AsyncCallback() {
+							
+							@Override
+							public void onSuccess(Object response) {
+								JsonObject responseJSON = (JsonObject) response;
+								AkiServerUtil.enterChatRoom(getActivity().getApplicationContext(), responseJSON.get("chat_room").asString());
+								refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
+							}
+							
+							@Override
+							public void onFailure(Throwable failure) {
+								Log.e(AkiApplication.TAG, "Could not send presence to server.");
+								failure.printStackTrace();
+							}
+							
+							@Override
+							public void onCancel() {
+								Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled.");
+							}
+						});
 					}
 				}
 			}).executeAsync();
@@ -93,11 +111,26 @@ public class AkiMainFragment extends Fragment{
 
 	public void sendMessage() {
 
-		EditText chatBox = (EditText) getActivity().findViewById(R.id.com_lespi_aki_main_chat_input);
+		final EditText chatBox = (EditText) getActivity().findViewById(R.id.com_lespi_aki_main_chat_input);
 		if ( !chatBox.getText().toString().trim().isEmpty() ){
-			if ( AkiServerUtil.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString()) ){
-				chatBox.setText("");
-			}
+			AkiServerUtil.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString(), new AsyncCallback() {
+				
+				@Override
+				public void onSuccess(Object response) {
+					chatBox.setText("");
+				}
+				
+				@Override
+				public void onFailure(Throwable failure) {
+					Log.e(AkiApplication.TAG, "You could not send message!");
+					failure.printStackTrace();
+				}
+				
+				@Override
+				public void onCancel() {
+					Log.e(AkiApplication.TAG, "Endpoint:sendMessage callback canceled.");
+				}
+			});
 		}
 	}
 
@@ -158,11 +191,25 @@ public class AkiMainFragment extends Fragment{
 		uiHelper.onResume();
 
 		session = Session.getActiveSession();
-		if (session == null || 
-				!(session.isOpened() || session.isClosed()) ) {
-			if ( AkiServerUtil.getPresenceFromServer(getActivity().getApplicationContext()) ){
-				AkiServerUtil.leaveServer(getActivity().getApplicationContext());
-			}
+		if (session == null || !(session.isOpened() || session.isClosed()) ) {
+			AkiServerUtil.getPresenceFromServer(getActivity().getApplicationContext(), new AsyncCallback() {
+				
+				@Override
+				public void onSuccess(Object response) {
+					AkiServerUtil.leaveServer(getActivity().getApplicationContext());
+				}
+				
+				@Override
+				public void onFailure(Throwable failure) {
+					Log.e(AkiApplication.TAG, "Could not get presence from server.");
+					failure.printStackTrace();
+				}
+				
+				@Override
+				public void onCancel() {
+					Log.e(AkiApplication.TAG, "Endpoint:getPresenceFromServer callback canceled.");
+				}
+			});
 			switchToLoginArea();
 		}
 	}

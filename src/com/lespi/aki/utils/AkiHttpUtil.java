@@ -1,4 +1,4 @@
-package com.lespi.aki.http;
+package com.lespi.aki.utils;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -9,7 +9,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.concurrent.ExecutionException;
 
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
@@ -18,13 +17,19 @@ import android.util.Log;
 import com.lespi.aki.AkiApplication;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
+import com.parse.internal.AsyncCallback;
 
-public abstract class AkiHttpUtils {
+public abstract class AkiHttpUtil {
 
 	private static final String API_LOCATION = "lespi-server.herokuapp.com";
 
 	private static class HttpRequestExecutor extends AsyncTask<String, Void, JsonObject>{
 
+		private final AsyncCallback callback;
+		public HttpRequestExecutor(AsyncCallback callback){
+			this.callback = callback;
+		}
+		
 		@SuppressLint("DefaultLocale")
 		@Override
 		protected JsonObject doInBackground(String... params) {
@@ -55,8 +60,6 @@ public abstract class AkiHttpUtils {
 						urlConn.setRequestMethod("POST");
 						if ( payload != null ){
 							urlConn.setDoOutput(true);
-//							payload = URLEncoder.encode(payload, "utf-8");
-//							urlConn.setFixedLengthStreamingMode(payload.length());
 							OutputStream out = new BufferedOutputStream(urlConn.getOutputStream(), payload.length());
 							out.write(payload.getBytes());
 						}
@@ -111,12 +114,15 @@ public abstract class AkiHttpUtils {
 			JsonValue responseCode = response.get("code");
 			if ( responseCode != null && responseCode.asInt() != 200 ){
 				Log.e(AkiApplication.TAG, "HTTP Request fail.");
+				callback.onFailure(new Exception("The HTTP Request failed."));
 				return;
 			}
 			JsonObject content = response.get("content").asObject();
 			String endpointResponseCode = content.get("code").asString();
 			if ( endpointResponseCode.equals("ok") ){
 				Log.i(AkiApplication.TAG, "HTTP Request success. Server Endpoint success: " + content.get("server").asString());
+				callback.onSuccess(content);
+				return;
 			}
 			else if ( endpointResponseCode.equals("error") ){
 				Log.i(AkiApplication.TAG, "HTTP Request success. Server Endpoint error: " + content.get("server").asString());
@@ -124,46 +130,31 @@ public abstract class AkiHttpUtils {
 			else{
 				Log.i(AkiApplication.TAG, "HTTP Request success. Server Endpoint problem: " + endpointResponseCode);
 			}
+			callback.onFailure(new Exception("The HTTP Request was successful, but the Server Endpoint faced issues."));
 		}
 	}
 	
-	private static JsonObject doHttpRequest(String method, String url, JsonObject headers, JsonObject payload){
+	private static void doHttpRequest(String method, String url, JsonObject headers, JsonObject payload, AsyncCallback callback){
 
-		HttpRequestExecutor executor = (HttpRequestExecutor) new HttpRequestExecutor();
+		HttpRequestExecutor executor = (HttpRequestExecutor) new HttpRequestExecutor(callback);
 		executor.execute(method, "https://" + API_LOCATION + url,
 				headers != null ? headers.toString().trim() : null,
 				payload != null ? payload.toString().trim() : null);
-
-		try {
-
-			JsonObject response = executor.get();
-			JsonValue responseCode = response.get("code");
-			if ( responseCode != null && responseCode.asInt() == 200 ){
-				JsonObject content = response.get("content").asObject();
-				return content;
-			}
-			return null;
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 	
-	public static JsonObject doGETHttpRequest(String url){
+	public static void doGETHttpRequest(String url, AsyncCallback callback){
 		Log.i(AkiApplication.TAG, "GET " + url);
-		return doHttpRequest("GET", url, getBasicHeaders(), null);
+		doHttpRequest("GET", url, getBasicHeaders(), null, callback);
 	}
 	
-	public static JsonObject doPOSTHttpRequest(String url){
+	public static void doPOSTHttpRequest(String url, AsyncCallback callback){
 		Log.i(AkiApplication.TAG, "POST " + url);
-		return doHttpRequest("POST", url, getBasicHeaders(), null);
+		doHttpRequest("POST", url, getBasicHeaders(), null, callback);
 	}
 
-	public static JsonObject doPOSTHttpRequest(String url, JsonObject payload){
+	public static void doPOSTHttpRequest(String url, JsonObject payload, AsyncCallback callback){
 		Log.i(AkiApplication.TAG, "POST " + url + " " + payload.toString());
-		return doHttpRequest("POST", url, getBasicHeaders(), payload);
+		doHttpRequest("POST", url, getBasicHeaders(), payload, callback);
 	}
 	
 	private static JsonObject getBasicHeaders(){
@@ -173,4 +164,5 @@ public abstract class AkiHttpUtils {
 		headers.add("Accept", "application/json");		
 		return headers;
 	}
+
 }
