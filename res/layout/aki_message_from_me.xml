@@ -42,7 +42,6 @@
         android:layout_alignParentTop="true"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:src="@drawable/no_picture"
         android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint" />
     
 </RelativeLayout>

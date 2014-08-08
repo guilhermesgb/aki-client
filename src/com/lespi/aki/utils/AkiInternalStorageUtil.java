@@ -32,9 +32,9 @@ public class AkiInternalStorageUtil {
 		fis.close();
 		return currentChatRoom.toString();
 	}
-	
+
 	public static void setCurrentChatRoom(Context context, String newChatRoom) {
-		
+
 		try {
 			FileOutputStream fos = context.openFileOutput("current-chat-room", Context.MODE_PRIVATE);
 			fos.write(newChatRoom.getBytes());
@@ -44,18 +44,18 @@ public class AkiInternalStorageUtil {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void unsetCurrentChatRoom(Context context) {
-		
+
 		File file = new File(context.getFilesDir(), "current-chat-room");
 		file.delete();
 	}
 
 	public static JsonArray retrieveMessages(Context context, String chatRoom) {
-		
+
 		JsonArray allMessages = new JsonArray();
 		try {
-			
+
 			ObjectInputStream ois = new ObjectInputStream(context.openFileInput("chat-room_"+chatRoom));
 			allMessages = (JsonArray) ois.readObject();
 			ois.close();
@@ -70,19 +70,19 @@ public class AkiInternalStorageUtil {
 		}
 		return allMessages;
 	}
-	
+
 	public static void storeNewMessage(Context context, String chatRoom, String from, String content) {
-		
+
 		try {
-			
+
 			JsonArray allMessages = retrieveMessages(context, chatRoom);
-			
+
 			JsonObject newMessage = new JsonObject();
 			newMessage.add("sender", from);
 			newMessage.add("message", content);
-			
+
 			allMessages.add(newMessage);
-			
+
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput("chat-room_"+chatRoom, Context.MODE_PRIVATE));
 			oos.writeObject(allMessages);
 			oos.close();
@@ -97,18 +97,18 @@ public class AkiInternalStorageUtil {
 		File file = new File(context.getFilesDir(), "chat-room_"+chatRoom);
 		file.delete();
 	}
-	
+
 	protected static class AkiBitmapDataObject implements Serializable {
-	    private static final long serialVersionUID = 222707456230422059L;
-	    public byte[] imageByteArray;
+		private static final long serialVersionUID = 222707456230422059L;
+		public byte[] imageByteArray;
 	}
-	
+
 	public static Bitmap getCachedUserPicture(Context context, String userId){
 
 		Bitmap picture = null;
 		try{
 			ObjectInputStream ois = new ObjectInputStream(context.openFileInput("user-picture_"+userId));
-		
+
 			AkiBitmapDataObject bitmapDataObject = (AkiBitmapDataObject) ois.readObject();
 			picture = BitmapFactory.decodeByteArray(bitmapDataObject.imageByteArray,
 					0, bitmapDataObject.imageByteArray.length);
@@ -130,18 +130,18 @@ public class AkiInternalStorageUtil {
 		}
 		return picture;
 	}
-	
+
 	public static void cacheUserPicture(Context context, String userId, Bitmap picture){
-		
+
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput("user-picture_"+userId, Context.MODE_PRIVATE));
-			
+
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		    picture.compress(Bitmap.CompressFormat.PNG, 100, stream);
-		    AkiBitmapDataObject bitmapDataObject = new AkiBitmapDataObject();     
-		    bitmapDataObject.imageByteArray = stream.toByteArray();
+			picture.compress(Bitmap.CompressFormat.PNG, 100, stream);
+			AkiBitmapDataObject bitmapDataObject = new AkiBitmapDataObject();     
+			bitmapDataObject.imageByteArray = stream.toByteArray();
 			oos.writeObject(bitmapDataObject);
-		    
+
 			oos.close();
 		} catch (IOException e) {
 			Log.e(AkiApplication.TAG, "A problem happened while trying to cache" +

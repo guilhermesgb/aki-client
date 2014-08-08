@@ -94,7 +94,7 @@
                 android:ems="10"
                 android:gravity="top"
                 android:hint="@string/com_lespi_aki_main_chat_input_hint"
-                android:maxHeight="120dp"
+                android:maxHeight="50dp"
                 android:scrollHorizontally="true"
                 android:textColor="#fff" />
 

@@ -11,6 +11,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -71,6 +77,27 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		this.currentSession = currentSession;
 	}
 	
+	public static Bitmap getRoundedBitmap(Bitmap bitmap) {
+		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap
+				.getHeight(), Bitmap.Config.ARGB_8888);
+		Canvas canvas = new Canvas(output);
+
+		final int color = 0xff424242;
+		final Paint paint = new Paint();
+		final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+		final RectF rectF = new RectF(rect);
+
+		paint.setAntiAlias(true);
+		canvas.drawARGB(0, 0, 0, 0);
+		paint.setColor(color);
+		canvas.drawOval(rectF, paint);
+
+		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+		canvas.drawBitmap(bitmap, rect, rect, paint);
+
+		return output;
+	}
+	
 	static class ViewHolder{
 		public TextView senderId;
 		public TextView senderName;
@@ -129,21 +156,24 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			rowView.setTag(viewHolder);
 		}
 
-		final ViewHolder holder = (ViewHolder) rowView.getTag();
+		final ViewHolder viewHolder = (ViewHolder) rowView.getTag();
+		
+		Bitmap placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture);
+		viewHolder.senderPicture.setImageBitmap(getRoundedBitmap(placeholder));
 		
 		if ( senderId.equals(currentUser.getId()) ){
-			holder.senderId.setText(currentUser.getId());
-			holder.senderName.setText(currentUser.getFirstName());
-			holder.message.setText(newViewData.get("message").asString());
+			viewHolder.senderId.setText(currentUser.getId());
+			viewHolder.senderName.setText(currentUser.getFirstName());
+			viewHolder.message.setText(newViewData.get("message").asString());
 		}
 		else{
 
 			String firstName = AkiInternalStorageUtil.getCachedUserFirstName(context, senderId);
 			
 			if ( firstName != null ){
-				holder.senderId.setText(senderId);
-				holder.senderName.setText(firstName);
-				holder.message.setText(newViewData.get("message").asString());
+				viewHolder.senderId.setText(senderId);
+				viewHolder.senderName.setText(firstName);
+				viewHolder.message.setText(newViewData.get("message").asString());
 			}
 			else{
 				
@@ -154,16 +184,16 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 								JsonObject information = JsonValue.readFrom(response.getRawResponse()).asObject();
 								String firstName = information.get("first_name").asString();
-								holder.senderName.setText(firstName);
+								viewHolder.senderName.setText(firstName);
 								AkiInternalStorageUtil.cacheUserFirstName(context, senderId, firstName);
 							}
 							else{
 								Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
 										"first name from Facebook.");
-								holder.senderName.setText(senderId);
+								viewHolder.senderName.setText(senderId);
 							}
-							holder.senderId.setText(senderId);
-							holder.message.setText(newViewData.get("message").asString());
+							viewHolder.senderId.setText(senderId);
+							viewHolder.message.setText(newViewData.get("message").asString());
 						}
 					}
 				).executeAsync();
@@ -174,13 +204,14 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 		if ( picture != null ){
 
-			holder.senderPicture.setImageBitmap(picture);
+			viewHolder.senderPicture.setImageBitmap(picture);
 		}
 		else{
 
 			Bundle params = new Bundle();
 			params.putBoolean("redirect", false);
-			params.putString("type", "large");
+			params.putString("width", "143");
+			params.putString("height", "143");
 			new Request(currentSession, "/"+senderId+"/picture", params, HttpMethod.GET,
 				new Request.Callback() {
 					public void onCompleted(Response response) {
@@ -203,8 +234,8 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 									try {
 										URL picture_address = new URL(params[0]);
-										Bitmap picture = BitmapFactory.
-												decodeStream(picture_address.openConnection().getInputStream());
+										Bitmap picture = getRoundedBitmap(BitmapFactory.
+												decodeStream(picture_address.openConnection().getInputStream()));
 
 										AkiInternalStorageUtil.cacheUserPicture(context, senderId, picture);
 										return picture;
@@ -224,7 +255,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 							}.execute(information.get("url").asString()).get();
 							if ( picture != null ){
-								holder.senderPicture.setImageBitmap(picture);
+								viewHolder.senderPicture.setImageBitmap(picture);
 							}
 							else{
 								Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
