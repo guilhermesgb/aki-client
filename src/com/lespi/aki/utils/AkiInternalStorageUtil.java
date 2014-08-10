@@ -2,20 +2,20 @@ package com.lespi.aki.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.lespi.aki.AkiApplication;
+import com.lespi.aki.R;
 import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
 
@@ -23,32 +23,28 @@ public class AkiInternalStorageUtil {
 
 	public static String getCurrentChatRoom(Context context) throws FileNotFoundException, IOException{
 
-		FileInputStream fis = context.openFileInput("current-chat-room");
-		StringBuilder currentChatRoom = new StringBuilder();
-		int content;
-		while ( (content=fis.read()) != -1 ){
-			currentChatRoom.append((char) content);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_chat), Context.MODE_PRIVATE);
+		String currentChatRoom = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_current_chat_room), null);
+		if ( currentChatRoom == null ){
+			throw new FileNotFoundException("No current chat room defined, so throwing this exception for now for backwards compatibility.");
 		}
-		fis.close();
-		return currentChatRoom.toString();
+		return currentChatRoom;
 	}
 
 	public static void setCurrentChatRoom(Context context, String newChatRoom) {
 
-		try {
-			FileOutputStream fos = context.openFileOutput("current-chat-room", Context.MODE_PRIVATE);
-			fos.write(newChatRoom.getBytes());
-			fos.close();
-		} catch (IOException e) {
-			Log.e(AkiApplication.TAG, "Could not set current chat room address to: " + newChatRoom + ".");
-			e.printStackTrace();
-		}
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_chat), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_current_chat_room), newChatRoom);
+		editor.commit();
 	}
 
 	public static void unsetCurrentChatRoom(Context context) {
 
-		File file = new File(context.getFilesDir(), "current-chat-room");
-		file.delete();
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_chat), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_current_chat_room), null);
+		editor.commit();
 	}
 
 	public static JsonArray retrieveMessages(Context context, String chatRoom) {
@@ -152,36 +148,17 @@ public class AkiInternalStorageUtil {
 
 	public static String getCachedUserFirstName(Context context, String userId) {
 
-		StringBuilder firstName = new StringBuilder();
-		try{
-			FileInputStream fis = context.openFileInput("user-firstname_"+userId);
-			int content;
-			while ( (content=fis.read()) != -1 ){
-				firstName.append((char) content);
-			}
-			fis.close();
-			return firstName.toString();
-		}
-		catch (FileNotFoundException e){
-			Log.i(AkiApplication.TAG, "There is no cached name for this user "+userId+".");
-			return null;
-		}
-		catch (IOException e){
-			Log.e(AkiApplication.TAG, "A problem happened while trying to cache the first name of user "+userId+".");
-			e.printStackTrace();
-			return null;
-		}
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_chat), Context.MODE_PRIVATE);
+		String firstName = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_firstname)+userId, null);
+		return firstName;
 	}
 
 	public static void cacheUserFirstName(Context context, String userId, String firstName) {
-		try {
-			FileOutputStream fos = context.openFileOutput("user-firstname_"+userId, Context.MODE_PRIVATE);
-			fos.write(firstName.getBytes());
-			fos.close();
-		} catch (IOException e) {
-			Log.e(AkiApplication.TAG, "Could not cache first name of user: " + userId + ", which is " + firstName + ".");
-			e.printStackTrace();
-		}
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_chat), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_user_firstname)+userId, firstName);
+		editor.commit();
 	}
 
 }
