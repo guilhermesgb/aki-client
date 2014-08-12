@@ -42,8 +42,7 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 		slidingMenu.setOnOpenedListener(new OnOpenedListener() {
 			@Override
 			public void onOpened() {
-				
-				slidingMenu.setBehindOffset(R.dimen.slidingmenu_offset);
+
 				AkiApplication.isShowingSettingsMenu();
 			}
 		});
@@ -51,7 +50,6 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 			@Override
 			public void onClosed() {
 
-				slidingMenu.setBehindOffset(R.dimen.slidingmenu_offset);
 				AkiApplication.isNotShowingSettingsMenu();
 			}
 		});
@@ -61,7 +59,9 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 	    } else {
 	        chatFragment = (AkiChatFragment) getSupportFragmentManager()
 	            .findFragmentById(android.R.id.content);
-	        slidingMenu.setBehindOffset(0);
+//	        if ( AkiApplication.IN_SETTINGS ){
+//	        	slidingMenu.setBehindOffset(0);
+//	        }
 	    }
 
 	    getSupportFragmentManager()
