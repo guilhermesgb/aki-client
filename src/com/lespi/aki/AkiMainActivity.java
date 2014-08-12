@@ -30,24 +30,6 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 		
 		setBehindContentView(R.layout.aki_menu_frame);
 		setContentView(R.layout.aki_main_frame);
-		
-	    if (savedInstanceState == null) {
-	        chatFragment = new AkiChatFragment();
-	    } else {
-	        chatFragment = (AkiChatFragment) getSupportFragmentManager()
-	            .findFragmentById(android.R.id.content);
-	    }
-
-	    getSupportFragmentManager()
-            .beginTransaction()
-            .add(android.R.id.content, chatFragment)
-            .commit();
-
-        settingsFragment = new AkiSettingsFragment();
-        getSupportFragmentManager()
-            .beginTransaction()
-            .add(R.id.menu_frame, settingsFragment)
-            .commitAllowingStateLoss();
 
 		slidingMenu = getSlidingMenu();
 		slidingMenu.setShadowWidthRes(R.dimen.shadow_width);
@@ -61,6 +43,7 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 			@Override
 			public void onOpened() {
 				
+				slidingMenu.setBehindOffset(R.dimen.slidingmenu_offset);
 				AkiApplication.isShowingSettingsMenu();
 			}
 		});
@@ -68,10 +51,31 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 			@Override
 			public void onClosed() {
 
+				slidingMenu.setBehindOffset(R.dimen.slidingmenu_offset);
 				AkiApplication.isNotShowingSettingsMenu();
 			}
 		});
-		supportInvalidateOptionsMenu();
+		
+	    if (savedInstanceState == null) {
+	        chatFragment = new AkiChatFragment();
+	    } else {
+	        chatFragment = (AkiChatFragment) getSupportFragmentManager()
+	            .findFragmentById(android.R.id.content);
+	        slidingMenu.setBehindOffset(0);
+	    }
+
+	    getSupportFragmentManager()
+	    .beginTransaction()
+	    .replace(android.R.id.content, chatFragment)
+	    .commit();
+
+        settingsFragment = new AkiSettingsFragment();
+        getSupportFragmentManager()
+            .beginTransaction()
+            .replace(R.id.menu_frame, settingsFragment)
+            .commitAllowingStateLoss();
+
+//		supportInvalidateOptionsMenu();
 	}
 
 	public void sendMessage(View view){
