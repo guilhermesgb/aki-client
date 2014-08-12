@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".AkiMain" >
+    tools:context=".AkiMainActivity" >
 
     <LinearLayout
         android:id="@+id/com_lespi_aki_main_login"

@@ -8,7 +8,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.lespi.aki.AkiApplication;
-import com.lespi.aki.AkiMain;
+import com.lespi.aki.AkiMainActivity;
 import com.lespi.aki.json.JsonObject;
 import com.parse.PushService;
 import com.parse.internal.AsyncCallback;
@@ -136,7 +136,7 @@ public class AkiServerUtil {
 				Log.i(AkiApplication.TAG, "No need to update current chat room, which" +
 						" has address {" + currentChatRoom + "}.");
 				if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
-					PushService.subscribe(context, newChatRoom, AkiMain.class);
+					PushService.subscribe(context, newChatRoom, AkiMainActivity.class);
 					Log.i(AkiApplication.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
 				}
 				return;
@@ -158,7 +158,7 @@ public class AkiServerUtil {
 			e.printStackTrace();
 		}
 		if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
-			PushService.subscribe(context, newChatRoom, AkiMain.class);
+			PushService.subscribe(context, newChatRoom, AkiMainActivity.class);
 			Log.i(AkiApplication.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
 		}
 		AkiInternalStorageUtil.setCurrentChatRoom(context, newChatRoom);

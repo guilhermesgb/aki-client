@@ -11,7 +11,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.lespi.aki.AkiApplication;
-import com.lespi.aki.AkiMain;
+import com.lespi.aki.AkiMainActivity;
 import com.lespi.aki.R;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
@@ -36,7 +36,7 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 		
 		AkiInternalStorageUtil.storeNewMessage(context, channel, from, message);
 		
-		intent.setClass(context, AkiMain.class);
+		intent.setClass(context, AkiMainActivity.class);
 		intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		if ( !AkiApplication.IN_BACKGROUND ){

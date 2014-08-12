@@ -28,7 +28,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.lespi.aki.AkiMain"
+            android:name="com.lespi.aki.AkiMainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="Aki"
             android:screenOrientation="portrait"

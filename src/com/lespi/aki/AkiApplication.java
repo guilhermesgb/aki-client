@@ -19,6 +19,8 @@ public class AkiApplication extends Application {
 	public final static boolean DEBUG_MODE = false;
 
 	public static boolean IN_BACKGROUND = true;
+	public static boolean IN_SETTINGS = false;
+	
 	public static int INCOMING_MESSAGES_COUNTER = 0;
 	public static final int INCOMING_MESSAGE_NOTIFICATION_ID = 1011;
 	
@@ -47,7 +49,7 @@ public class AkiApplication extends Application {
 
 		Parse.initialize(this, "62IWkJFCtqyCkyRajF25oAK8ocitulaV2jjpCzZY",
 				"AmKpgc2r0KHmochB1sEsW0IbELp7cC32HKZxDPAF");
-		PushService.setDefaultPushCallback(this, AkiMain.class);
+		PushService.setDefaultPushCallback(this, AkiMainActivity.class);
 		Log.i(TAG, "Parse Push notification service initialized");
 
 		ParseInstallation.getCurrentInstallation().saveInBackground();
@@ -60,5 +62,13 @@ public class AkiApplication extends Application {
 	
 	public static void isNowInBackground() {
 		IN_BACKGROUND = true;
+	}
+
+	public static void isShowingSettingsMenu() {
+		IN_SETTINGS = true;
+	}
+	
+	public static void isNotShowingSettingsMenu() {
+		IN_SETTINGS = false;
 	}
 }
