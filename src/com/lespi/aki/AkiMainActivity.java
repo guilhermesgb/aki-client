@@ -18,6 +18,7 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 
 	private AkiChatFragment chatFragment;
 	private AkiSettingsFragment settingsFragment;
+	private SlidingMenu slidingMenu;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -48,23 +49,22 @@ public class AkiMainActivity extends SlidingFragmentActivity {
             .add(R.id.menu_frame, settingsFragment)
             .commitAllowingStateLoss();
 
-		SlidingMenu sm = getSlidingMenu();
-//		sm.setShadowWidthRes(R.dimen.shadow_width);
-//		sm.setShadowDrawable(R.drawable.shadow);
-//		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-		sm.setFadeDegree(0.15f);
-		sm.setBehindOffset(50);
-		sm.setMode(SlidingMenu.RIGHT);
-		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-		sm.setTouchModeBehind(SlidingMenu.TOUCHMODE_FULLSCREEN);
-		sm.setOnOpenedListener(new OnOpenedListener() {
+		slidingMenu = getSlidingMenu();
+		slidingMenu.setShadowWidthRes(R.dimen.shadow_width);
+		slidingMenu.setShadowDrawable(R.drawable.shadow);
+		slidingMenu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+		slidingMenu.setFadeDegree(0.15f);
+		slidingMenu.setMode(SlidingMenu.RIGHT);
+		slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+		slidingMenu.setTouchModeBehind(SlidingMenu.TOUCHMODE_FULLSCREEN);
+		slidingMenu.setOnOpenedListener(new OnOpenedListener() {
 			@Override
 			public void onOpened() {
 				
 				AkiApplication.isShowingSettingsMenu();
 			}
 		});
-		sm.setOnClosedListener(new OnClosedListener() {
+		slidingMenu.setOnClosedListener(new OnClosedListener() {
 			@Override
 			public void onClosed() {
 
@@ -77,6 +77,11 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 	public void sendMessage(View view){
 		
 		chatFragment.sendMessage();
+	}
+	
+	public void openSettings(View view){
+		
+		slidingMenu.showMenu(true);
 	}
 	
 	@Override

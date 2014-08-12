@@ -18,7 +18,7 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
-    <style name="FacebookLoginButton">
+    <style name="AkiButton">
         <item name="android:background">@android:color/transparent</item>
     </style>
 
