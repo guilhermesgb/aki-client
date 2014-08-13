@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -17,8 +16,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.app.SherlockFragment;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
@@ -32,7 +30,7 @@ import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
 import com.parse.internal.AsyncCallback;
 
-public class AkiChatFragment extends AkiFragment{
+public class AkiChatFragment extends SherlockFragment{
 
 	private UiLifecycleHelper uiHelper;
 
@@ -47,7 +45,7 @@ public class AkiChatFragment extends AkiFragment{
 	public View onCreateView(LayoutInflater inflater,
 			ViewGroup container, Bundle savedInstanceState){
 
-		View view = inflater.inflate(R.layout.aki_main_frame, container, false);
+		View view = inflater.inflate(R.layout.aki_chat_frame, container, false);
 		LoginButton authButton = (LoginButton) view.findViewById(R.id.com_lespi_aki_main_login_auth_btn);
 		authButton.setFragment(this);
 		authButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
@@ -238,25 +236,5 @@ public class AkiChatFragment extends AkiFragment{
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		uiHelper.onSaveInstanceState(outState);
-	}
-
-	@Override
-	public void attached(Activity activity){
-		/* Do something? */
-	}
-	
-	@Override
-	public void createOptions(Menu menu) {
-		if ( !isAttachedToActivity() ){
-			return;
-		}
-		/*
-		 * Show options?
-		 */
-	}
-
-	@Override
-	public boolean menuItemSelected(int featureId, MenuItem item) {
-		return false;
 	}
 }

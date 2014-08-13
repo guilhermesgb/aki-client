@@ -25,11 +25,31 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 		super.onCreate(savedInstanceState);
 		
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		
 		setSlidingActionBarEnabled(true);
+
 		
-		setBehindContentView(R.layout.aki_menu_frame);
-		setContentView(R.layout.aki_main_frame);
+	    if (savedInstanceState == null) {
+	        chatFragment = new AkiChatFragment();
+	    } else {
+	        chatFragment = (AkiChatFragment) getSupportFragmentManager()
+	            .findFragmentById(android.R.id.content);
+	    }
+	    setContentView(R.layout.aki_chat_frame);
+
+	    getSupportFragmentManager()
+	        .beginTransaction()
+	        .replace(R.id.aki_chat_frame, chatFragment)
+	        .commit();
+
+	    settingsFragment = new AkiSettingsFragment();
+	    setBehindContentView(R.layout.aki_menu_frame);
+
+	    getSupportFragmentManager()
+	        .beginTransaction()
+	        .replace(R.id.aki_menu_frame, settingsFragment)
+	        .commit();
 
 		slidingMenu = getSlidingMenu();
 		slidingMenu.setShadowWidthRes(R.dimen.shadow_width);
@@ -38,7 +58,8 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 		slidingMenu.setFadeDegree(0.15f);
 		slidingMenu.setMode(SlidingMenu.RIGHT);
 		slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-		slidingMenu.setTouchModeBehind(SlidingMenu.TOUCHMODE_FULLSCREEN);
+		slidingMenu.setTouchModeBehind(SlidingMenu.TOUCHMODE_MARGIN);
+		
 		slidingMenu.setOnOpenedListener(new OnOpenedListener() {
 			@Override
 			public void onOpened() {
@@ -54,28 +75,6 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 			}
 		});
 		
-	    if (savedInstanceState == null) {
-	        chatFragment = new AkiChatFragment();
-	    } else {
-	        chatFragment = (AkiChatFragment) getSupportFragmentManager()
-	            .findFragmentById(android.R.id.content);
-//	        if ( AkiApplication.IN_SETTINGS ){
-//	        	slidingMenu.setBehindOffset(0);
-//	        }
-	    }
-
-	    getSupportFragmentManager()
-	    .beginTransaction()
-	    .replace(android.R.id.content, chatFragment)
-	    .commit();
-
-        settingsFragment = new AkiSettingsFragment();
-        getSupportFragmentManager()
-            .beginTransaction()
-            .replace(R.id.menu_frame, settingsFragment)
-            .commitAllowingStateLoss();
-
-//		supportInvalidateOptionsMenu();
 	}
 
 	public void sendMessage(View view){
