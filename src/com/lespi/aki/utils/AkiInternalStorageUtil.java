@@ -23,7 +23,7 @@ public class AkiInternalStorageUtil {
 
 	public static String getCurrentChatRoom(Context context) throws FileNotFoundException, IOException{
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_chat), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		String currentChatRoom = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_current_chat_room), null);
 		if ( currentChatRoom == null ){
 			throw new FileNotFoundException("No current chat room defined, so throwing this exception for now for backwards compatibility.");
@@ -33,7 +33,7 @@ public class AkiInternalStorageUtil {
 
 	public static void setCurrentChatRoom(Context context, String newChatRoom) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_chat), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_current_chat_room), newChatRoom);
 		editor.commit();
@@ -41,7 +41,7 @@ public class AkiInternalStorageUtil {
 
 	public static void unsetCurrentChatRoom(Context context) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_chat), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_current_chat_room), null);
 		editor.commit();
@@ -52,7 +52,8 @@ public class AkiInternalStorageUtil {
 		JsonArray allMessages = new JsonArray();
 		try {
 
-			ObjectInputStream ois = new ObjectInputStream(context.openFileInput("chat-room_"+chatRoom));
+			ObjectInputStream ois = new ObjectInputStream(context.openFileInput(
+					context.getString(R.string.com_lespi_aki_data_chat_messages)+chatRoom));
 			allMessages = (JsonArray) ois.readObject();
 			ois.close();
 		} catch (FileNotFoundException e) {
@@ -79,7 +80,8 @@ public class AkiInternalStorageUtil {
 
 			allMessages.add(newMessage);
 
-			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput("chat-room_"+chatRoom, Context.MODE_PRIVATE));
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+					context.getString(R.string.com_lespi_aki_data_chat_messages)+chatRoom, Context.MODE_PRIVATE));
 			oos.writeObject(allMessages);
 			oos.close();
 		} catch (IOException e) {
@@ -103,7 +105,8 @@ public class AkiInternalStorageUtil {
 
 		Bitmap picture = null;
 		try{
-			ObjectInputStream ois = new ObjectInputStream(context.openFileInput("user-picture_"+userId));
+			ObjectInputStream ois = new ObjectInputStream(context.openFileInput(
+					context.getString(R.string.com_lespi_aki_data_user_picture)+userId));
 
 			AkiBitmapDataObject bitmapDataObject = (AkiBitmapDataObject) ois.readObject();
 			picture = BitmapFactory.decodeByteArray(bitmapDataObject.imageByteArray,
@@ -130,7 +133,8 @@ public class AkiInternalStorageUtil {
 	public static void cacheUserPicture(Context context, String userId, Bitmap picture){
 
 		try {
-			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput("user-picture_"+userId, Context.MODE_PRIVATE));
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+					context.getString(R.string.com_lespi_aki_data_user_picture)+userId, Context.MODE_PRIVATE));
 
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			picture.compress(Bitmap.CompressFormat.PNG, 100, stream);
@@ -143,22 +147,69 @@ public class AkiInternalStorageUtil {
 			Log.e(AkiApplication.TAG, "A problem happened while trying to cache" +
 					" a picture for this user "+userId+".");
 			e.printStackTrace();
-		}		
+		}
 	}
 
 	public static String getCachedUserFirstName(Context context, String userId) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_chat), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		String firstName = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_firstname)+userId, null);
 		return firstName;
 	}
 
 	public static void cacheUserFirstName(Context context, String userId, String firstName) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_chat), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_user_firstname)+userId, firstName);
 		editor.commit();
 	}
 
+	public static Bitmap getCachedUserCoverPhoto(Context context, String userId) {
+
+		Bitmap picture = null;
+		try{
+			ObjectInputStream ois = new ObjectInputStream(context.openFileInput(context.getString(R.string.com_lespi_aki_data_user_coverphoto)+userId));
+
+			AkiBitmapDataObject bitmapDataObject = (AkiBitmapDataObject) ois.readObject();
+			picture = BitmapFactory.decodeByteArray(bitmapDataObject.imageByteArray,
+					0, bitmapDataObject.imageByteArray.length);
+
+			ois.close();
+		}
+		catch (FileNotFoundException e){
+			Log.i(AkiApplication.TAG, "There is no cached cover photo for this user "+userId+".");
+		}
+		catch (ClassNotFoundException e){
+			Log.e(AkiApplication.TAG, "A problem happened while trying to retrieve" +
+					" a cached cover photo for this user "+userId+".");
+			e.printStackTrace();
+		}
+		catch (IOException e){
+			Log.e(AkiApplication.TAG, "A problem happened while trying to retrieve" +
+					" a cached cover photo for this user "+userId+".");
+			e.printStackTrace();
+		}
+		return picture;
+	}
+
+	public static void cacheUserCoverPhoto(Context context, String userId, Bitmap picture) {
+
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+					context.getString(R.string.com_lespi_aki_data_user_coverphoto)+userId, Context.MODE_PRIVATE));
+
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			picture.compress(Bitmap.CompressFormat.PNG, 100, stream);
+			AkiBitmapDataObject bitmapDataObject = new AkiBitmapDataObject();     
+			bitmapDataObject.imageByteArray = stream.toByteArray();
+			oos.writeObject(bitmapDataObject);
+
+			oos.close();
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "A problem happened while trying to cache" +
+					" a cover photo for this user "+userId+".");
+			e.printStackTrace();
+		}
+	}
 }

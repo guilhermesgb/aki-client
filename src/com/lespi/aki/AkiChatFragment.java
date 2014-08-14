@@ -75,6 +75,7 @@ public class AkiChatFragment extends SherlockFragment{
 							public void onSuccess(Object response) {
 								JsonObject responseJSON = (JsonObject) response;
 								AkiServerUtil.enterChatRoom(getActivity().getApplicationContext(), responseJSON.get("chat_room").asString());
+								refreshSettings(getActivity().getApplicationContext(), session, user);
 								refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
 							}
 							
@@ -155,6 +156,11 @@ public class AkiChatFragment extends SherlockFragment{
 		}
 	}
 
+	public void refreshSettings(final Context context, final Session currentSession, final GraphUser currentUser) {
+		
+		((AkiMainActivity) getActivity()).getSettingsFragment().refreshSettings(context, currentSession, currentUser);
+	}
+	
 	public void refreshReceivedMessages(final Context context, final Session session, final GraphUser currentUser) {
 
 		new AsyncTask<Void, Void, List<JsonObject>>(){

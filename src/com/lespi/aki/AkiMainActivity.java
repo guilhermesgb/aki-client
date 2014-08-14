@@ -83,14 +83,16 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 	public SlidingMenu getSlidingMenu(){
 		return slidingMenu;
 	}
+
+	public AkiSettingsFragment getSettingsFragment() {
+		return settingsFragment;
+	}
 	
 	public void sendMessage(View view){
-		
 		chatFragment.sendMessage();
 	}
 	
 	public void openSettings(View view){
-		
 		slidingMenu.showMenu(true);
 	}
 	
