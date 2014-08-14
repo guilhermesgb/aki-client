@@ -45,7 +45,7 @@ public class AkiChatFragment extends SherlockFragment{
 	public View onCreateView(LayoutInflater inflater,
 			ViewGroup container, Bundle savedInstanceState){
 
-		View view = inflater.inflate(R.layout.aki_chat_frame, container, false);
+		View view = inflater.inflate(R.layout.aki_chat_fragment, container, false);
 		LoginButton authButton = (LoginButton) view.findViewById(R.id.com_lespi_aki_main_login_auth_btn);
 		authButton.setFragment(this);
 		authButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);

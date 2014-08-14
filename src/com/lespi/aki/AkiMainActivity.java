@@ -24,8 +24,8 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		
 		setSlidingActionBarEnabled(true);
 
@@ -36,7 +36,7 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 	        chatFragment = (AkiChatFragment) getSupportFragmentManager()
 	            .findFragmentById(android.R.id.content);
 	    }
-	    setContentView(R.layout.aki_chat_frame);
+	    setContentView(R.layout.aki_chat_fragment);
 
 	    getSupportFragmentManager()
 	        .beginTransaction()

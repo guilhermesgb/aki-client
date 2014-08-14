@@ -64,7 +64,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	}
 
 	private AkiChatAdapter(Context context, List<JsonObject> messages){
-		super(context, R.layout.aki_message_from_others, messages);
+		super(context, R.layout.aki_chat_message_you, messages);
 		this.context = context;
 		this.messages = messages;
 	}
@@ -116,9 +116,9 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 		final String senderId = newViewData.get("sender").asString();
 
-		int rowLayout = R.layout.aki_message_from_others;
+		int rowLayout = R.layout.aki_chat_message_you;
 		if ( senderId.equals(currentUser.getId()) ){
-			rowLayout = R.layout.aki_message_from_me;
+			rowLayout = R.layout.aki_chat_message_me;
 		}
 		
 		if ( rowView != null ){
@@ -130,7 +130,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 					canReuse = true;
 				}
 				else{
-					rowLayout = R.layout.aki_message_from_others;
+					rowLayout = R.layout.aki_chat_message_you;
 				}
 			}
 			else if ( senderIdView.getText() != null && !senderIdView.getText().equals(currentUser.getId()) ) {
@@ -138,7 +138,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 					canReuse = true;
 				}
 				else{
-					rowLayout = R.layout.aki_message_from_me;
+					rowLayout = R.layout.aki_chat_message_me;
 				}
 			}
 		}
