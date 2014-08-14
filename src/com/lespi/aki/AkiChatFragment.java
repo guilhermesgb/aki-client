@@ -33,6 +33,12 @@ import com.parse.internal.AsyncCallback;
 
 public class AkiChatFragment extends SherlockFragment{
 
+	private boolean seenSplash = false;
+
+	public void setSeenSplash(boolean seenSplash) {
+		this.seenSplash = seenSplash;
+	}
+	
 	private UiLifecycleHelper uiHelper;
 
 	private Session.StatusCallback callback = new Session.StatusCallback() {
@@ -88,14 +94,14 @@ public class AkiChatFragment extends SherlockFragment{
 			}).executeAsync();
 		} else if (state.isClosed()) {
 
-			switchToLoginArea();
+			switchToLoginArea(false);
 			if ( AkiServerUtil.isActiveOnServer() ){
 				AkiServerUtil.leaveServer(getActivity().getApplicationContext());
 			}
 		}
 	}
 
-	public void switchToLoginArea(){
+	public void switchToLoginArea(boolean showSplash){
 		AkiServerUtil.leaveChatRoom(getActivity().getApplicationContext());
 
 		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_chat);
@@ -106,6 +112,12 @@ public class AkiChatFragment extends SherlockFragment{
 		SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
 		slidingMenu.showContent();
 		slidingMenu.setSlidingEnabled(false);
+		
+		if ( showSplash && (!seenSplash) ){
+        	Intent intent = new Intent(getActivity(), AkiSplashActivity.class);
+            startActivity(intent);
+            getActivity().finish();
+		}
 	}
 
 	public void switchToChatArea(){
@@ -219,7 +231,7 @@ public class AkiChatFragment extends SherlockFragment{
 					Log.e(AkiApplication.TAG, "Endpoint:getPresenceFromServer callback canceled.");
 				}
 			});
-			switchToLoginArea();
+			switchToLoginArea(true);
 		}
 	}
 

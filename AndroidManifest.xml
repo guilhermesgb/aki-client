@@ -39,7 +39,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name="com.lespi.aki.AkiSplashActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="Aki"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullscreenTheme" >
+        </activity>
+        
         <service android:name="com.parse.PushService" />
 
         <receiver android:name="com.parse.ParseBroadcastReceiver" >
