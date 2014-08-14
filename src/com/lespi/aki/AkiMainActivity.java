@@ -29,7 +29,6 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 		
 		setSlidingActionBarEnabled(true);
 
-		
 	    if (savedInstanceState == null) {
 	        chatFragment = new AkiChatFragment();
 	    } else {
@@ -51,7 +50,7 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 	        .replace(R.id.aki_menu_frame, settingsFragment)
 	        .commit();
 
-		slidingMenu = getSlidingMenu();
+		slidingMenu = super.getSlidingMenu();
 		slidingMenu.setShadowWidthRes(R.dimen.shadow_width);
 		slidingMenu.setShadowDrawable(R.drawable.shadow);
 		slidingMenu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
@@ -59,7 +58,6 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 		slidingMenu.setMode(SlidingMenu.RIGHT);
 		slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 		slidingMenu.setTouchModeBehind(SlidingMenu.TOUCHMODE_MARGIN);
-		
 		slidingMenu.setOnOpenedListener(new OnOpenedListener() {
 			@Override
 			public void onOpened() {
@@ -74,9 +72,12 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 				AkiApplication.isNotShowingSettingsMenu();
 			}
 		});
-		
 	}
 
+	public SlidingMenu getSlidingMenu(){
+		return slidingMenu;
+	}
+	
 	public void sendMessage(View view){
 		
 		chatFragment.sendMessage();

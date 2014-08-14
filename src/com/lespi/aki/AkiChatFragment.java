@@ -24,6 +24,7 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
@@ -96,10 +97,15 @@ public class AkiChatFragment extends SherlockFragment{
 
 	public void switchToLoginArea(){
 		AkiServerUtil.leaveChatRoom(getActivity().getApplicationContext());
+
 		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_chat);
 		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.GONE);
 		loginArea.setVisibility(View.VISIBLE);
+		
+		SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
+		slidingMenu.showContent();
+		slidingMenu.setSlidingEnabled(false);
 	}
 
 	public void switchToChatArea(){
@@ -107,6 +113,9 @@ public class AkiChatFragment extends SherlockFragment{
 		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.VISIBLE);
 		loginArea.setVisibility(View.GONE);
+
+		SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
+		slidingMenu.setSlidingEnabled(true);
 	}
 
 	public void sendMessage() {
