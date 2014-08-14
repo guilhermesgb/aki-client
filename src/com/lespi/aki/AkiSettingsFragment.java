@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.facebook.HttpMethod;
@@ -41,6 +42,9 @@ public class AkiSettingsFragment extends SherlockFragment {
 
 	public void refreshSettings(final Context context, final Session currentSession, final GraphUser currentUser) {
 
+		TextView settingsFullname = (TextView) getActivity().findViewById(R.id.com_lespi_aki_main_settings_fullname);
+		settingsFullname.setText(currentUser.getName());
+		
 		final ImageView settingsPicture = (ImageView) getActivity().findViewById(R.id.com_lespi_aki_main_settings_picture);
 		settingsPicture.setImageBitmap(AkiChatAdapter
 				.getRoundedBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture)));
