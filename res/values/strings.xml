@@ -12,6 +12,8 @@
     <string name="com_lespi_aki_main_settings_logout_text">Log out from Aki</string>
     <string name="com_lespi_aki_main_settings_cover_hint">A cover photo</string>
     <string name="com_lespi_aki_main_settings_nickname_text">Your nickname:</string>
+    <string name="com_lespi_aki_main_settings_nickname_change_text">Save nickname</string>
+    <string name="com_lespi_aki_main_settings_privacy_text">Chat anonymously?</string>
     <string name="com_lespi_aki_message_sender_picture_hint">A small picture</string>
     <string name="com_lespi_aki_notif_new_message_title">"New message from Aki"</string>
     <string name="com_lespi_aki_notif_new_message_text">"You've received a new message."</string>

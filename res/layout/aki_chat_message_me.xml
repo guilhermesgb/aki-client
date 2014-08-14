@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:alpha="0.45"
+    android:alpha="0.75"
     android:background="#e5e5e5"
     android:padding="2dp" >
 
@@ -18,7 +18,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_toLeftOf="@+id/com_lespi_aki_message_sender_picture"
-        android:alpha="1"
         android:paddingBottom="10dp"
         android:textColor="#333f4f"
         android:textSize="@dimen/sender_name_size_me"
@@ -30,7 +29,6 @@
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/com_lespi_aki_message_sender_name"
         android:layout_below="@+id/com_lespi_aki_message_sender_name"
-        android:alpha="1"
         android:paddingBottom="5dp"
         android:singleLine="false"
         android:textColor="#333f4f"
@@ -42,7 +40,6 @@
         android:layout_height="@dimen/picture_layout_height_me"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:alpha="1"
         android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
         android:paddingLeft="10dp"
         android:paddingRight="10dp" />

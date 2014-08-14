@@ -96,6 +96,14 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 		slidingMenu.showMenu(true);
 	}
 	
+	public void changeNickname(View view){
+		
+	}
+	
+	public void togglePrivacySettings(View view){
+		
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		super.onActivityResult(requestCode, resultCode, data);
