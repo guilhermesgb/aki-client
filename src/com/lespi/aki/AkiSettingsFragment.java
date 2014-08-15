@@ -58,7 +58,6 @@ public class AkiSettingsFragment extends SherlockFragment {
 			String nickname = AkiInternalStorageUtil.getCachedNickname(context, currentUser.getId());
 
 			final CheckBox anonymousCheck = (CheckBox) getActivity().findViewById(R.id.com_lespi_aki_main_settings_anonymous);
-
 			anonymousCheck.setChecked(AkiInternalStorageUtil.anonymousSetting(context, currentUser.getId()));
 
 			if ( nickname == null || nickname.trim().isEmpty() ){
@@ -79,57 +78,53 @@ public class AkiSettingsFragment extends SherlockFragment {
 			}
 
 			Button changeNicknameBtn = (Button) getActivity().findViewById(R.id.com_lespi_aki_main_settings_nickname_btn);
-			if ( !changeNicknameBtn.hasOnClickListeners() ){
 
-				changeNicknameBtn.setOnClickListener(new OnClickListener() {
+			changeNicknameBtn.setOnClickListener(new OnClickListener() {
 
-					@Override
-					public void onClick(View view) {
-						String newNickname = nicknameBox.getText().toString();
-						String nickname = AkiInternalStorageUtil.getCachedNickname(context, currentUser.getId());
-						if ( nickname != null ){
-							nicknameBox.setText(nickname);
-						}
-
-						if ( newNickname.trim().isEmpty() ){
-							CharSequence toastText = "Nickname cannot be blank!";
-							Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-							toast.show();
-							return;
-						}
-						AkiInternalStorageUtil.setCachedNickname(context, currentUser.getId(), newNickname);
-						nicknameBox.setText(newNickname);
-						if ( AkiInternalStorageUtil.mandatorySettingsMissing(context) ){
-
-							AkiInternalStorageUtil.setMandatorySettingsMissing(context, false);
-							SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
-							slidingMenu.setSlidingEnabled(true);
-							slidingMenu.setEnabled(true);
-							slidingMenu.showContent();
-							anonymousCheck.setEnabled(true);
-							callback.onSuccess(null);
-							CharSequence toastText = "Thanks for setting your nickname!";
-							Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-							toast.show();
-						}
-						else{
-							CharSequence toastText = "Nickname updated to " + newNickname + "!";
-							Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-							toast.show();
-						}
+				@Override
+				public void onClick(View view) {
+					String newNickname = nicknameBox.getText().toString();
+					String nickname = AkiInternalStorageUtil.getCachedNickname(context, currentUser.getId());
+					if ( nickname != null ){
+						nicknameBox.setText(nickname);
 					}
-				});
-			}
 
-			if ( !anonymousCheck.hasOnClickListeners() ){
-				anonymousCheck.setOnClickListener(new OnClickListener() {
-
-					@Override
-					public void onClick(View view) {
-						AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), anonymousCheck.isChecked());
+					if ( newNickname.trim().isEmpty() ){
+						CharSequence toastText = "Nickname cannot be blank!";
+						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+						toast.show();
+						return;
 					}
-				});
-			}
+					AkiInternalStorageUtil.setCachedNickname(context, currentUser.getId(), newNickname);
+					nicknameBox.setText(newNickname);
+					if ( AkiInternalStorageUtil.mandatorySettingsMissing(context) ){
+
+						AkiInternalStorageUtil.setMandatorySettingsMissing(context, false);
+						SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
+						slidingMenu.setSlidingEnabled(true);
+						slidingMenu.setEnabled(true);
+						slidingMenu.showContent();
+						anonymousCheck.setEnabled(true);
+						callback.onSuccess(null);
+						CharSequence toastText = "Thanks for setting your nickname!";
+						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+						toast.show();
+					}
+					else{
+						CharSequence toastText = "Nickname updated to " + newNickname + "!";
+						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+						toast.show();
+					}
+				}
+			});
+
+			anonymousCheck.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View view) {
+					AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), anonymousCheck.isChecked());
+				}
+			});
 
 			final ImageView settingsPicture = (ImageView) getActivity().findViewById(R.id.com_lespi_aki_main_settings_picture);
 
@@ -185,7 +180,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 									return null;
 								}
 							}
-							
+
 							@Override
 							protected void onPostExecute(Bitmap picture){
 								if ( picture != null ){
