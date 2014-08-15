@@ -1,7 +1,5 @@
 package com.lespi.aki;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 
 import android.content.Context;
@@ -38,7 +36,7 @@ public class AkiChatFragment extends SherlockFragment{
 	public void setSeenSplash(boolean seenSplash) {
 		this.seenSplash = seenSplash;
 	}
-	
+
 	private UiLifecycleHelper uiHelper;
 
 	private Session.StatusCallback callback = new Session.StatusCallback() {
@@ -70,21 +68,39 @@ public class AkiChatFragment extends SherlockFragment{
 
 						switchToChatArea();
 						AkiServerUtil.sendPresenceToServer(getActivity().getApplicationContext(), user.getId(), new AsyncCallback() {
-							
+
 							@Override
 							public void onSuccess(Object response) {
 								JsonObject responseJSON = (JsonObject) response;
 								AkiServerUtil.enterChatRoom(getActivity().getApplicationContext(), responseJSON.get("chat_room").asString());
-								refreshSettings(getActivity().getApplicationContext(), session, user);
-								refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
+								refreshSettings(getActivity().getApplicationContext(), session, user, new AsyncCallback(){
+
+									@Override
+									public void onSuccess(Object response) {
+										refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
+									}
+
+									@Override
+									public void onFailure(Throwable failure) {
+										Log.e(AkiApplication.TAG, "Could not refresh settings.");
+										failure.printStackTrace();
+										refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
+									}
+
+									@Override
+									public void onCancel() {
+										Log.e(AkiApplication.TAG, "Refresh of settings canceled.");
+										refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
+									}
+								});
 							}
-							
+
 							@Override
 							public void onFailure(Throwable failure) {
 								Log.e(AkiApplication.TAG, "Could not send presence to server.");
 								failure.printStackTrace();
 							}
-							
+
 							@Override
 							public void onCancel() {
 								Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled.");
@@ -109,15 +125,15 @@ public class AkiChatFragment extends SherlockFragment{
 		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.GONE);
 		loginArea.setVisibility(View.VISIBLE);
-		
+
 		SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
 		slidingMenu.showContent();
 		slidingMenu.setSlidingEnabled(false);
-		
+
 		if ( showSplash && (!seenSplash) ){
-        	Intent intent = new Intent(getActivity(), AkiSplashActivity.class);
-            startActivity(intent);
-            getActivity().finish();
+			Intent intent = new Intent(getActivity(), AkiSplashActivity.class);
+			startActivity(intent);
+			getActivity().finish();
 		}
 	}
 
@@ -136,18 +152,18 @@ public class AkiChatFragment extends SherlockFragment{
 		final EditText chatBox = (EditText) getActivity().findViewById(R.id.com_lespi_aki_main_chat_input);
 		if ( !chatBox.getText().toString().trim().isEmpty() ){
 			AkiServerUtil.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString(), new AsyncCallback() {
-				
+
 				@Override
 				public void onSuccess(Object response) {
 					chatBox.setText("");
 				}
-				
+
 				@Override
 				public void onFailure(Throwable failure) {
 					Log.e(AkiApplication.TAG, "You could not send message!");
 					failure.printStackTrace();
 				}
-				
+
 				@Override
 				public void onCancel() {
 					Log.e(AkiApplication.TAG, "Endpoint:sendMessage callback canceled.");
@@ -156,34 +172,25 @@ public class AkiChatFragment extends SherlockFragment{
 		}
 	}
 
-	public void refreshSettings(final Context context, final Session currentSession, final GraphUser currentUser) {
-		
-		((AkiMainActivity) getActivity()).getSettingsFragment().refreshSettings(context, currentSession, currentUser);
+	public void refreshSettings(final Context context, final Session currentSession, final GraphUser currentUser, final AsyncCallback callback) {
+
+		((AkiMainActivity) getActivity()).getSettingsFragment().refreshSettings(context, currentSession, currentUser, callback);
 	}
-	
+
 	public void refreshReceivedMessages(final Context context, final Session session, final GraphUser currentUser) {
 
 		new AsyncTask<Void, Void, List<JsonObject>>(){
 
 			@Override
 			protected List<JsonObject> doInBackground(Void... params) {
-				try {
-					JsonArray messages = AkiInternalStorageUtil.retrieveMessages(context,
-							AkiInternalStorageUtil.getCurrentChatRoom(context));
-					return AkiChatAdapter.toJsonObjectList(messages);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-					Log.e(AkiApplication.TAG, "No current chat room address is set, so could not retrieve messages!");
-				} catch (IOException e) {
-					Log.e(AkiApplication.TAG, "A problem happened while trying to retrieve current chat room address!");
-					e.printStackTrace();
-				}
-				return null;
+				JsonArray messages = AkiInternalStorageUtil.retrieveMessages(context,
+						AkiInternalStorageUtil.getCurrentChatRoom(context));
+				return AkiChatAdapter.toJsonObjectList(messages);
 			}
-			
+
 			@Override
 			public void onPostExecute(List<JsonObject> messages){
-				
+
 				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(getActivity().getApplicationContext());
 				chatAdapter.setCurrentUser(currentUser);
 				chatAdapter.setCurrentSession(session);
@@ -220,18 +227,18 @@ public class AkiChatFragment extends SherlockFragment{
 		session = Session.getActiveSession();
 		if (session == null || !(session.isOpened() || session.isClosed()) ) {
 			AkiServerUtil.getPresenceFromServer(getActivity().getApplicationContext(), new AsyncCallback() {
-				
+
 				@Override
 				public void onSuccess(Object response) {
 					AkiServerUtil.leaveServer(getActivity().getApplicationContext());
 				}
-				
+
 				@Override
 				public void onFailure(Throwable failure) {
 					Log.e(AkiApplication.TAG, "Could not get presence from server.");
 					failure.printStackTrace();
 				}
-				
+
 				@Override
 				public void onCancel() {
 					Log.e(AkiApplication.TAG, "Endpoint:getPresenceFromServer callback canceled.");

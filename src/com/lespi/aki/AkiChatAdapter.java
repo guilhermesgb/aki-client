@@ -47,7 +47,10 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	private static AkiChatAdapter instance;
 
 	public static List<JsonObject> toJsonObjectList(JsonArray values){
-		
+
+		if ( values == null ){
+			return null;
+		}
 		List<JsonObject> toReturn = new ArrayList<JsonObject>();
 		for (JsonValue value : values){
 			toReturn.add(value.asObject());

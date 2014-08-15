@@ -21,14 +21,10 @@ import com.lespi.aki.json.JsonObject;
 
 public class AkiInternalStorageUtil {
 
-	public static String getCurrentChatRoom(Context context) throws FileNotFoundException, IOException{
+	public static String getCurrentChatRoom(Context context){
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
-		String currentChatRoom = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_current_chat_room), null);
-		if ( currentChatRoom == null ){
-			throw new FileNotFoundException("No current chat room defined, so throwing this exception for now for backwards compatibility.");
-		}
-		return currentChatRoom;
+		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_current_chat_room), null);
 	}
 
 	public static void setCurrentChatRoom(Context context, String newChatRoom) {
@@ -101,6 +97,28 @@ public class AkiInternalStorageUtil {
 		public byte[] imageByteArray;
 	}
 
+	public static String getCachedNickname(Context context, String userId){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_nickname)+userId, null);
+	}
+
+	public static void setCachedNickname(Context context, String userId, String nickname) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_user_nickname)+userId, nickname);
+		editor.commit();
+	}
+
+	public static void unsetCachedNickname(Context context, String userId, String nickname) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_user_nickname)+userId, null);
+		editor.commit();
+	}
+	
 	public static Bitmap getCachedUserPicture(Context context, String userId){
 
 		Bitmap picture = null;
@@ -211,5 +229,33 @@ public class AkiInternalStorageUtil {
 					" a cover photo for this user "+userId+".");
 			e.printStackTrace();
 		}
+	}
+	
+	public static boolean mandatorySettingsMissing(Context context){
+		
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_mandatory_setting_missing), false);
+	}
+	
+	public static void setMandatorySettingsMissing(Context context, boolean missing){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_mandatory_setting_missing), missing);
+		editor.commit();
+	}
+
+	public static boolean anonymousSetting(Context context, String userId) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_anonymous_setting)+userId, true);
+	}
+	
+	public static void setAnonymousSetting(Context context, String userId, boolean checked) {
+		
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_anonymous_setting)+userId, checked);
+		editor.commit();
 	}
 }

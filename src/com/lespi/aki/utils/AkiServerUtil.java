@@ -1,8 +1,5 @@
 package com.lespi.aki.utils;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
@@ -20,7 +17,7 @@ public class AkiServerUtil {
 	public static synchronized boolean isActiveOnServer(){
 		return activeOnServer;
 	}
-	
+
 	public static synchronized void setActiveOnServer(boolean active){
 		AkiServerUtil.activeOnServer = active;
 	}
@@ -28,7 +25,7 @@ public class AkiServerUtil {
 	public static void getPresenceFromServer(final Context context, final AsyncCallback callback){
 
 		AkiHttpUtil.doGETHttpRequest("/presence", new AsyncCallback() {
-			
+
 			@Override
 			public void onSuccess(Object response) {
 				JsonObject responseJSON = (JsonObject) response;
@@ -41,7 +38,7 @@ public class AkiServerUtil {
 				}
 				callback.onSuccess(response);
 			}
-			
+
 			@Override
 			public void onFailure(Throwable failure) {
 				setActiveOnServer(false);
@@ -52,7 +49,7 @@ public class AkiServerUtil {
 				}
 				callback.onFailure(failure);
 			}
-			
+
 			@Override
 			public void onCancel() {
 				callback.onCancel();
@@ -95,7 +92,7 @@ public class AkiServerUtil {
 	public static void leaveServer(final Context context){
 
 		AkiHttpUtil.doPOSTHttpRequest("/leave", new AsyncCallback() {
-			
+
 			@Override
 			public void onSuccess(Object response) {
 				JsonObject responseJSON = (JsonObject) response;
@@ -109,7 +106,7 @@ public class AkiServerUtil {
 					}
 				}				
 			}
-			
+
 			@Override
 			public void onFailure(Throwable failure) {
 				if ( AkiApplication.DEBUG_MODE ){
@@ -120,7 +117,7 @@ public class AkiServerUtil {
 				Log.e(AkiApplication.TAG, "Could not leave server.");
 				failure.printStackTrace();
 			}
-			
+
 			@Override
 			public void onCancel() {
 				Log.e(AkiApplication.TAG, "Endpoint:leaveServer callback canceled.");
@@ -130,33 +127,27 @@ public class AkiServerUtil {
 
 	public static void enterChatRoom(Context context, String newChatRoom) {
 
-		try {
-			String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
-			if ( currentChatRoom.equals(newChatRoom) ){
-				Log.i(AkiApplication.TAG, "No need to update current chat room, which" +
-						" has address {" + currentChatRoom + "}.");
-				if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
-					PushService.subscribe(context, newChatRoom, AkiMainActivity.class);
-					Log.i(AkiApplication.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
-				}
-				return;
-			}
-			else{
-				leaveChatRoom(context);
-				Log.i(AkiApplication.TAG, "Had to leave current chat room address {" +
-						currentChatRoom + "} because will be assigned to new chat room " +
-						"address {" + newChatRoom + "}.");
-				AkiInternalStorageUtil.removeCachedMessages(context, currentChatRoom);
-			}
-		} catch (FileNotFoundException e) {
+		String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
+		if ( currentChatRoom == null ){
 			Log.i(AkiApplication.TAG, "No current chat room address set.");
-		} catch (IOException e) {
-			leaveChatRoom(context);
-			AkiInternalStorageUtil.unsetCurrentChatRoom(context);
-			Log.e(AkiApplication.TAG, "IO error while attempting to figure out current chat room address. " + 
-					"Performed cleanup operations.");
-			e.printStackTrace();
 		}
+		else if ( currentChatRoom.equals(newChatRoom) ){
+			Log.i(AkiApplication.TAG, "No need to update current chat room, which" +
+					" has address {" + currentChatRoom + "}.");
+			if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
+				PushService.subscribe(context, newChatRoom, AkiMainActivity.class);
+				Log.i(AkiApplication.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
+			}
+			return;
+		}
+		else{
+			leaveChatRoom(context);
+			Log.i(AkiApplication.TAG, "Had to leave current chat room address {" +
+					currentChatRoom + "} because will be assigned to new chat room " +
+					"address {" + newChatRoom + "}.");
+			AkiInternalStorageUtil.removeCachedMessages(context, currentChatRoom);
+		}
+
 		if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
 			PushService.subscribe(context, newChatRoom, AkiMainActivity.class);
 			Log.i(AkiApplication.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
@@ -167,18 +158,13 @@ public class AkiServerUtil {
 
 	public static void leaveChatRoom(Context context) {
 
-		try {
-
-			String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
+		String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
+		if ( currentChatRoom == null ){
+			Log.i(AkiApplication.TAG, "No need to unsubscribe as no current chat room address is set.");
+		}
+		else{
 			PushService.unsubscribe(context, currentChatRoom);
 			Log.i(AkiApplication.TAG, "Unsubscribed from chat room address {" + currentChatRoom + "}.");
-		} catch ( FileNotFoundException e ){
-			Log.i(AkiApplication.TAG, "No need to unsubscribe as no current chat room address is set.");
-		} catch ( IOException e ){
-			Log.e(AkiApplication.TAG, "Could NOT figure out current chat room address.");
-			e.printStackTrace();
-			AkiInternalStorageUtil.unsetCurrentChatRoom(context);
-			Log.e(AkiApplication.TAG, "Cleanup -> removed current chat room cache file.");
 		}
 		for ( String remainingChatRoom : PushService.getSubscriptions(context) ){
 			PushService.unsubscribe(context, remainingChatRoom);
@@ -190,22 +176,18 @@ public class AkiServerUtil {
 
 		JsonObject payload = new JsonObject();
 		payload.add("message", message);
-		try {
-			payload.add("chat_room", AkiInternalStorageUtil.getCurrentChatRoom(context));
-		} catch (FileNotFoundException e) {
+		String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
+		if ( currentChatRoom == null ){
 			Log.e(AkiApplication.TAG, "Chat room address is not cached!");
-			e.printStackTrace();
 			callback.onFailure(new Exception("Chat room address is not cached!"));
 			return;
-		} catch (IOException e) {
-			Log.e(AkiApplication.TAG, "A problem occurred while trying to retrieve chat room address from cache!");
-			e.printStackTrace();
-			callback.onFailure(new Exception("A problem occurred while trying to retrieve chat room address from cache!"));
-			return;
+		}
+		else{
+			payload.add("chat_room", currentChatRoom);
 		}
 
 		AkiHttpUtil.doPOSTHttpRequest("/message", payload, new AsyncCallback() {
-			
+
 			@Override
 			public void onSuccess(Object response) {
 				if ( AkiApplication.DEBUG_MODE ){
@@ -215,7 +197,7 @@ public class AkiServerUtil {
 				}
 				callback.onSuccess(response);
 			}
-			
+
 			@Override
 			public void onFailure(Throwable failure) {
 				if ( AkiApplication.DEBUG_MODE ){
@@ -225,12 +207,11 @@ public class AkiServerUtil {
 				}
 				callback.onFailure(failure);
 			}
-			
+
 			@Override
 			public void onCancel() {
 				callback.onCancel();
 			}
 		});
 	}
-
 }
