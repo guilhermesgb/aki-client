@@ -38,7 +38,7 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 	    
 	    Bundle extras = getIntent().getExtras();
 	    if ( extras != null ){
-	    	chatFragment.setSeenSplash(extras.getBoolean("seenSplash", true));
+	    	chatFragment.setSeenSplash(extras.getBoolean("seenSplash", false));
 	    }
 	    
 	    setContentView(R.layout.aki_chat_fragment);
