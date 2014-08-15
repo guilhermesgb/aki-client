@@ -3,7 +3,6 @@ package com.lespi.aki;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.concurrent.ExecutionException;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -61,7 +60,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 			final CheckBox anonymousCheck = (CheckBox) getActivity().findViewById(R.id.com_lespi_aki_main_settings_anonymous);
 
 			anonymousCheck.setChecked(AkiInternalStorageUtil.anonymousSetting(context, currentUser.getId()));
-			
+
 			if ( nickname == null || nickname.trim().isEmpty() ){
 				AkiInternalStorageUtil.setMandatorySettingsMissing(context, true);
 				anonymousCheck.setChecked(true);
@@ -119,10 +118,10 @@ public class AkiSettingsFragment extends SherlockFragment {
 					}
 				});
 			}
-			
+
 			if ( !anonymousCheck.hasOnClickListeners() ){
 				anonymousCheck.setOnClickListener(new OnClickListener() {
-					
+
 					@Override
 					public void onClick(View view) {
 						AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), anonymousCheck.isChecked());
@@ -159,50 +158,44 @@ public class AkiSettingsFragment extends SherlockFragment {
 						JsonObject information = JsonValue.readFrom(response.getRawResponse())
 								.asObject().get("data").asObject();
 
-						try {
-							Bitmap picture = new AsyncTask<String, Void, Bitmap>() {
+						new AsyncTask<String, Void, Bitmap>() {
 
-								@Override
-								protected Bitmap doInBackground(String... params) {
+							@Override
+							protected Bitmap doInBackground(String... params) {
 
-									try {
-										URL picture_address = new URL(params[0]);
-										Bitmap picture = AkiChatAdapter.getRoundedBitmap(BitmapFactory.
-												decodeStream(picture_address.openConnection().getInputStream()));
+								try {
+									URL picture_address = new URL(params[0]);
+									Bitmap picture = AkiChatAdapter.getRoundedBitmap(BitmapFactory.
+											decodeStream(picture_address.openConnection().getInputStream()));
 
-										AkiInternalStorageUtil.cacheUserPicture(context, currentUser.getId(), picture);
-										return picture;
+									AkiInternalStorageUtil.cacheUserPicture(context, currentUser.getId(), picture);
+									return picture;
 
-									} catch (MalformedURLException e) {
-										Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
-												" user picture from Facebook.");
-										e.printStackTrace();
-										return null;
-									} catch (IOException e) {
-										Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
-												" user picture from Facebook.");
-										e.printStackTrace();
-										return null;
-									}
+								} catch (MalformedURLException e) {
+									Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
+											" user picture from Facebook.");
+									e.printStackTrace();
+									return null;
+								} catch (IOException e) {
+									Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
+											" user picture from Facebook.");
+									e.printStackTrace();
+									return null;
 								}
+							}
+							
+							@Override
+							protected void onPostExecute(Bitmap picture){
+								if ( picture != null ){
+									settingsPicture.setImageBitmap(picture);
+								}
+								else{
+									Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
+											"picture from Facebook.");
+								}
+							}
 
-							}.execute(information.get("url").asString()).get();
-							if ( picture != null ){
-								settingsPicture.setImageBitmap(picture);
-							}
-							else{
-								Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-										"picture from Facebook.");
-							}
-						} catch (InterruptedException e) {
-							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-									"picture from Facebook.");
-							e.printStackTrace();
-						} catch (ExecutionException e) {
-							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-									"picture from Facebook.");
-							e.printStackTrace();
-						}
+						}.execute(information.get("url").asString());
 					}
 				}
 						).executeAsync();
@@ -238,49 +231,44 @@ public class AkiSettingsFragment extends SherlockFragment {
 						}
 						JsonObject information = JsonValue.readFrom(response.getRawResponse()).asObject().get("cover").asObject();
 
-						try {
-							Bitmap picture = new AsyncTask<String, Void, Bitmap>() {
+						new AsyncTask<String, Void, Bitmap>() {
 
-								@Override
-								protected Bitmap doInBackground(String... params) {
+							@Override
+							protected Bitmap doInBackground(String... params) {
 
-									try {
-										URL picture_address = new URL(params[0]);
-										Bitmap picture = BitmapFactory.decodeStream(picture_address.openConnection().getInputStream());
+								try {
+									URL picture_address = new URL(params[0]);
+									Bitmap picture = BitmapFactory.decodeStream(picture_address.openConnection().getInputStream());
 
-										AkiInternalStorageUtil.cacheUserCoverPhoto(context, currentUser.getId(), picture);
-										return picture;
+									AkiInternalStorageUtil.cacheUserCoverPhoto(context, currentUser.getId(), picture);
+									return picture;
 
-									} catch (MalformedURLException e) {
-										Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
-												" user cover photo from Facebook.");
-										e.printStackTrace();
-										return null;
-									} catch (IOException e) {
-										Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
-												" user cover photo from Facebook.");
-										e.printStackTrace();
-										return null;
-									}
+								} catch (MalformedURLException e) {
+									Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
+											" user cover photo from Facebook.");
+									e.printStackTrace();
+									return null;
+								} catch (IOException e) {
+									Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
+											" user cover photo from Facebook.");
+									e.printStackTrace();
+									return null;
 								}
+							}
 
-							}.execute(information.get("source").asString()).get();
-							if ( picture != null ){
-								settingsCover.setImageBitmap(picture);
+							@Override
+							protected void onPostExecute(Bitmap picture) {
+
+								if ( picture != null ){
+									settingsCover.setImageBitmap(picture);
+								}
+								else{
+									Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
+											"cover photo from Facebook.");
+								}
 							}
-							else{
-								Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-										"cover photo from Facebook.");
-							}
-						} catch (InterruptedException e) {
-							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-									"cover photo from Facebook.");
-							e.printStackTrace();
-						} catch (ExecutionException e) {
-							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-									"cover photo from Facebook.");
-							e.printStackTrace();
-						}
+
+						}.execute(information.get("source").asString());
 					}
 				}).executeAsync();
 			}

@@ -5,7 +5,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -229,8 +228,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 						JsonObject information = JsonValue.readFrom(response.getRawResponse())
 								.asObject().get("data").asObject();
 						
-						try {
-							Bitmap picture = new AsyncTask<String, Void, Bitmap>() {
+							new AsyncTask<String, Void, Bitmap>() {
 
 								@Override
 								protected Bitmap doInBackground(String... params) {
@@ -255,24 +253,19 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 										return null;
 									}
 								}
+								
+								@Override
+								protected void onPostExecute(Bitmap picture){
+									if ( picture != null ){
+										viewHolder.senderPicture.setImageBitmap(picture);
+									}
+									else{
+										Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
+												"picture from Facebook.");
+									}									
+								}
 
-							}.execute(information.get("url").asString()).get();
-							if ( picture != null ){
-								viewHolder.senderPicture.setImageBitmap(picture);
-							}
-							else{
-								Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-										"picture from Facebook.");
-							}
-						} catch (InterruptedException e) {
-							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-									"picture from Facebook.");
-							e.printStackTrace();
-						} catch (ExecutionException e) {
-							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-									"picture from Facebook.");
-							e.printStackTrace();
-						}
+							}.execute(information.get("url").asString());
 					}
 				}
 			).executeAsync();
