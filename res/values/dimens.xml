@@ -8,8 +8,8 @@
     <dimen name="button_height">50dp</dimen>
     <dimen name="picture_layout_width_me">71dp</dimen>
     <dimen name="picture_layout_height_me">71dp</dimen>
-    <dimen name="picture_layout_width_you">143dp</dimen>
-    <dimen name="picture_layout_height_you">143dp</dimen>
+    <dimen name="picture_layout_width_you">93dp</dimen>
+    <dimen name="picture_layout_height_you">93dp</dimen>
     <dimen name="picture_layout_width_settings">71dp</dimen>
     <dimen name="picture_layout_height_settings">71dp</dimen>
     <dimen name="sender_name_size_me">12sp</dimen>

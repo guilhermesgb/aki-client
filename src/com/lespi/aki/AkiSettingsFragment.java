@@ -100,6 +100,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 						nicknameBox.setText(newNickname);
 						if ( AkiInternalStorageUtil.mandatorySettingsMissing(context) ){
 
+							AkiInternalStorageUtil.setMandatorySettingsMissing(context, false);
 							SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
 							slidingMenu.setSlidingEnabled(true);
 							slidingMenu.setEnabled(true);
