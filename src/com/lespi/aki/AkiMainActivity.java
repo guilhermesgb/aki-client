@@ -33,7 +33,7 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 	        chatFragment = new AkiChatFragment();
 	    } else {
 	        chatFragment = (AkiChatFragment) getSupportFragmentManager()
-	            .findFragmentById(android.R.id.content);
+	            .findFragmentById(R.id.aki_chat_frame);
 	    }
 	    
 	    Bundle extras = getIntent().getExtras();
