@@ -9,10 +9,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.facebook.Request;
@@ -67,6 +70,18 @@ public class AkiChatFragment extends SherlockFragment{
 					if ( user != null ){
 
 						switchToChatArea();
+						final Button sendMessageBtn = (Button) getActivity().findViewById(R.id.com_lespi_aki_main_chat_send_btn);
+						sendMessageBtn.setEnabled(false);
+						Button openSettingsBtn = (Button) getActivity().findViewById(R.id.com_lespi_aki_main_chat_opensettings_btn);
+						openSettingsBtn.setEnabled(true);
+						openSettingsBtn.setOnClickListener(new OnClickListener() {
+							
+							@Override
+							public void onClick(View view) {
+								((AkiMainActivity) getActivity()).getSlidingMenu().showMenu(true);
+							}
+						});
+						
 						AkiServerUtil.sendPresenceToServer(getActivity().getApplicationContext(), user.getId(), new AsyncCallback() {
 
 							@Override
@@ -78,6 +93,38 @@ public class AkiChatFragment extends SherlockFragment{
 									@Override
 									public void onSuccess(Object response) {
 										refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
+										sendMessageBtn.setEnabled(true);
+										sendMessageBtn.setOnClickListener(new OnClickListener() {
+											
+											@Override
+											public void onClick(View view) {
+
+												final EditText chatBox = (EditText) getActivity().findViewById(R.id.com_lespi_aki_main_chat_input);
+												if ( !chatBox.getText().toString().trim().isEmpty() ){
+													chatBox.setText("");
+													AkiServerUtil.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString(), new AsyncCallback() {
+
+														@Override
+														public void onSuccess(Object response) {
+															CharSequence toastText = "Message sent! :)";
+															Toast toast = Toast.makeText(getActivity().getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+															toast.show();
+														}
+
+														@Override
+														public void onFailure(Throwable failure) {
+															Log.e(AkiApplication.TAG, "You could not send message!");
+															failure.printStackTrace();
+														}
+
+														@Override
+														public void onCancel() {
+															Log.e(AkiApplication.TAG, "Endpoint:sendMessage callback canceled.");
+														}
+													});
+												}
+											}
+										});
 									}
 
 									@Override
@@ -145,31 +192,6 @@ public class AkiChatFragment extends SherlockFragment{
 
 		SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
 		slidingMenu.setSlidingEnabled(true);
-	}
-
-	public void sendMessage() {
-
-		final EditText chatBox = (EditText) getActivity().findViewById(R.id.com_lespi_aki_main_chat_input);
-		if ( !chatBox.getText().toString().trim().isEmpty() ){
-			AkiServerUtil.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString(), new AsyncCallback() {
-
-				@Override
-				public void onSuccess(Object response) {
-					chatBox.setText("");
-				}
-
-				@Override
-				public void onFailure(Throwable failure) {
-					Log.e(AkiApplication.TAG, "You could not send message!");
-					failure.printStackTrace();
-				}
-
-				@Override
-				public void onCancel() {
-					Log.e(AkiApplication.TAG, "Endpoint:sendMessage callback canceled.");
-				}
-			});
-		}
 	}
 
 	public void refreshSettings(final Context context, final Session currentSession, final GraphUser currentUser, final AsyncCallback callback) {

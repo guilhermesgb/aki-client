@@ -4,7 +4,6 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.view.Window;
 
 import com.facebook.Session;
@@ -86,14 +85,6 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 
 	public AkiSettingsFragment getSettingsFragment() {
 		return settingsFragment;
-	}
-	
-	public void sendMessage(View view){
-		chatFragment.sendMessage();
-	}
-	
-	public void openSettings(View view){
-		slidingMenu.showMenu(true);
 	}
 	
 	@Override
