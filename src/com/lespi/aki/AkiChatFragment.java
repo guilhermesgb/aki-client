@@ -13,6 +13,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -70,7 +71,7 @@ public class AkiChatFragment extends SherlockFragment{
 					if ( user != null ){
 
 						switchToChatArea();
-						final Button sendMessageBtn = (Button) getActivity().findViewById(R.id.com_lespi_aki_main_chat_send_btn);
+						final ImageButton sendMessageBtn = (ImageButton) getActivity().findViewById(R.id.com_lespi_aki_main_chat_send_btn);
 						sendMessageBtn.setEnabled(false);
 						Button openSettingsBtn = (Button) getActivity().findViewById(R.id.com_lespi_aki_main_chat_opensettings_btn);
 						openSettingsBtn.setEnabled(true);
