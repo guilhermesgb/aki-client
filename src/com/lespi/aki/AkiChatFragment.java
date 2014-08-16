@@ -76,19 +76,20 @@ public class AkiChatFragment extends SherlockFragment{
 						Button openSettingsBtn = (Button) getActivity().findViewById(R.id.com_lespi_aki_main_chat_opensettings_btn);
 						openSettingsBtn.setEnabled(true);
 						openSettingsBtn.setOnClickListener(new OnClickListener() {
-							
+
 							@Override
 							public void onClick(View view) {
 								((AkiMainActivity) getActivity()).getSlidingMenu().showMenu(true);
 							}
 						});
-						
+
 						AkiServerUtil.sendPresenceToServer(getActivity().getApplicationContext(), user.getId(), new AsyncCallback() {
 
 							@Override
 							public void onSuccess(Object response) {
 								JsonObject responseJSON = (JsonObject) response;
 								AkiServerUtil.enterChatRoom(getActivity().getApplicationContext(), responseJSON.get("chat_room").asString());
+
 								refreshSettings(getActivity().getApplicationContext(), session, user, new AsyncCallback(){
 
 									@Override
@@ -96,14 +97,15 @@ public class AkiChatFragment extends SherlockFragment{
 										refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
 										sendMessageBtn.setEnabled(true);
 										sendMessageBtn.setOnClickListener(new OnClickListener() {
-											
+
 											@Override
 											public void onClick(View view) {
 
 												final EditText chatBox = (EditText) getActivity().findViewById(R.id.com_lespi_aki_main_chat_input);
-												if ( !chatBox.getText().toString().trim().isEmpty() ){
+												final String message = chatBox.getText().toString().trim();
+												if ( !message.isEmpty() ){
 													chatBox.setText("");
-													AkiServerUtil.sendMessage(getActivity().getApplicationContext(), chatBox.getText().toString(), new AsyncCallback() {
+													AkiServerUtil.sendMessage(getActivity().getApplicationContext(), message, new AsyncCallback() {
 
 														@Override
 														public void onSuccess(Object response) {
@@ -178,6 +180,9 @@ public class AkiChatFragment extends SherlockFragment{
 		slidingMenu.showContent();
 		slidingMenu.setSlidingEnabled(false);
 
+		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(getActivity().getApplicationContext());
+		chatAdapter.clear();
+
 		if ( showSplash && (!seenSplash) ){
 			Intent intent = new Intent(getActivity(), AkiSplashActivity.class);
 			startActivity(intent);
@@ -202,6 +207,10 @@ public class AkiChatFragment extends SherlockFragment{
 
 	public void refreshReceivedMessages(final Context context, final Session session, final GraphUser currentUser) {
 
+		final AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(getActivity().getApplicationContext());
+		chatAdapter.setCurrentUser(currentUser);
+		chatAdapter.setCurrentSession(session);
+
 		new AsyncTask<Void, Void, List<JsonObject>>(){
 
 			@Override
@@ -214,9 +223,6 @@ public class AkiChatFragment extends SherlockFragment{
 			@Override
 			public void onPostExecute(List<JsonObject> messages){
 
-				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(getActivity().getApplicationContext());
-				chatAdapter.setCurrentUser(currentUser);
-				chatAdapter.setCurrentSession(session);
 				chatAdapter.clear();
 				if ( messages != null ){
 					chatAdapter.addAll(messages);

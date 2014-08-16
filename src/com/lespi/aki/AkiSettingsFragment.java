@@ -155,6 +155,11 @@ public class AkiSettingsFragment extends SherlockFragment {
 						JsonObject information = JsonValue.readFrom(response.getRawResponse())
 								.asObject().get("data").asObject();
 
+						if ( information.get("is_silhouette").asBoolean() ){
+							Log.i(AkiApplication.TAG, "User does not have a picture from Facebook.");
+							return;
+						}
+						
 						new AsyncTask<String, Void, Bitmap>() {
 
 							@Override
@@ -194,8 +199,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 
 						}.execute(information.get("url").asString());
 					}
-				}
-						).executeAsync();
+				}).executeAsync();
 			}
 
 			final ImageView settingsCover = (ImageView) getActivity().findViewById(R.id.com_lespi_aki_main_settings_cover);

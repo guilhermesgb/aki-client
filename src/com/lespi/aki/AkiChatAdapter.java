@@ -42,7 +42,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	private final List<JsonObject> messages;
 	private GraphUser currentUser = null;
 	private Session currentSession = null;
-	
+
 	private static AkiChatAdapter instance;
 
 	public static List<JsonObject> toJsonObjectList(JsonArray values){
@@ -56,7 +56,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		}
 		return toReturn;
 	}
-	
+
 	public static AkiChatAdapter getInstance(Context context){
 		if ( instance == null ){
 			List<JsonObject> messages = new ArrayList<JsonObject>();
@@ -78,7 +78,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	public void setCurrentSession(Session currentSession) {
 		this.currentSession = currentSession;
 	}
-	
+
 	public static Bitmap getRoundedBitmap(Bitmap bitmap) {
 		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap
 				.getHeight(), Bitmap.Config.ARGB_8888);
@@ -99,7 +99,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 		return output;
 	}
-	
+
 	static class ViewHolder{
 		public TextView senderId;
 		public TextView senderName;
@@ -112,7 +112,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	public View getView(int position, View convertView, ViewGroup parent){
 
 		final JsonObject newViewData = messages.get(position);
-		
+
 		View rowView = convertView;
 		boolean canReuse = false;
 
@@ -122,11 +122,11 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		if ( senderId.equals(currentUser.getId()) ){
 			rowLayout = R.layout.aki_chat_message_me;
 		}
-		
+
 		if ( rowView != null ){
-			
+
 			TextView senderIdView = (TextView) rowView.findViewById(R.id.com_lespi_aki_message_sender_id);
-			
+
 			if ( senderIdView.getText() != null && senderIdView.getText().equals(currentUser.getId()) ){
 				if ( senderId.equals(currentUser.getId()) ){
 					canReuse = true;
@@ -145,7 +145,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			}
 		}
 
-		
+
 		if ( !canReuse ){
 
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -159,46 +159,46 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		}
 
 		final ViewHolder viewHolder = (ViewHolder) rowView.getTag();
-		
+
 		Bitmap placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture);
 		viewHolder.senderPicture.setImageBitmap(getRoundedBitmap(placeholder));
-		
+
+		viewHolder.message.setText(newViewData.get("message").asString());
+
 		if ( senderId.equals(currentUser.getId()) ){
 			viewHolder.senderId.setText(currentUser.getId());
+
 			viewHolder.senderName.setText(currentUser.getFirstName());
-			viewHolder.message.setText(newViewData.get("message").asString());
+			AkiInternalStorageUtil.cacheUserFirstName(context, senderId, currentUser.getFirstName());
 		}
 		else{
 
+			viewHolder.senderId.setText(senderId);
+
 			String firstName = AkiInternalStorageUtil.getCachedUserFirstName(context, senderId);
-			
 			if ( firstName != null ){
-				viewHolder.senderId.setText(senderId);
 				viewHolder.senderName.setText(firstName);
-				viewHolder.message.setText(newViewData.get("message").asString());
 			}
 			else{
-				
-				new Request(currentSession, "/"+senderId, null,	HttpMethod.GET,
-					new Request.Callback() {
-						public void onCompleted(Response response) {
-							if ( response.getError() == null ){
 
-								JsonObject information = JsonValue.readFrom(response.getRawResponse()).asObject();
-								String firstName = information.get("first_name").asString();
-								viewHolder.senderName.setText(firstName);
-								AkiInternalStorageUtil.cacheUserFirstName(context, senderId, firstName);
-							}
-							else{
-								Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-										"first name from Facebook.");
-								viewHolder.senderName.setText(senderId);
-							}
-							viewHolder.senderId.setText(senderId);
-							viewHolder.message.setText(newViewData.get("message").asString());
+				new Request(currentSession, "/"+senderId, null,	HttpMethod.GET,
+						new Request.Callback() {
+					public void onCompleted(Response response) {
+						if ( response.getError() == null ){
+
+							JsonObject information = JsonValue.readFrom(response.getRawResponse()).asObject();
+							String firstName = information.get("first_name").asString();
+							viewHolder.senderName.setText(firstName);
+							AkiInternalStorageUtil.cacheUserFirstName(context, senderId, firstName);
+						}
+						else{
+							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
+									"first name from Facebook.");
+							viewHolder.senderName.setText(senderId);
 						}
 					}
-				).executeAsync();
+				}
+						).executeAsync();
 			}
 		}
 
@@ -215,60 +215,64 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			params.putString("width", "143");
 			params.putString("height", "143");
 			new Request(currentSession, "/"+senderId+"/picture", params, HttpMethod.GET,
-				new Request.Callback() {
-					public void onCompleted(Response response) {
-						if ( response.getError() != null ||
-								JsonValue.readFrom(response.getRawResponse())
-									.asObject().get("data") == null ){
+					new Request.Callback() {
+				public void onCompleted(Response response) {
+					if ( response.getError() != null ||
+							JsonValue.readFrom(response.getRawResponse())
+							.asObject().get("data") == null ){
 
-							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-									"picture from Facebook.");
-							return;
-						}
-						JsonObject information = JsonValue.readFrom(response.getRawResponse())
-								.asObject().get("data").asObject();
-						
-							new AsyncTask<String, Void, Bitmap>() {
-
-								@Override
-								protected Bitmap doInBackground(String... params) {
-
-									try {
-										URL picture_address = new URL(params[0]);
-										Bitmap picture = getRoundedBitmap(BitmapFactory.
-												decodeStream(picture_address.openConnection().getInputStream()));
-
-										AkiInternalStorageUtil.cacheUserPicture(context, senderId, picture);
-										return picture;
-
-									} catch (MalformedURLException e) {
-										Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
-												" user picture from Facebook.");
-										e.printStackTrace();
-										return null;
-									} catch (IOException e) {
-										Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
-												" user picture from Facebook.");
-										e.printStackTrace();
-										return null;
-									}
-								}
-								
-								@Override
-								protected void onPostExecute(Bitmap picture){
-									if ( picture != null ){
-										viewHolder.senderPicture.setImageBitmap(picture);
-									}
-									else{
-										Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-												"picture from Facebook.");
-									}									
-								}
-
-							}.execute(information.get("url").asString());
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
+								"picture from Facebook.");
+						return;
 					}
+					JsonObject information = JsonValue.readFrom(response.getRawResponse())
+							.asObject().get("data").asObject();
+
+					if ( information.get("is_silhouette").asBoolean() ){
+						Log.i(AkiApplication.TAG, "User does not have a picture from Facebook.");
+						return;
+					}
+
+					new AsyncTask<String, Void, Bitmap>() {
+
+						@Override
+						protected Bitmap doInBackground(String... params) {
+
+							try {
+								URL picture_address = new URL(params[0]);
+								Bitmap picture = getRoundedBitmap(BitmapFactory.
+										decodeStream(picture_address.openConnection().getInputStream()));
+
+								AkiInternalStorageUtil.cacheUserPicture(context, senderId, picture);
+								return picture;
+
+							} catch (MalformedURLException e) {
+								Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
+										" user picture from Facebook.");
+								e.printStackTrace();
+								return null;
+							} catch (IOException e) {
+								Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
+										" user picture from Facebook.");
+								e.printStackTrace();
+								return null;
+							}
+						}
+
+						@Override
+						protected void onPostExecute(Bitmap picture){
+							if ( picture != null ){
+								viewHolder.senderPicture.setImageBitmap(picture);
+							}
+							else{
+								Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
+										"picture from Facebook.");
+							}									
+						}
+
+					}.execute(information.get("url").asString());
 				}
-			).executeAsync();
+			}).executeAsync();
 		}
 		return rowView;
 	}
