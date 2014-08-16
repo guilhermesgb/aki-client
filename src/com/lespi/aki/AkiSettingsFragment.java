@@ -32,6 +32,7 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
+import com.lespi.aki.utils.AkiServerUtil;
 import com.parse.internal.AsyncCallback;
 
 public class AkiSettingsFragment extends SherlockFragment {
@@ -58,7 +59,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 			String nickname = AkiInternalStorageUtil.getCachedNickname(context, currentUser.getId());
 
 			final CheckBox anonymousCheck = (CheckBox) getActivity().findViewById(R.id.com_lespi_aki_main_settings_anonymous);
-			anonymousCheck.setChecked(AkiInternalStorageUtil.anonymousSetting(context, currentUser.getId()));
+			anonymousCheck.setChecked(AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()));
 
 			if ( nickname == null || nickname.trim().isEmpty() ){
 				nicknameBox.setText("");
@@ -95,7 +96,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 						toast.show();
 						return;
 					}
-					AkiInternalStorageUtil.setCachedNickname(context, currentUser.getId(), newNickname);
+					AkiInternalStorageUtil.cacheNickname(context, currentUser.getId(), newNickname);
 					nicknameBox.setText(newNickname);
 					if ( AkiInternalStorageUtil.mandatorySettingsMissing(context) ){
 
@@ -115,6 +116,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
 					}
+					AkiServerUtil.sendPresenceToServer(context, currentUser.getId());
 				}
 			});
 
@@ -123,6 +125,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				@Override
 				public void onClick(View view) {
 					AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), anonymousCheck.isChecked());
+					AkiServerUtil.sendPresenceToServer(context, currentUser.getId());
 				}
 			});
 

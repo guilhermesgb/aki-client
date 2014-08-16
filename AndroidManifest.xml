@@ -4,7 +4,7 @@
     android:versionName="1.0" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-sdk
-        android:minSdkVersion="14"
+        android:minSdkVersion="16"
         android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -70,6 +70,14 @@
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.lespi.aki.receivers.INCOMING_MESSAGE" >
+                </action>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.lespi.aki.receivers.AkiIncomingUserInfoUpdateReceiver"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.lespi.aki.receivers.INCOMING_USER_INFO_UPDATE" >
                 </action>
             </intent-filter>
         </receiver>

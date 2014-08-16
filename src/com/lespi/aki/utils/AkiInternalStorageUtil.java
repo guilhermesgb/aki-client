@@ -103,7 +103,7 @@ public class AkiInternalStorageUtil {
 		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_nickname)+userId, null);
 	}
 
-	public static void setCachedNickname(Context context, String userId, String nickname) {
+	public static void cacheNickname(Context context, String userId, String nickname) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
@@ -245,7 +245,7 @@ public class AkiInternalStorageUtil {
 		editor.commit();
 	}
 
-	public static boolean anonymousSetting(Context context, String userId) {
+	public static boolean getAnonymousSetting(Context context, String userId) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_anonymous_setting)+userId, true);

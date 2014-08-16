@@ -163,116 +163,150 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		Bitmap placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture);
 		viewHolder.senderPicture.setImageBitmap(getRoundedBitmap(placeholder));
 
+		viewHolder.senderId.setText(senderId);
 		viewHolder.message.setText(newViewData.get("message").asString());
 
 		if ( senderId.equals(currentUser.getId()) ){
-			viewHolder.senderId.setText(currentUser.getId());
 
-			viewHolder.senderName.setText(currentUser.getFirstName());
+			if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId) ){
+				String nickname = AkiInternalStorageUtil.getCachedNickname(context, senderId);
+				if ( nickname != null ){
+					viewHolder.senderName.setText(nickname);
+				}
+				else{
+					Log.e(AkiApplication.TAG, "Privacy setting for user " + senderId + " is anonymous but he has no nickname set.");
+					viewHolder.senderName.setText(senderId);
+				}
+			}
+			else{
+				viewHolder.senderName.setText(currentUser.getFirstName());
+			}
 			AkiInternalStorageUtil.cacheUserFirstName(context, senderId, currentUser.getFirstName());
 		}
 		else{
 
-			viewHolder.senderId.setText(senderId);
+			if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
+					|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
 
-			String firstName = AkiInternalStorageUtil.getCachedUserFirstName(context, senderId);
-			if ( firstName != null ){
-				viewHolder.senderName.setText(firstName);
+				String nickname = AkiInternalStorageUtil.getCachedNickname(context, senderId);
+				if ( nickname != null ){
+					viewHolder.senderName.setText(nickname);
+				}
+				else{
+					Log.e(AkiApplication.TAG, "Privacy setting for user " + senderId + " is anonymous but he has no nickname set.");
+					viewHolder.senderName.setText(senderId);
+				}
 			}
 			else{
 
-				new Request(currentSession, "/"+senderId, null,	HttpMethod.GET,
-						new Request.Callback() {
-					public void onCompleted(Response response) {
-						if ( response.getError() == null ){
-
-							JsonObject information = JsonValue.readFrom(response.getRawResponse()).asObject();
-							String firstName = information.get("first_name").asString();
-							viewHolder.senderName.setText(firstName);
-							AkiInternalStorageUtil.cacheUserFirstName(context, senderId, firstName);
-						}
-						else{
-							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-									"first name from Facebook.");
-							viewHolder.senderName.setText(senderId);
-						}
-					}
+				String firstName = AkiInternalStorageUtil.getCachedUserFirstName(context, senderId);
+				if ( firstName != null ){
+					viewHolder.senderName.setText(firstName);
 				}
-						).executeAsync();
-			}
-		}
+				else{
 
-		Bitmap picture = AkiInternalStorageUtil.getCachedUserPicture(context, senderId);
+					new Request(currentSession, "/"+senderId, null,	HttpMethod.GET,
+							new Request.Callback() {
+						public void onCompleted(Response response) {
+							if ( response.getError() == null ){
 
-		if ( picture != null ){
-
-			viewHolder.senderPicture.setImageBitmap(picture);
-		}
-		else{
-
-			Bundle params = new Bundle();
-			params.putBoolean("redirect", false);
-			params.putString("width", "143");
-			params.putString("height", "143");
-			new Request(currentSession, "/"+senderId+"/picture", params, HttpMethod.GET,
-					new Request.Callback() {
-				public void onCompleted(Response response) {
-					if ( response.getError() != null ||
-							JsonValue.readFrom(response.getRawResponse())
-							.asObject().get("data") == null ){
-
-						Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-								"picture from Facebook.");
-						return;
-					}
-					JsonObject information = JsonValue.readFrom(response.getRawResponse())
-							.asObject().get("data").asObject();
-
-					if ( information.get("is_silhouette").asBoolean() ){
-						Log.i(AkiApplication.TAG, "User does not have a picture from Facebook.");
-						return;
-					}
-
-					new AsyncTask<String, Void, Bitmap>() {
-
-						@Override
-						protected Bitmap doInBackground(String... params) {
-
-							try {
-								URL picture_address = new URL(params[0]);
-								Bitmap picture = getRoundedBitmap(BitmapFactory.
-										decodeStream(picture_address.openConnection().getInputStream()));
-
-								AkiInternalStorageUtil.cacheUserPicture(context, senderId, picture);
-								return picture;
-
-							} catch (MalformedURLException e) {
-								Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
-										" user picture from Facebook.");
-								e.printStackTrace();
-								return null;
-							} catch (IOException e) {
-								Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
-										" user picture from Facebook.");
-								e.printStackTrace();
-								return null;
-							}
-						}
-
-						@Override
-						protected void onPostExecute(Bitmap picture){
-							if ( picture != null ){
-								viewHolder.senderPicture.setImageBitmap(picture);
+								JsonObject information = JsonValue.readFrom(response.getRawResponse()).asObject();
+								String firstName = information.get("first_name").asString();
+								viewHolder.senderName.setText(firstName);
+								AkiInternalStorageUtil.cacheUserFirstName(context, senderId, firstName);
 							}
 							else{
 								Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-										"picture from Facebook.");
-							}									
+										"first name from Facebook.");
+								viewHolder.senderName.setText(senderId);
+							}
+						}
+					}
+							).executeAsync();
+				}
+			}
+		}
+
+		if ( ( !currentUser.getId().equals(senderId) && !AkiInternalStorageUtil.getAnonymousSetting(context, senderId) )
+				|| currentUser.getId().equals(senderId) ){
+
+			Bitmap picture = AkiInternalStorageUtil.getCachedUserPicture(context, senderId);
+			if ( picture != null ){
+
+				viewHolder.senderPicture.setImageBitmap(picture);
+			}
+			else{
+
+				Bundle params = new Bundle();
+				params.putBoolean("redirect", false);
+				params.putString("width", "143");
+				params.putString("height", "143");
+				new Request(currentSession, "/"+senderId+"/picture", params, HttpMethod.GET,
+						new Request.Callback() {
+					public void onCompleted(Response response) {
+						if ( response.getError() != null ||
+								JsonValue.readFrom(response.getRawResponse())
+								.asObject().get("data") == null ){
+
+							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
+									"picture from Facebook.");
+							return;
+						}
+						JsonObject information = JsonValue.readFrom(response.getRawResponse())
+								.asObject().get("data").asObject();
+
+						if ( information.get("is_silhouette").asBoolean() ){
+							Log.i(AkiApplication.TAG, "User does not have a picture from Facebook.");
+							return;
 						}
 
-					}.execute(information.get("url").asString());
-				}
-			}).executeAsync();
+						new AsyncTask<String, Void, Bitmap>() {
+
+							@Override
+							protected Bitmap doInBackground(String... params) {
+
+								try {
+									URL picture_address = new URL(params[0]);
+									Bitmap picture = getRoundedBitmap(BitmapFactory.
+											decodeStream(picture_address.openConnection().getInputStream()));
+
+									AkiInternalStorageUtil.cacheUserPicture(context, senderId, picture);
+									return picture;
+
+								} catch (MalformedURLException e) {
+									Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
+											" user picture from Facebook.");
+									e.printStackTrace();
+									return null;
+								} catch (IOException e) {
+									Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
+											" user picture from Facebook.");
+									e.printStackTrace();
+									return null;
+								}
+							}
+
+							@Override
+							protected void onPostExecute(Bitmap picture){
+								if ( picture != null ){
+									viewHolder.senderPicture.setImageBitmap(picture);
+								}
+								else{
+									Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
+											"picture from Facebook.");
+								}									
+							}
+
+						}.execute(information.get("url").asString());
+					}
+				}).executeAsync();
+			}
+			if ( AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
+				viewHolder.senderPicture.setImageAlpha(128);
+			}
+			else{
+				viewHolder.senderPicture.setImageAlpha(255);
+			}
 		}
 		return rowView;
 	}

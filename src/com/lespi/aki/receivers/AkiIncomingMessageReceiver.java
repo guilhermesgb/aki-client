@@ -21,20 +21,16 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		String action = intent.getAction();
-		String channel = intent.getExtras().getString("com.parse.Channel");
+		String event = intent.getAction();
+		String chat_room = intent.getExtras().getString("com.parse.Channel");
 		JsonObject incomingData = JsonValue.readFrom(intent.getExtras().getString("com.parse.Data")).asObject();
 
-		Log.d(AkiApplication.TAG, "Received Action " + action + " on Parse Channel " + channel + " with:");
+		Log.d(AkiApplication.TAG, "Received event [" + event + "] on chat room [" + chat_room + "].");
 
-		for ( String key : incomingData.names() ){
-			Log.d(AkiApplication.TAG, "..." + key + " => " + incomingData.get(key).asString());
-		}
-		
 		String from = incomingData.get("from").asString();
 		String message = incomingData.get("message").asString();
 		
-		AkiInternalStorageUtil.storeNewMessage(context, channel, from, message);
+		AkiInternalStorageUtil.storeNewMessage(context, chat_room, from, message);
 		
 		intent.setClass(context, AkiMainActivity.class);
 		intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

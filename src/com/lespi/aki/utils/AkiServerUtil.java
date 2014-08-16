@@ -57,19 +57,37 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void sendPresenceToServer(final Context context, final String username, final AsyncCallback callback){
+	public static void sendPresenceToServer(final Context context, final String userId){
+		sendPresenceToServer(context, userId, null);
+	}
+	
+	public static void sendPresenceToServer(final Context context, final String userId, final AsyncCallback callback){
 
-		AkiHttpUtil.doPOSTHttpRequest("/presence/"+username, new AsyncCallback(){
+		JsonObject payload = new JsonObject();
+		String nickname = AkiInternalStorageUtil.getCachedNickname(context, userId);
+		if ( nickname != null ){
+			payload.add("nickname", nickname);
+		}
+		else{
+			payload.add("nickname", userId);
+		}
+		boolean anonymous = AkiInternalStorageUtil.getAnonymousSetting(context, userId);
+		payload.add("anonymous", anonymous);
+		//ONCE WE GET GENDER AND GPS POSITION, SEND IT HERE AS WELL//
+		
+		AkiHttpUtil.doPOSTHttpRequest("/presence/"+userId, payload, new AsyncCallback(){
 
 			@Override
 			public void onSuccess(Object response) {
 				setActiveOnServer(true);
 				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = "You have just logged as: " + username;
+					CharSequence toastText = "You have just logged as: " + userId;
 					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 					toast.show();
 				}
-				callback.onSuccess(response);
+				if ( callback != null ){
+					callback.onSuccess(response);
+				}
 			}
 
 			@Override
@@ -79,12 +97,16 @@ public class AkiServerUtil {
 					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 					toast.show();
 				}
-				callback.onFailure(failure);
+				if ( callback != null ){
+					callback.onFailure(failure);
+				}
 			}
 
 			@Override
 			public void onCancel() {
-				callback.onCancel();
+				if ( callback != null ){
+					callback.onCancel();
+				}
 			}
 		});
 	}
