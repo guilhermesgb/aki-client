@@ -75,7 +75,9 @@ public class AkiSettingsFragment extends SherlockFragment {
 				toast.show();
 			}
 			else{
-				nicknameBox.setText(nickname);
+				if ( !nicknameBox.isFocused() ){
+					nicknameBox.setText(nickname);
+				}
 			}
 
 			Button changeNicknameBtn = (Button) getActivity().findViewById(R.id.com_lespi_aki_main_settings_nickname_btn);
