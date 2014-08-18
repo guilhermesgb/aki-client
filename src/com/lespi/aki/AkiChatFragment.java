@@ -62,6 +62,13 @@ public class AkiChatFragment extends SherlockFragment{
 	}
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
+
+		final AkiMainActivity activity = (AkiMainActivity) getActivity();
+		if ( activity == null ){
+			Log.d(AkiApplication.TAG, "Facebook session callback called but there is no MainActivity alive, so ignored session change event.");
+			return;
+		}
+		
 		if (state.isOpened()) {
 
 			Request.newMeRequest(session, new Request.GraphUserCallback() {
@@ -70,47 +77,47 @@ public class AkiChatFragment extends SherlockFragment{
 				public void onCompleted(final GraphUser user, Response response) {
 					if ( user != null ){
 
-						switchToChatArea();
-						final ImageButton sendMessageBtn = (ImageButton) getActivity().findViewById(R.id.com_lespi_aki_main_chat_send_btn);
+						switchToChatArea(activity);
+						final ImageButton sendMessageBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_send_btn);
 						sendMessageBtn.setEnabled(false);
-						Button openSettingsBtn = (Button) getActivity().findViewById(R.id.com_lespi_aki_main_chat_opensettings_btn);
+						Button openSettingsBtn = (Button) activity.findViewById(R.id.com_lespi_aki_main_chat_opensettings_btn);
 						openSettingsBtn.setEnabled(true);
 						openSettingsBtn.setOnClickListener(new OnClickListener() {
 
 							@Override
 							public void onClick(View view) {
-								((AkiMainActivity) getActivity()).getSlidingMenu().showMenu(true);
+								activity.getSlidingMenu().showMenu(true);
 							}
 						});
 
-						AkiServerUtil.sendPresenceToServer(getActivity().getApplicationContext(), user.getId(), new AsyncCallback() {
+						AkiServerUtil.sendPresenceToServer(activity.getApplicationContext(), user.getId(), new AsyncCallback() {
 
 							@Override
 							public void onSuccess(Object response) {
 								JsonObject responseJSON = (JsonObject) response;
-								AkiServerUtil.enterChatRoom(getActivity().getApplicationContext(), responseJSON.get("chat_room").asString());
+								AkiServerUtil.enterChatRoom(activity.getApplicationContext(), responseJSON.get("chat_room").asString());
 
-								refreshSettings(getActivity().getApplicationContext(), session, user, new AsyncCallback(){
+								refreshSettings(activity.getApplicationContext(), session, user, new AsyncCallback(){
 
 									@Override
 									public void onSuccess(Object response) {
-										refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
+										refreshReceivedMessages(activity, session, user);
 										sendMessageBtn.setEnabled(true);
 										sendMessageBtn.setOnClickListener(new OnClickListener() {
 
 											@Override
 											public void onClick(View view) {
 
-												final EditText chatBox = (EditText) getActivity().findViewById(R.id.com_lespi_aki_main_chat_input);
+												final EditText chatBox = (EditText) activity.findViewById(R.id.com_lespi_aki_main_chat_input);
 												final String message = chatBox.getText().toString().trim();
 												if ( !message.isEmpty() ){
 													chatBox.setText("");
-													AkiServerUtil.sendMessage(getActivity().getApplicationContext(), message, new AsyncCallback() {
+													AkiServerUtil.sendMessage(activity.getApplicationContext(), message, new AsyncCallback() {
 
 														@Override
 														public void onSuccess(Object response) {
 															CharSequence toastText = "Message sent! :)";
-															Toast toast = Toast.makeText(getActivity().getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+															Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 															toast.show();
 														}
 
@@ -134,13 +141,13 @@ public class AkiChatFragment extends SherlockFragment{
 									public void onFailure(Throwable failure) {
 										Log.e(AkiApplication.TAG, "Could not refresh settings.");
 										failure.printStackTrace();
-										refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
+										refreshReceivedMessages(activity, session, user);
 									}
 
 									@Override
 									public void onCancel() {
 										Log.e(AkiApplication.TAG, "Refresh of settings canceled.");
-										refreshReceivedMessages(getActivity().getApplicationContext(), session, user);
+										refreshReceivedMessages(activity, session, user);
 									}
 								});
 							}
@@ -154,6 +161,7 @@ public class AkiChatFragment extends SherlockFragment{
 							@Override
 							public void onCancel() {
 								Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled.");
+								
 							}
 						});
 					}
@@ -161,53 +169,55 @@ public class AkiChatFragment extends SherlockFragment{
 			}).executeAsync();
 		} else if (state.isClosed()) {
 
-			switchToLoginArea(false);
+			switchToLoginArea(activity, false);
 			if ( AkiServerUtil.isActiveOnServer() ){
-				AkiServerUtil.leaveServer(getActivity().getApplicationContext());
+				AkiServerUtil.leaveServer(activity.getApplicationContext());
 			}
 		}
 	}
 
-	public void switchToLoginArea(boolean showSplash){
-		AkiServerUtil.leaveChatRoom(getActivity().getApplicationContext());
+	private void switchToLoginArea(AkiMainActivity activity, boolean showSplash){
+		AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
 
-		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_chat);
-		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_login);
+		final LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
+		final LinearLayout loginArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.GONE);
 		loginArea.setVisibility(View.VISIBLE);
 
-		SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
+		SlidingMenu slidingMenu = activity.getSlidingMenu();
 		slidingMenu.showContent();
 		slidingMenu.setSlidingEnabled(false);
 
-		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(getActivity().getApplicationContext());
+		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 		chatAdapter.clear();
 
 		if ( showSplash && (!seenSplash) ){
-			Intent intent = new Intent(getActivity(), AkiSplashActivity.class);
+			Intent intent = new Intent(activity, AkiSplashActivity.class);
 			startActivity(intent);
-			getActivity().finish();
+			activity.finish();
 		}
 	}
 
-	public void switchToChatArea(){
-		final LinearLayout chatArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_chat);
-		final LinearLayout loginArea = (LinearLayout) this.getActivity().findViewById(R.id.com_lespi_aki_main_login);
+	private void switchToChatArea(AkiMainActivity activity){
+		final LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
+		final LinearLayout loginArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.VISIBLE);
 		loginArea.setVisibility(View.GONE);
 
-		SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
+		SlidingMenu slidingMenu = activity.getSlidingMenu();
 		slidingMenu.setSlidingEnabled(true);
 	}
 
-	public void refreshSettings(final Context context, final Session currentSession, final GraphUser currentUser, final AsyncCallback callback) {
+	private void refreshSettings(final Context context, final Session currentSession, final GraphUser currentUser, final AsyncCallback callback) {
 
 		((AkiMainActivity) getActivity()).getSettingsFragment().refreshSettings(context, currentSession, currentUser, callback);
 	}
 
-	public void refreshReceivedMessages(final Context context, final Session session, final GraphUser currentUser) {
+	private void refreshReceivedMessages(final AkiMainActivity activity, final Session session, final GraphUser currentUser) {
 
-		final AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(getActivity().getApplicationContext());
+		final Context context = activity.getApplicationContext();
+		
+		final AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 		chatAdapter.setCurrentUser(currentUser);
 		chatAdapter.setCurrentSession(session);
 
@@ -227,7 +237,7 @@ public class AkiChatFragment extends SherlockFragment{
 				if ( messages != null ){
 					chatAdapter.addAll(messages);
 				}
-				ListView listView = (ListView) getActivity().findViewById(R.id.com_lespi_aki_main_messages_list);
+				ListView listView = (ListView) activity.findViewById(R.id.com_lespi_aki_main_messages_list);
 				listView.setAdapter(chatAdapter);
 				listView.setSelection(chatAdapter.getCount() - 1);				
 			}
@@ -253,13 +263,19 @@ public class AkiChatFragment extends SherlockFragment{
 
 		uiHelper.onResume();
 
+		final AkiMainActivity activity = (AkiMainActivity) getActivity();
+		if ( activity == null ){
+			Log.e(AkiApplication.TAG, "onResume event called but there is no MainActivity alive, so ignored session change event.");
+			return;
+		}
+		
 		session = Session.getActiveSession();
 		if (session == null || !(session.isOpened() || session.isClosed()) ) {
-			AkiServerUtil.getPresenceFromServer(getActivity().getApplicationContext(), new AsyncCallback() {
+			AkiServerUtil.getPresenceFromServer(activity.getApplicationContext(), new AsyncCallback() {
 
 				@Override
 				public void onSuccess(Object response) {
-					AkiServerUtil.leaveServer(getActivity().getApplicationContext());
+					AkiServerUtil.leaveServer(activity.getApplicationContext());
 				}
 
 				@Override
@@ -273,7 +289,7 @@ public class AkiChatFragment extends SherlockFragment{
 					Log.e(AkiApplication.TAG, "Endpoint:getPresenceFromServer callback canceled.");
 				}
 			});
-			switchToLoginArea(true);
+			switchToLoginArea(activity, true);
 		}
 	}
 

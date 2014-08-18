@@ -111,6 +111,11 @@ public abstract class AkiHttpUtil {
 		
 		@Override
 		protected void onPostExecute(JsonObject response) {
+			if ( response == null ){
+				callback.onCancel();
+				Log.d(AkiApplication.TAG, "No internet connection available.");
+				return;
+			}
 			JsonValue responseCode = response.get("code");
 			if ( responseCode != null && responseCode.asInt() != 200 ){
 				Log.e(AkiApplication.TAG, "HTTP Request fail.");

@@ -44,6 +44,8 @@ public class AkiSettingsFragment extends SherlockFragment {
 		View view = inflater.inflate(R.layout.aki_settings_fragment, container, false);
 		LoginButton logoutButton = (LoginButton) view.findViewById(R.id.com_lespi_aki_main_settings_logout_btn);
 		logoutButton.setFragment(this);
+		final EditText nicknameBox = (EditText) view.findViewById(R.id.com_lespi_aki_main_settings_nickname);
+		nicknameBox.clearFocus();
 		return view;
 	}
 
