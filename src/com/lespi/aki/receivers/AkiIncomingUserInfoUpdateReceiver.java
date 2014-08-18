@@ -28,12 +28,30 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 		String nickname = incomingData.get("nickname").asString();
 		String oldNickname = AkiInternalStorageUtil.getCachedNickname(context, userId);
 		if ( oldNickname != null && !oldNickname.equals(nickname) ){
-			AkiInternalStorageUtil.storeNewMessage(context, chatRoom,
-					AkiApplication.SYSTEM_SENDER_ID, String.format("%s has changed his nickname to: %s", oldNickname, nickname));
+			String format = "%s has changed his nickname to: %s";
+			AkiInternalStorageUtil.storeNewMessage(context, chatRoom, AkiApplication.SYSTEM_SENDER_ID, String.format(format, oldNickname, nickname));
 		}
 		AkiInternalStorageUtil.cacheNickname(context, userId, nickname);
 		
-		Boolean anonymous = incomingData.get("anonymous").asBoolean();
+		boolean anonymous = true;
+		try {
+			anonymous = incomingData.get("anonymous").asBoolean();
+		}
+		catch(UnsupportedOperationException e){
+			Log.e(AkiApplication.TAG, "Received badly formatted JSON! Someone might be trying to pose as the server.");
+			e.printStackTrace();
+		}
+		boolean previouslyAnonymous = AkiInternalStorageUtil.getAnonymousSetting(context, userId);
+		if ( !anonymous && previouslyAnonymous ){
+			String userGender = AkiInternalStorageUtil.getCachedUserGender(context, userId);
+			String fullName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
+			if ( userGender != null && fullName != null ){
+
+				String format = userGender.equals("female") ? "%s has revealed she's called: %s" : "%s has revealed he's called: %s";
+				AkiInternalStorageUtil.storeNewMessage(context, chatRoom,
+						AkiApplication.SYSTEM_SENDER_ID, String.format(format, nickname, fullName));
+			}
+		}
 		AkiInternalStorageUtil.setAnonymousSetting(context, userId, anonymous);
 		
 		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);

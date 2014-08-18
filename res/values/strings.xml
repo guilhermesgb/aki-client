@@ -23,6 +23,8 @@
     <string name="com_lespi_aki_preferences">com_lespi_aki_data_chat_file</string>
     <string name="com_lespi_aki_data_current_chat_room">current-chat-room</string>
     <string name="com_lespi_aki_data_user_firstname">user-firstname_</string>
+    <string name="com_lespi_aki_data_user_fullname">user-fullname_</string>
+    <string name="com_lespi_aki_data_user_gender">user-gender_</string>
     <string name="com_lespi_aki_data_user_picture">user-picture_</string>
     <string name="com_lespi_aki_data_user_coverphoto">user-cover_</string>
 	<string name="com_lespi_aki_data_user_nickname">user-nickname_</string>

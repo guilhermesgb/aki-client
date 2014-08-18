@@ -62,6 +62,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 
 			TextView settingsFullname = (TextView) activity.findViewById(R.id.com_lespi_aki_main_settings_fullname);
 			settingsFullname.setText(currentUser.getName());
+			AkiInternalStorageUtil.cacheUserFullName(context, currentUser.getId(), currentUser.getName());
 
 			final EditText nicknameBox = (EditText) activity.findViewById(R.id.com_lespi_aki_main_settings_nickname);
 			String nickname = AkiInternalStorageUtil.getCachedNickname(context, currentUser.getId());
@@ -141,8 +142,18 @@ public class AkiSettingsFragment extends SherlockFragment {
 
 			final ImageView settingsPicture = (ImageView) activity.findViewById(R.id.com_lespi_aki_main_settings_picture);
 
-			Bitmap picturePlaceholder = AkiChatAdapter.getRoundedBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture));
-			settingsPicture.setImageBitmap(picturePlaceholder);
+			Bitmap placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown);
+			String gender = currentUser.asMap().get("gender").toString();
+			if ( gender != null ){
+				AkiInternalStorageUtil.cacheUserGender(context, currentUser.getId(), gender);
+				if ( gender.equals("male") ){
+					placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_male);
+				}
+				else if ( gender.equals("female") ){
+					placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_female);				
+				}
+			}
+			settingsPicture.setImageBitmap(AkiChatAdapter.getRoundedBitmap(placeholder));
 
 			Bitmap cachedPicture = AkiInternalStorageUtil.getCachedUserPicture(context, currentUser.getId());
 			if ( cachedPicture != null ){

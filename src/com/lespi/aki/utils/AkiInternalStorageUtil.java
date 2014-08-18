@@ -183,6 +183,36 @@ public class AkiInternalStorageUtil {
 		editor.commit();
 	}
 
+	public static String getCachedUserFullName(Context context, String userId) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		String fullName = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_fullname)+userId, null);
+		return fullName;
+	}
+	
+	public static void cacheUserFullName(Context context, String userId, String fullName) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_user_fullname)+userId, fullName);
+		editor.commit();
+	}
+
+	public static String getCachedUserGender(Context context, String userId) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		String fullName = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_gender)+userId, null);
+		return fullName;
+	}
+	
+	public static void cacheUserGender(Context context, String userId, String gender) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_user_gender)+userId, gender);
+		editor.commit();
+	}
+	
 	public static Bitmap getCachedUserCoverPhoto(Context context, String userId) {
 
 		Bitmap picture = null;
