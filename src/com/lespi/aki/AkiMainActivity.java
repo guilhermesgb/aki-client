@@ -84,6 +84,9 @@ public class AkiMainActivity extends SlidingFragmentActivity {
 	}
 
 	public AkiSettingsFragment getSettingsFragment() {
+		if ( settingsFragment == null ){
+			settingsFragment = new AkiSettingsFragment();
+		}
 		return settingsFragment;
 	}
 	

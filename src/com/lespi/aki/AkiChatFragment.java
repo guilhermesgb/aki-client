@@ -97,7 +97,7 @@ public class AkiChatFragment extends SherlockFragment{
 								JsonObject responseJSON = (JsonObject) response;
 								AkiServerUtil.enterChatRoom(activity.getApplicationContext(), responseJSON.get("chat_room").asString());
 
-								refreshSettings(activity.getApplicationContext(), session, user, new AsyncCallback(){
+								refreshSettings(activity, session, user, new AsyncCallback(){
 
 									@Override
 									public void onSuccess(Object response) {
@@ -208,9 +208,10 @@ public class AkiChatFragment extends SherlockFragment{
 		slidingMenu.setSlidingEnabled(true);
 	}
 
-	private void refreshSettings(final Context context, final Session currentSession, final GraphUser currentUser, final AsyncCallback callback) {
+	private void refreshSettings(final AkiMainActivity activity, final Session currentSession, 
+			final GraphUser currentUser, final AsyncCallback callback) {
 
-		((AkiMainActivity) getActivity()).getSettingsFragment().refreshSettings(context, currentSession, currentUser, callback);
+		activity.getSettingsFragment().refreshSettings(activity, currentSession, currentUser, callback);
 	}
 
 	private void refreshReceivedMessages(final AkiMainActivity activity, final Session session, final GraphUser currentUser) {

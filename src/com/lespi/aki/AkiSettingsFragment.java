@@ -38,8 +38,7 @@ import com.parse.internal.AsyncCallback;
 public class AkiSettingsFragment extends SherlockFragment {
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		View view = inflater.inflate(R.layout.aki_settings_fragment, container, false);
 		LoginButton logoutButton = (LoginButton) view.findViewById(R.id.com_lespi_aki_main_settings_logout_btn);
@@ -49,26 +48,33 @@ public class AkiSettingsFragment extends SherlockFragment {
 		return view;
 	}
 
-	public void refreshSettings(final Context context, final Session currentSession, final GraphUser currentUser, final AsyncCallback callback) {
+	public void refreshSettings(final AkiMainActivity activity, final Session currentSession,
+			final GraphUser currentUser, final AsyncCallback callback) {
 
+		if ( activity == null ){
+			return;
+		}
+		
+		final Context context = activity.getApplicationContext();
+		
 		try{
-			AkiInternalStorageUtil.setMandatorySettingsMissing(context, false);
+			AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
 
-			TextView settingsFullname = (TextView) getActivity().findViewById(R.id.com_lespi_aki_main_settings_fullname);
+			TextView settingsFullname = (TextView) activity.findViewById(R.id.com_lespi_aki_main_settings_fullname);
 			settingsFullname.setText(currentUser.getName());
 
-			final EditText nicknameBox = (EditText) getActivity().findViewById(R.id.com_lespi_aki_main_settings_nickname);
+			final EditText nicknameBox = (EditText) activity.findViewById(R.id.com_lespi_aki_main_settings_nickname);
 			String nickname = AkiInternalStorageUtil.getCachedNickname(context, currentUser.getId());
 
-			final CheckBox anonymousCheck = (CheckBox) getActivity().findViewById(R.id.com_lespi_aki_main_settings_anonymous);
+			final CheckBox anonymousCheck = (CheckBox) activity.findViewById(R.id.com_lespi_aki_main_settings_anonymous);
 			anonymousCheck.setChecked(AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()));
 
 			if ( nickname == null || nickname.trim().isEmpty() ){
 				nicknameBox.setText("");
-				AkiInternalStorageUtil.setMandatorySettingsMissing(context, true);
+				AkiInternalStorageUtil.aMandatorySettingIsMissing(context, true);
 				anonymousCheck.setChecked(true);
 				anonymousCheck.setEnabled(false);
-				SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
+				SlidingMenu slidingMenu = activity.getSlidingMenu();
 				slidingMenu.showMenu();
 				slidingMenu.setSlidingEnabled(false);
 				slidingMenu.setEnabled(false);
@@ -82,7 +88,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				}
 			}
 
-			Button changeNicknameBtn = (Button) getActivity().findViewById(R.id.com_lespi_aki_main_settings_nickname_btn);
+			Button changeNicknameBtn = (Button) activity.findViewById(R.id.com_lespi_aki_main_settings_nickname_btn);
 
 			changeNicknameBtn.setOnClickListener(new OnClickListener() {
 
@@ -102,10 +108,10 @@ public class AkiSettingsFragment extends SherlockFragment {
 					}
 					AkiInternalStorageUtil.cacheNickname(context, currentUser.getId(), newNickname);
 					nicknameBox.setText(newNickname);
-					if ( AkiInternalStorageUtil.mandatorySettingsMissing(context) ){
+					if ( AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
 
-						AkiInternalStorageUtil.setMandatorySettingsMissing(context, false);
-						SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
+						AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
+						SlidingMenu slidingMenu = activity.getSlidingMenu();
 						slidingMenu.setSlidingEnabled(true);
 						slidingMenu.setEnabled(true);
 						slidingMenu.showContent();
@@ -133,7 +139,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				}
 			});
 
-			final ImageView settingsPicture = (ImageView) getActivity().findViewById(R.id.com_lespi_aki_main_settings_picture);
+			final ImageView settingsPicture = (ImageView) activity.findViewById(R.id.com_lespi_aki_main_settings_picture);
 
 			Bitmap picturePlaceholder = AkiChatAdapter.getRoundedBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture));
 			settingsPicture.setImageBitmap(picturePlaceholder);
@@ -209,7 +215,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				}).executeAsync();
 			}
 
-			final ImageView settingsCover = (ImageView) getActivity().findViewById(R.id.com_lespi_aki_main_settings_cover);
+			final ImageView settingsCover = (ImageView) activity.findViewById(R.id.com_lespi_aki_main_settings_cover);
 			settingsCover.setAdjustViewBounds(false);
 			settingsCover.setMinimumWidth(851);
 			settingsCover.setMinimumHeight(315);
@@ -281,7 +287,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				}).executeAsync();
 			}
 
-			if ( !AkiInternalStorageUtil.mandatorySettingsMissing(context) ){
+			if ( !AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
 				callback.onSuccess(null);
 			}			
 		}
