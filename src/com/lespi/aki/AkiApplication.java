@@ -24,6 +24,8 @@ public class AkiApplication extends Application {
 	public static int INCOMING_MESSAGES_COUNTER = 0;
 	public static final int INCOMING_MESSAGE_NOTIFICATION_ID = 1011;
 	
+	public static final String SYSTEM_SENDER_ID = "System";
+	
 	public static CookieManager cookieManager;
 	static {
 		disableConnectionReuseIfNecessary();
@@ -71,4 +73,5 @@ public class AkiApplication extends Application {
 	public static void isNotShowingSettingsMenu() {
 		IN_SETTINGS = false;
 	}
+
 }

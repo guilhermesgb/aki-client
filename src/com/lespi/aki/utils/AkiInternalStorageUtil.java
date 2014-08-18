@@ -27,7 +27,7 @@ public class AkiInternalStorageUtil {
 		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_current_chat_room), null);
 	}
 
-	public static void setCurrentChatRoom(Context context, String newChatRoom) {
+	public static synchronized void setCurrentChatRoom(Context context, String newChatRoom) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
@@ -35,7 +35,7 @@ public class AkiInternalStorageUtil {
 		editor.commit();
 	}
 
-	public static void unsetCurrentChatRoom(Context context) {
+	public static synchronized void unsetCurrentChatRoom(Context context) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
@@ -64,7 +64,7 @@ public class AkiInternalStorageUtil {
 		return allMessages;
 	}
 
-	public static void storeNewMessage(Context context, String chatRoom, String from, String content) {
+	public static synchronized void storeNewMessage(Context context, String chatRoom, String from, String content) {
 
 		try {
 
@@ -86,7 +86,7 @@ public class AkiInternalStorageUtil {
 		}
 	}
 
-	public static void removeCachedMessages(Context context, String chatRoom) {
+	public static synchronized void removeCachedMessages(Context context, String chatRoom) {
 
 		File file = new File(context.getFilesDir(), "chat-room_"+chatRoom);
 		file.delete();
@@ -103,7 +103,7 @@ public class AkiInternalStorageUtil {
 		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_nickname)+userId, null);
 	}
 
-	public static void cacheNickname(Context context, String userId, String nickname) {
+	public static synchronized void cacheNickname(Context context, String userId, String nickname) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
@@ -111,7 +111,7 @@ public class AkiInternalStorageUtil {
 		editor.commit();
 	}
 
-	public static void unsetCachedNickname(Context context, String userId, String nickname) {
+	public static synchronized void unsetCachedNickname(Context context, String userId, String nickname) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
@@ -148,7 +148,7 @@ public class AkiInternalStorageUtil {
 		return picture;
 	}
 
-	public static void cacheUserPicture(Context context, String userId, Bitmap picture){
+	public static synchronized void cacheUserPicture(Context context, String userId, Bitmap picture){
 
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
@@ -175,7 +175,7 @@ public class AkiInternalStorageUtil {
 		return firstName;
 	}
 
-	public static void cacheUserFirstName(Context context, String userId, String firstName) {
+	public static synchronized void cacheUserFirstName(Context context, String userId, String firstName) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
@@ -211,7 +211,7 @@ public class AkiInternalStorageUtil {
 		return picture;
 	}
 
-	public static void cacheUserCoverPhoto(Context context, String userId, Bitmap picture) {
+	public static synchronized void cacheUserCoverPhoto(Context context, String userId, Bitmap picture) {
 
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
@@ -231,13 +231,13 @@ public class AkiInternalStorageUtil {
 		}
 	}
 	
-	public static boolean mandatorySettingsMissing(Context context){
+	public static boolean isMandatorySettingMissing(Context context){
 		
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_mandatory_setting_missing), false);
 	}
 	
-	public static void setMandatorySettingsMissing(Context context, boolean missing){
+	public static synchronized void aMandatorySettingIsMissing(Context context, boolean missing){
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
@@ -251,7 +251,7 @@ public class AkiInternalStorageUtil {
 		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_anonymous_setting)+userId, true);
 	}
 	
-	public static void setAnonymousSetting(Context context, String userId, boolean checked) {
+	public static synchronized void setAnonymousSetting(Context context, String userId, boolean checked) {
 		
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();

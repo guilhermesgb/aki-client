@@ -22,15 +22,20 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		String event = intent.getAction();
-		String chat_room = intent.getExtras().getString("com.parse.Channel");
+		String chatRoom = intent.getExtras().getString("com.parse.Channel");
 		JsonObject incomingData = JsonValue.readFrom(intent.getExtras().getString("com.parse.Data")).asObject();
 
-		Log.d(AkiApplication.TAG, "Received event [" + event + "] on chat room [" + chat_room + "].");
+		Log.d(AkiApplication.TAG, "Received event [" + event + "] on chat room [" + chatRoom + "].");
 
 		String from = incomingData.get("from").asString();
+		
+		if ( from.equals(AkiApplication.SYSTEM_SENDER_ID) ){
+			return;
+		}
+		
 		String message = incomingData.get("message").asString();
 		
-		AkiInternalStorageUtil.storeNewMessage(context, chat_room, from, message);
+		AkiInternalStorageUtil.storeNewMessage(context, chatRoom, from, message);
 		
 		intent.setClass(context, AkiMainActivity.class);
 		intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -69,5 +74,4 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 			notificationManager.notify(AkiApplication.INCOMING_MESSAGE_NOTIFICATION_ID, notifyBuilder.build());
 		}
 	}
-	
 }

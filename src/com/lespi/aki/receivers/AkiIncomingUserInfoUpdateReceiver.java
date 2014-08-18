@@ -17,14 +17,20 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 
 		String event = intent.getAction();
-		String chat_room = intent.getExtras().getString("com.parse.Channel");
+		String chatRoom = intent.getExtras().getString("com.parse.Channel");
 		JsonObject incomingData = JsonValue.readFrom(intent.getExtras().getString("com.parse.Data")).asObject();
 
-		Log.d(AkiApplication.TAG, "Received event [" + event + "] on chat room [" + chat_room + "].");
+		Log.d(AkiApplication.TAG, "Received event [" + event + "] on chat room [" + chatRoom + "].");
+
 
 		String userId = incomingData.get("from").asString();
 
 		String nickname = incomingData.get("nickname").asString();
+		String oldNickname = AkiInternalStorageUtil.getCachedNickname(context, userId);
+		if ( oldNickname != null && !oldNickname.equals(nickname) ){
+			AkiInternalStorageUtil.storeNewMessage(context, chatRoom,
+					AkiApplication.SYSTEM_SENDER_ID, String.format("%s has changed his nickname to: %s", oldNickname, nickname));
+		}
 		AkiInternalStorageUtil.cacheNickname(context, userId, nickname);
 		
 		Boolean anonymous = incomingData.get("anonymous").asBoolean();

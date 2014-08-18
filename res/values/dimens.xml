@@ -16,6 +16,7 @@
     <dimen name="message_size_me">16sp</dimen>
     <dimen name="sender_name_size_you">14sp</dimen>
     <dimen name="message_size_you">16sp</dimen>
+    <dimen name="message_size_system">12sp</dimen>
     <dimen name="cover_photo_height">120dp</dimen>
     <dimen name="settings_fullname_size">20dp</dimen>
     <dimen name="settings_entry_size">16sp</dimen>

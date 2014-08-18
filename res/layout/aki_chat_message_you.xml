@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:alpha="0.75"
-    android:background="#e5e5e5"
+    android:background="@color/com_lespi_aki_message_box_color"
     android:padding="2dp" >
 
     <TextView
@@ -27,7 +26,7 @@
         android:layout_marginTop="10dp"
         android:layout_toRightOf="@+id/com_lespi_aki_message_sender_picture"
         android:paddingBottom="10dp"
-        android:textColor="#333f4f"
+        android:textColor="@color/com_lespi_aki_message_text_color"
         android:textSize="@dimen/sender_name_size_you"
         android:textStyle="bold" />
 
@@ -39,7 +38,7 @@
         android:layout_below="@+id/com_lespi_aki_message_sender_name"
         android:paddingBottom="5dp"
         android:singleLine="false"
-        android:textColor="#333f4f"
+        android:textColor="@color/com_lespi_aki_message_text_color"
         android:textSize="@dimen/message_size_you" />
 
 </RelativeLayout>

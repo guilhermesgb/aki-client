@@ -122,12 +122,19 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		if ( senderId.equals(currentUser.getId()) ){
 			rowLayout = R.layout.aki_chat_message_me;
 		}
+		else if ( senderId.equals(AkiApplication.SYSTEM_SENDER_ID) ){
+			rowLayout = R.layout.aki_chat_message_system;
+		}
 
 		if ( rowView != null ){
 
 			TextView senderIdView = (TextView) rowView.findViewById(R.id.com_lespi_aki_message_sender_id);
 
-			if ( senderIdView.getText() != null && senderIdView.getText().equals(currentUser.getId()) ){
+			if ( senderIdView.getText() != null && 
+					( senderIdView.getText().equals(AkiApplication.SYSTEM_SENDER_ID) || senderId.equals(AkiApplication.SYSTEM_SENDER_ID) ) ){
+				canReuse = false;
+			}
+			else if ( senderIdView.getText() != null && senderIdView.getText().equals(currentUser.getId()) ){
 				if ( senderId.equals(currentUser.getId()) ){
 					canReuse = true;
 				}
@@ -153,18 +160,21 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			ViewHolder viewHolder = new ViewHolder();
 			viewHolder.senderId = (TextView) rowView.findViewById(R.id.com_lespi_aki_message_sender_id);
 			viewHolder.senderName = (TextView) rowView.findViewById(R.id.com_lespi_aki_message_sender_name);
+			viewHolder.senderName.setAlpha(1);
 			viewHolder.senderPicture = (ImageView) rowView.findViewById(R.id.com_lespi_aki_message_sender_picture);
 			viewHolder.message = (TextView) rowView.findViewById(R.id.com_lespi_aki_message_text_message);
+			viewHolder.message.setAlpha(1);
 			rowView.setTag(viewHolder);
 		}
 
 		final ViewHolder viewHolder = (ViewHolder) rowView.getTag();
 
-		Bitmap placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture);
-		viewHolder.senderPicture.setImageBitmap(getRoundedBitmap(placeholder));
-
 		viewHolder.senderId.setText(senderId);
 		viewHolder.message.setText(newViewData.get("message").asString());
+
+		if ( senderId.equals(AkiApplication.SYSTEM_SENDER_ID) ){
+			return rowView;
+		}
 
 		if ( senderId.equals(currentUser.getId()) ){
 
@@ -221,12 +231,14 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 								viewHolder.senderName.setText(senderId);
 							}
 						}
-					}
-							).executeAsync();
+					}).executeAsync();
 				}
 			}
 		}
 
+		Bitmap placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture);
+		viewHolder.senderPicture.setImageBitmap(getRoundedBitmap(placeholder));
+		
 		if ( ( !currentUser.getId().equals(senderId) && !AkiInternalStorageUtil.getAnonymousSetting(context, senderId) )
 				|| currentUser.getId().equals(senderId) ){
 
