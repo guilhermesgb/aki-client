@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.util.Log;
 
 import com.lespi.aki.AkiApplication;
@@ -287,5 +288,60 @@ public class AkiInternalStorageUtil {
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_anonymous_setting)+userId, checked);
 		editor.commit();
+	}
+
+	public static class AkiLocation implements Serializable {
+		private static final long serialVersionUID = 222707456230422059L;
+		public double latitude;
+		public double longitude;
+		
+		public AkiLocation(double latitude, double longitude){
+			this.latitude = latitude;
+			this.longitude = longitude;
+		}
+	}
+	
+	public static AkiLocation getCachedUserLocation(Context context, String userId) {
+
+		AkiLocation location = null;
+		try{
+			ObjectInputStream ois = new ObjectInputStream(context.openFileInput(context.getString(R.string.com_lespi_aki_data_user_location)+userId));
+
+			location = (AkiLocation) ois.readObject();
+			ois.close();
+		}
+		catch (FileNotFoundException e){
+			Log.i(AkiApplication.TAG, "There is no cached location for this user "+userId+".");
+		}
+		catch (ClassNotFoundException e){
+			Log.e(AkiApplication.TAG, "A problem happened while trying to retrieve" +
+					" the cached location of this user "+userId+".");
+			e.printStackTrace();
+		}
+		catch (IOException e){
+			Log.e(AkiApplication.TAG, "A problem happened while trying to retrieve" +
+					" a cached location of this user "+userId+".");
+			e.printStackTrace();
+		}
+		return location;
+	}
+	
+	public static synchronized void cacheUserLocation(Context context, String userId, Location location) {
+
+		cacheUserLocation(context, userId, new AkiLocation(location.getLatitude(), location.getLongitude()));
+	}
+	
+	public static synchronized void cacheUserLocation(Context context, String userId, AkiLocation location) {
+
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+					context.getString(R.string.com_lespi_aki_data_user_location)+userId, Context.MODE_PRIVATE));
+			oos.writeObject(location);
+			oos.close();
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "A problem happened while trying to cache" +
+					" the location of this user "+userId+".");
+			e.printStackTrace();
+		}
 	}
 }

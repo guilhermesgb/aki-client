@@ -43,4 +43,11 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp" />
 
+    <ImageView
+        android:id="@+id/com_lespi_aki_message_sender_distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/com_lespi_aki_message_sender_distance_hint"
+        android:visibility="gone" />
+
 </RelativeLayout>

@@ -16,7 +16,7 @@
         android:id="@+id/com_lespi_aki_message_sender_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-		android:visibility="visible" />
+        android:visibility="visible" />
 
     <TextView
         android:id="@+id/com_lespi_aki_message_text_message"
@@ -34,6 +34,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
-		android:visibility="gone" />
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/com_lespi_aki_message_sender_distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/com_lespi_aki_message_sender_distance_hint"
+        android:visibility="gone" />
 
 </RelativeLayout>

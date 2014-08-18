@@ -77,6 +77,8 @@ public class AkiChatFragment extends SherlockFragment{
 				public void onCompleted(final GraphUser user, Response response) {
 					if ( user != null ){
 
+						AkiServerUtil.updateGeolocation(activity.getApplicationContext(), user.getId());
+						
 						switchToChatArea(activity);
 						final ImageButton sendMessageBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_send_btn);
 						sendMessageBtn.setEnabled(false);

@@ -1,12 +1,15 @@
 package com.lespi.aki.utils;
 
 import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.lespi.aki.AkiApplication;
 import com.lespi.aki.AkiMainActivity;
 import com.lespi.aki.json.JsonObject;
+import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 import com.parse.PushService;
 import com.parse.internal.AsyncCallback;
 
@@ -73,7 +76,16 @@ public class AkiServerUtil {
 		}
 		boolean anonymous = AkiInternalStorageUtil.getAnonymousSetting(context, userId);
 		payload.add("anonymous", anonymous);
-		//ONCE WE GET GENDER AND GPS POSITION, SEND IT HERE AS WELL//
+		AkiLocation location = AkiInternalStorageUtil.getCachedUserLocation(context, userId);
+		if ( location != null ){
+			JsonObject locationJSON = new JsonObject();
+			locationJSON.add("lat", location.latitude);
+			locationJSON.add("long", location.longitude);
+			payload.add("location", locationJSON);
+		}
+		else{
+			payload.add("location", "unknown");
+		}
 		
 		AkiHttpUtil.doPOSTHttpRequest("/presence/"+userId, payload, new AsyncCallback(){
 
@@ -235,5 +247,14 @@ public class AkiServerUtil {
 				callback.onCancel();
 			}
 		});
+	}
+
+	public static void updateGeolocation(Context context, String userId) {
+
+		LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+		if ( locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ) {
+			Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+			AkiInternalStorageUtil.cacheUserLocation(context, userId, location);
+		}
 	}
 }

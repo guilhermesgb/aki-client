@@ -10,6 +10,7 @@ import com.lespi.aki.AkiChatAdapter;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
+import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 
 public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 
@@ -53,6 +54,25 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 			}
 		}
 		AkiInternalStorageUtil.setAnonymousSetting(context, userId, anonymous);
+		
+		try{
+			
+			AkiLocation location;
+			if ( incomingData.get("location").isString() && incomingData.get("location").asString().equals("unknown") ){
+				location = null;
+			}
+			else{
+				JsonObject locationJSON = incomingData.get("location").asObject();
+				location = new AkiLocation(locationJSON.get("lat").asDouble(), locationJSON.get("long").asDouble());
+			}
+			if ( location != null ){
+				AkiInternalStorageUtil.cacheUserLocation(context, userId, location);
+			}
+		}
+		catch(Exception e){
+			Log.e(AkiApplication.TAG, "Received badly formatted JSON! Someone might be trying to pose as the server.");
+			e.printStackTrace();
+		}
 		
 		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 		chatAdapter.notifyDataSetChanged();

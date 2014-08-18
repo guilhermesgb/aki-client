@@ -35,6 +35,7 @@ import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
+import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 
 public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
@@ -105,6 +106,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		public TextView senderName;
 		public ImageView senderPicture;
 		public TextView message;
+		public ImageView senderDistance;
 	}
 
 	@SuppressLint("CutPasteId")
@@ -164,6 +166,8 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			viewHolder.senderPicture = (ImageView) rowView.findViewById(R.id.com_lespi_aki_message_sender_picture);
 			viewHolder.message = (TextView) rowView.findViewById(R.id.com_lespi_aki_message_text_message);
 			viewHolder.message.setAlpha(1);
+			viewHolder.senderDistance = (ImageView) rowView.findViewById(R.id.com_lespi_aki_message_sender_distance);
+			viewHolder.senderDistance.setImageAlpha(255);
 			rowView.setTag(viewHolder);
 		}
 
@@ -245,11 +249,34 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 							AkiInternalStorageUtil.cacheUserFullName(context, senderId, fullName);
 						}
 						else{
-							Log.e(AkiApplication.TAG, "A problem happened while trying to query user Name from Facebook.");
-							viewHolder.senderName.setText(senderId);
+							if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
+									|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
+
+								String nickname = AkiInternalStorageUtil.getCachedNickname(context, senderId);
+								if ( nickname != null ){
+									viewHolder.senderName.setText(nickname);
+								}
+								else{
+									Log.e(AkiApplication.TAG, "Privacy setting for user " + senderId + " is anonymous but he has no nickname set.");
+									viewHolder.senderName.setText(senderId);
+								}
+							}
+							else{
+								Log.e(AkiApplication.TAG, "A problem happened while trying to query user Name from Facebook.");
+								viewHolder.senderName.setText(senderId);
+							}
 						}
 					}
 				}).executeAsync();
+			}
+			
+			AkiLocation senderLocation = AkiInternalStorageUtil.getCachedUserLocation(context, senderId);
+			if ( senderLocation == null ){
+				viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
+				viewHolder.senderDistance.setImageAlpha(114);
+			}
+			else {
+				//CALCULATE DISTANCE TO CURRENT USER AND UPDATE INDICATOR ACCORDINGLY
 			}
 		}
 
