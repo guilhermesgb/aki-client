@@ -79,7 +79,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 						AkiServerUtil.updateGeolocation(activity.getApplicationContext(), user.getId());
 						
-						switchToChatArea(activity);
+						switchToChatArea(activity, user.getId());
 						final ImageButton sendMessageBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_send_btn);
 						sendMessageBtn.setEnabled(false);
 						Button openSettingsBtn = (Button) activity.findViewById(R.id.com_lespi_aki_main_chat_opensettings_btn);
@@ -180,7 +180,8 @@ public class AkiChatFragment extends SherlockFragment{
 
 	private void switchToLoginArea(AkiMainActivity activity, boolean showSplash){
 		AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
-
+		AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), null);
+		
 		final LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
 		final LinearLayout loginArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.GONE);
@@ -200,7 +201,9 @@ public class AkiChatFragment extends SherlockFragment{
 		}
 	}
 
-	private void switchToChatArea(AkiMainActivity activity){
+	private void switchToChatArea(AkiMainActivity activity, String currentUserId){
+		AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), currentUserId);
+		
 		final LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
 		final LinearLayout loginArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.VISIBLE);

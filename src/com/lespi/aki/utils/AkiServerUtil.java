@@ -67,12 +67,36 @@ public class AkiServerUtil {
 	public static void sendPresenceToServer(final Context context, final String userId, final AsyncCallback callback){
 
 		JsonObject payload = new JsonObject();
-		String nickname = AkiInternalStorageUtil.getCachedNickname(context, userId);
+		String firstName = AkiInternalStorageUtil.getCachedUserFirstName(context, userId);
+		if ( firstName != null ){
+			payload.add("first_name", firstName);
+		}
+		else{
+			payload.add("first_name", "null");			
+		}
+		
+		String fullName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
+		if ( fullName != null ){
+			payload.add("full_name", fullName);
+		}
+		else{
+			payload.add("full_name", "null");			
+		}
+		
+		String gender = AkiInternalStorageUtil.getCachedUserGender(context, userId);
+		if ( gender != null ){
+			payload.add("gender", gender);
+		}
+		else{
+			payload.add("gender", "unknown");
+		}
+		
+		String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
 		if ( nickname != null ){
 			payload.add("nickname", nickname);
 		}
 		else{
-			payload.add("nickname", userId);
+			payload.add("nickname", "null");
 		}
 		boolean anonymous = AkiInternalStorageUtil.getAnonymousSetting(context, userId);
 		payload.add("anonymous", anonymous);

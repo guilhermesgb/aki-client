@@ -197,7 +197,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		if ( senderId.equals(currentUser.getId()) ){
 
 			if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId) ){
-				String nickname = AkiInternalStorageUtil.getCachedNickname(context, senderId);
+				String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, senderId);
 				if ( nickname != null ){
 					viewHolder.senderName.setText(nickname);
 				}
@@ -219,7 +219,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
 						|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
 
-					String nickname = AkiInternalStorageUtil.getCachedNickname(context, senderId);
+					String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, senderId);
 					if ( nickname != null ){
 						viewHolder.senderName.setText(nickname);
 					}
@@ -246,7 +246,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 							if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
 									|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
 
-								String nickname = AkiInternalStorageUtil.getCachedNickname(context, senderId);
+								String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, senderId);
 								if ( nickname != null ){
 									viewHolder.senderName.setText(nickname);
 								}
@@ -266,7 +266,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 							if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
 									|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
 
-								String nickname = AkiInternalStorageUtil.getCachedNickname(context, senderId);
+								String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, senderId);
 								if ( nickname != null ){
 									viewHolder.senderName.setText(nickname);
 								}
@@ -286,6 +286,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			
 			AkiLocation senderLocation = AkiInternalStorageUtil.getCachedUserLocation(context, senderId);
 			if ( senderLocation == null ){
+				Log.d(AkiApplication.TAG, "Cannot calculate distance to " + senderId + " because its location isn't available.");
 				viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
 				viewHolder.senderDistance.setImageAlpha(0);
 			}
@@ -293,15 +294,12 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 				AkiLocation currentLocation = AkiInternalStorageUtil.getCachedUserLocation(context, currentUser.getId());
 				if ( currentLocation == null ){
+					Log.d(AkiApplication.TAG, "Cannot calculate distance to " + senderId + " because current location isn't available.");
 					viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
 					viewHolder.senderDistance.setImageAlpha(0);
 				}
 				else{
 					double distance = calculateDistance(currentLocation, senderLocation);
-					
-					System.out.print("Distance from me and ");
-					System.out.print(AkiInternalStorageUtil.getCachedNickname(context, senderId));
-					System.out.println(": " + distance);
 					
 					double proportion = (distance / AkiApplication.CHAT_RANGE);
 					
@@ -311,7 +309,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 					}
 					else if ( proportion >= 0.65 ){
 						viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
-						viewHolder.senderDistance.setImageAlpha((int)(255 * ( 1 - (proportion % 0.65 + (proportion % 0.65) * 1.8))));
+						viewHolder.senderDistance.setImageAlpha((int)(255 * (proportion % 0.65 + (proportion % 0.65) * 1.8)));
 					}
 					else if ( proportion >= 0.35 ){
 						viewHolder.senderDistance.setImageResource(R.drawable.indicator_close);

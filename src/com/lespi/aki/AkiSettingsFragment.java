@@ -65,7 +65,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 			AkiInternalStorageUtil.cacheUserFullName(context, currentUser.getId(), currentUser.getName());
 
 			final EditText nicknameBox = (EditText) activity.findViewById(R.id.com_lespi_aki_main_settings_nickname);
-			String nickname = AkiInternalStorageUtil.getCachedNickname(context, currentUser.getId());
+			String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, currentUser.getId());
 
 			final CheckBox anonymousCheck = (CheckBox) activity.findViewById(R.id.com_lespi_aki_main_settings_anonymous);
 			anonymousCheck.setChecked(AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()));
@@ -96,7 +96,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				@Override
 				public void onClick(View view) {
 					String newNickname = nicknameBox.getText().toString();
-					String nickname = AkiInternalStorageUtil.getCachedNickname(context, currentUser.getId());
+					String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, currentUser.getId());
 					if ( nickname != null ){
 						nicknameBox.setText(nickname);
 					}
@@ -107,7 +107,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 						toast.show();
 						return;
 					}
-					AkiInternalStorageUtil.cacheNickname(context, currentUser.getId(), newNickname);
+					AkiInternalStorageUtil.cacheUserNickname(context, currentUser.getId(), newNickname);
 					nicknameBox.setText(newNickname);
 					if ( AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
 

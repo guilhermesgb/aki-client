@@ -44,6 +44,20 @@ public class AkiInternalStorageUtil {
 		editor.commit();
 	}
 
+	public static String getCurrentUser(Context context){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_current_user), null);
+	}
+	
+	public static void setCurrentUser(Context context, String currentUserId) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_current_user), currentUserId);
+		editor.commit();
+	}
+	
 	public static JsonArray retrieveMessages(Context context, String chatRoom) {
 
 		JsonArray allMessages = new JsonArray();
@@ -98,21 +112,23 @@ public class AkiInternalStorageUtil {
 		public byte[] imageByteArray;
 	}
 
-	public static String getCachedNickname(Context context, String userId){
+	public static String getCachedUserNickname(Context context, String userId){
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_nickname)+userId, null);
 	}
 
-	public static synchronized void cacheNickname(Context context, String userId, String nickname) {
+	public static synchronized void cacheUserNickname(Context context, String userId, String nickname) {
 
+		Log.d(AkiApplication.TAG, "SETTING NICKNAME TO: " + nickname + "!");
+		
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_user_nickname)+userId, nickname);
 		editor.commit();
 	}
 
-	public static synchronized void unsetCachedNickname(Context context, String userId, String nickname) {
+	public static synchronized void unsetCachedUserNickname(Context context, String userId, String nickname) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
