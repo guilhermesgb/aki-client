@@ -14,9 +14,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -89,7 +89,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				}
 			}
 
-			Button changeNicknameBtn = (Button) activity.findViewById(R.id.com_lespi_aki_main_settings_nickname_btn);
+			ImageButton changeNicknameBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_settings_nickname_btn);
 
 			changeNicknameBtn.setOnClickListener(new OnClickListener() {
 
