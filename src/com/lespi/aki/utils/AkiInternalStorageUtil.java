@@ -151,6 +151,11 @@ public class AkiInternalStorageUtil {
 
 	public static synchronized void cacheUserPicture(Context context, String userId, Bitmap picture){
 
+		if ( picture == null ){
+			Log.e(AkiApplication.TAG, "Cannot cache a null picture for this user "+userId+".");			
+			return;
+		}
+		
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
 					context.getString(R.string.com_lespi_aki_data_user_picture)+userId, Context.MODE_PRIVATE));
@@ -244,6 +249,11 @@ public class AkiInternalStorageUtil {
 
 	public static synchronized void cacheUserCoverPhoto(Context context, String userId, Bitmap picture) {
 
+		if ( picture == null ){
+			Log.e(AkiApplication.TAG, "Cannot cache a null cover photo for this user "+userId+".");			
+			return;
+		}
+		
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
 					context.getString(R.string.com_lespi_aki_data_user_coverphoto)+userId, Context.MODE_PRIVATE));

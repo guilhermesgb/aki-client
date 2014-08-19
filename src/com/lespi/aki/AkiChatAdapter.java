@@ -101,6 +101,20 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		return output;
 	}
 
+	private double calculateDistance(AkiLocation currentLocation, AkiLocation senderLocation) {
+		
+		int R = 6371;
+		double lat1 = ( currentLocation.latitude * Math.PI ) / 180;
+		double lat2 = ( senderLocation.latitude * Math.PI ) / 180;
+		double latDelta = ( (currentLocation.latitude - senderLocation.latitude) * Math.PI ) / 180;
+		double longDelta = ( (currentLocation.longitude - senderLocation.longitude) * Math.PI ) / 180;
+		
+		double a = Math.pow(Math.sin(latDelta), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(longDelta), 2);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+		return R * c;
+	}
+	
 	static class ViewHolder{
 		public TextView senderId;
 		public TextView senderName;
@@ -273,10 +287,41 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			AkiLocation senderLocation = AkiInternalStorageUtil.getCachedUserLocation(context, senderId);
 			if ( senderLocation == null ){
 				viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
-				viewHolder.senderDistance.setImageAlpha(114);
+				viewHolder.senderDistance.setImageAlpha(0);
 			}
 			else {
-				//CALCULATE DISTANCE TO CURRENT USER AND UPDATE INDICATOR ACCORDINGLY
+
+				AkiLocation currentLocation = AkiInternalStorageUtil.getCachedUserLocation(context, currentUser.getId());
+				if ( currentLocation == null ){
+					viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
+					viewHolder.senderDistance.setImageAlpha(0);
+				}
+				else{
+					double distance = calculateDistance(currentLocation, senderLocation);
+					
+					System.out.print("Distance from me and ");
+					System.out.print(AkiInternalStorageUtil.getCachedNickname(context, senderId));
+					System.out.println(": " + distance);
+					
+					double proportion = (distance / AkiApplication.CHAT_RANGE);
+					
+					if ( proportion >= 1 ){
+						viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
+						viewHolder.senderDistance.setImageAlpha(255);
+					}
+					else if ( proportion >= 0.65 ){
+						viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
+						viewHolder.senderDistance.setImageAlpha((int)(255 * ( 1 - (proportion % 0.65 + (proportion % 0.65) * 1.8))));
+					}
+					else if ( proportion >= 0.35 ){
+						viewHolder.senderDistance.setImageResource(R.drawable.indicator_close);
+						viewHolder.senderDistance.setImageAlpha((int)(255 * ( 1 - (proportion % 0.35 + (proportion % 0.35) * 1.8))));
+					}
+					else{
+						viewHolder.senderDistance.setImageResource(R.drawable.indicator_very_close);
+						viewHolder.senderDistance.setImageAlpha((int)(255 * ( 1 - (proportion % 0.35 + (proportion % 0.35) * 1.8))));
+					}
+				}
 			}
 		}
 
