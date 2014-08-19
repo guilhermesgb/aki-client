@@ -29,8 +29,6 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 		
 		if ( userIdJSON != null ){
 
-			Log.e(AkiApplication.TAG, "FALL HERE");
-			
 			String userId = userIdJSON.asString();
 			
 			String firstName = incomingData.get("first_name").asString();
@@ -112,8 +110,6 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 			
 			AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 			chatAdapter.notifyDataSetChanged();
-
-			Log.e(AkiApplication.TAG, "FALL HERE AS WELL");
 		}
 	}
 }
