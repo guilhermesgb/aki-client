@@ -71,33 +71,22 @@ public class AkiServerUtil {
 		if ( firstName != null ){
 			payload.add("first_name", firstName);
 		}
-		else{
-			payload.add("first_name", "null");			
-		}
 		
 		String fullName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
 		if ( fullName != null ){
 			payload.add("full_name", fullName);
-		}
-		else{
-			payload.add("full_name", "null");			
 		}
 		
 		String gender = AkiInternalStorageUtil.getCachedUserGender(context, userId);
 		if ( gender != null ){
 			payload.add("gender", gender);
 		}
-		else{
-			payload.add("gender", "unknown");
-		}
 		
 		String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
 		if ( nickname != null ){
 			payload.add("nickname", nickname);
 		}
-		else{
-			payload.add("nickname", "null");
-		}
+		
 		boolean anonymous = AkiInternalStorageUtil.getAnonymousSetting(context, userId);
 		payload.add("anonymous", anonymous);
 		AkiLocation location = AkiInternalStorageUtil.getCachedUserLocation(context, userId);
@@ -117,7 +106,7 @@ public class AkiServerUtil {
 			public void onSuccess(Object response) {
 				setActiveOnServer(true);
 				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = "You have just logged as: " + userId;
+					CharSequence toastText = "You have just sent presence as: " + userId;
 					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 					toast.show();
 				}
@@ -129,7 +118,7 @@ public class AkiServerUtil {
 			@Override
 			public void onFailure(Throwable failure) {
 				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = "You could not log in.";
+					CharSequence toastText = "You could not send presence.";
 					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 					toast.show();
 				}
@@ -158,7 +147,7 @@ public class AkiServerUtil {
 				if ( responseCode.equals("ok") ){
 					setActiveOnServer(false);
 					if ( AkiApplication.DEBUG_MODE ){
-						CharSequence toastText = "You have just logged out.";
+						CharSequence toastText = "You have just sent leave.";
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
 					}
@@ -168,7 +157,7 @@ public class AkiServerUtil {
 			@Override
 			public void onFailure(Throwable failure) {
 				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = "You could not log out.";
+					CharSequence toastText = "You could not send leave.";
 					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 					toast.show();
 				}
@@ -278,7 +267,9 @@ public class AkiServerUtil {
 		LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		if ( locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ) {
 			Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-			AkiInternalStorageUtil.cacheUserLocation(context, userId, location);
+			if ( location != null ){
+				AkiInternalStorageUtil.cacheUserLocation(context, userId, location);
+			}
 		}
 	}
 }

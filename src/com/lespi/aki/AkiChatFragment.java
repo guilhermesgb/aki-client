@@ -77,6 +77,8 @@ public class AkiChatFragment extends SherlockFragment{
 				public void onCompleted(final GraphUser user, Response response) {
 					if ( user != null ){
 
+						refreshReceivedMessages(activity, session, user);
+						
 						AkiServerUtil.updateGeolocation(activity.getApplicationContext(), user.getId());
 						
 						switchToChatArea(activity, user.getId());
@@ -163,7 +165,6 @@ public class AkiChatFragment extends SherlockFragment{
 							@Override
 							public void onCancel() {
 								Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled.");
-								
 							}
 						});
 					}
@@ -178,9 +179,28 @@ public class AkiChatFragment extends SherlockFragment{
 		}
 	}
 
-	private void switchToLoginArea(AkiMainActivity activity, boolean showSplash){
-		AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
-		AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), null);
+	private void switchToLoginArea(final AkiMainActivity activity, boolean showSplash){
+		AkiInternalStorageUtil.wipeCachedUserLocation(activity.getApplicationContext(), new AsyncCallback() {
+			
+			@Override
+			public void onSuccess(Object response) {
+				AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
+				AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), null);
+			}
+			
+			@Override
+			public void onFailure(Throwable failure) {
+				Log.e(AkiApplication.TAG, "Could not wipe cached user location.");
+				failure.printStackTrace();
+				AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
+				AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), null);
+			}
+			
+			@Override
+			public void onCancel() {
+				Log.e(AkiApplication.TAG, "Wipe cached user location callback canceled.");
+			}
+		});
 		
 		final LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
 		final LinearLayout loginArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_login);

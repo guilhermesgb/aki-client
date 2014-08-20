@@ -19,6 +19,7 @@ import com.lespi.aki.AkiApplication;
 import com.lespi.aki.R;
 import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
+import com.parse.internal.AsyncCallback;
 
 public class AkiInternalStorageUtil {
 
@@ -33,14 +34,6 @@ public class AkiInternalStorageUtil {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_current_chat_room), newChatRoom);
-		editor.commit();
-	}
-
-	public static synchronized void unsetCurrentChatRoom(Context context) {
-
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = sharedPref.edit();
-		editor.putString(context.getString(R.string.com_lespi_aki_data_current_chat_room), null);
 		editor.commit();
 	}
 
@@ -61,6 +54,9 @@ public class AkiInternalStorageUtil {
 	public static JsonArray retrieveMessages(Context context, String chatRoom) {
 
 		JsonArray allMessages = new JsonArray();
+		if ( chatRoom == null ){
+			return allMessages;
+		}
 		try {
 
 			ObjectInputStream ois = new ObjectInputStream(context.openFileInput(
@@ -103,7 +99,7 @@ public class AkiInternalStorageUtil {
 
 	public static synchronized void removeCachedMessages(Context context, String chatRoom) {
 
-		File file = new File(context.getFilesDir(), "chat-room_"+chatRoom);
+		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_chat_messages)+chatRoom);
 		file.delete();
 	}
 
@@ -120,8 +116,6 @@ public class AkiInternalStorageUtil {
 
 	public static synchronized void cacheUserNickname(Context context, String userId, String nickname) {
 
-		Log.d(AkiApplication.TAG, "SETTING NICKNAME TO: " + nickname + "!");
-		
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_user_nickname)+userId, nickname);
@@ -368,6 +362,25 @@ public class AkiInternalStorageUtil {
 			Log.e(AkiApplication.TAG, "A problem happened while trying to cache" +
 					" the location of this user "+userId+".");
 			e.printStackTrace();
+		}
+	}
+
+	public static synchronized void wipeCachedUserLocation(Context context, AsyncCallback callback) {
+		
+		String userId = null;
+		try{
+			
+			userId = getCurrentUser(context);
+			if ( userId == null ){
+				callback.onSuccess(null);
+				return;
+			}
+			File file = new File(context.getFilesDir(), R.string.com_lespi_aki_data_user_location+userId);
+			file.delete();
+			AkiServerUtil.sendPresenceToServer(context, userId, callback);
+		}
+		catch (Exception e){
+			callback.onFailure(e);
 		}
 	}
 }

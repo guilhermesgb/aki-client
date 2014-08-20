@@ -112,30 +112,40 @@ public abstract class AkiHttpUtil {
 		@Override
 		protected void onPostExecute(JsonObject response) {
 			if ( response == null ){
-				callback.onCancel();
+				if ( callback != null ){
+					callback.onCancel();
+				}
 				Log.d(AkiApplication.TAG, "No internet connection available.");
 				return;
 			}
 			JsonValue responseCode = response.get("code");
 			if ( responseCode != null && responseCode.asInt() != 200 ){
 				Log.e(AkiApplication.TAG, "HTTP Request fail.");
-				callback.onFailure(new Exception("The HTTP Request failed."));
+				if ( callback != null ){
+					callback.onFailure(new Exception("The HTTP Request failed."));
+				}
 				return;
 			}
 			JsonObject content = response.get("content").asObject();
-			String endpointResponseCode = content.get("code").asString();
-			if ( endpointResponseCode.equals("ok") ){
-				Log.i(AkiApplication.TAG, "HTTP Request success. Server Endpoint success: " + content.get("server").asString());
-				callback.onSuccess(content);
-				return;
+			if ( content != null ){
+				String endpointResponseCode = content.get("code").asString();
+				if ( endpointResponseCode.equals("ok") ){
+					Log.i(AkiApplication.TAG, "HTTP Request success. Server Endpoint success: " + content.get("server").asString());
+					if ( callback != null ){
+						callback.onSuccess(content);
+					}
+					return;
+				}
+				else if ( endpointResponseCode.equals("error") ){
+					Log.e(AkiApplication.TAG, "HTTP Request success. Server Endpoint error: " + content.get("server").asString());
+				}
+				else{
+					Log.e(AkiApplication.TAG, "HTTP Request success. Server Endpoint problem: " + endpointResponseCode);
+				}
 			}
-			else if ( endpointResponseCode.equals("error") ){
-				Log.i(AkiApplication.TAG, "HTTP Request success. Server Endpoint error: " + content.get("server").asString());
+			if ( callback != null ){
+				callback.onFailure(new Exception("The HTTP Request was successful, but the Server Endpoint faced issues."));
 			}
-			else{
-				Log.i(AkiApplication.TAG, "HTTP Request success. Server Endpoint problem: " + endpointResponseCode);
-			}
-			callback.onFailure(new Exception("The HTTP Request was successful, but the Server Endpoint faced issues."));
 		}
 	}
 	

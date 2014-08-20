@@ -31,42 +31,42 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 
 			String userId = userIdJSON.asString();
 			
-			String firstName = incomingData.get("first_name").asString();
-			if ( firstName != null && !firstName.trim().equals("null") ){
-				AkiInternalStorageUtil.cacheUserFirstName(context, userId, firstName);
+			JsonValue firstName = incomingData.get("first_name");
+			if ( firstName != null ){
+				AkiInternalStorageUtil.cacheUserFirstName(context, userId, firstName.asString());
 			}
 
-			String fullName = incomingData.get("full_name").asString();
-			if ( fullName != null && !fullName.trim().equals("null") ){
+			JsonValue fullName = incomingData.get("full_name");
+			if ( fullName != null ){
 				String oldFullName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
-				if ( oldFullName != null && !oldFullName.equals(fullName)
+				if ( oldFullName != null && !oldFullName.equals(fullName.asString())
 						&& currentUserId != null && !currentUserId.equals(userId) ){
 
 					String format = "%s is now called: %s";
 					AkiInternalStorageUtil.storeNewMessage(context, chatRoom,
-							AkiApplication.SYSTEM_SENDER_ID, String.format(format, oldFullName, fullName));
+							AkiApplication.SYSTEM_SENDER_ID, String.format(format, oldFullName, fullName.asString()));
 				}
-				AkiInternalStorageUtil.cacheUserFullName(context, userId, fullName);
+				AkiInternalStorageUtil.cacheUserFullName(context, userId, fullName.asString());
 			}
 			
-			String userGender = incomingData.get("gender").asString();
+			JsonValue userGender = incomingData.get("gender");
 			if ( userGender != null ){
 
-				AkiInternalStorageUtil.cacheUserGender(context, userId, userGender);
+				AkiInternalStorageUtil.cacheUserGender(context, userId, userGender.asString());
 			}
 			
-			String nickname = incomingData.get("nickname").asString();
-			if ( nickname != null && !nickname.trim().equals("null") ){
+			JsonValue nickname = incomingData.get("nickname");
+			if ( nickname != null ){
 				
 				String oldNickname = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
-				if ( oldNickname != null && !oldNickname.equals(nickname)
+				if ( oldNickname != null && !oldNickname.equals(nickname.asString())
 						&& currentUserId != null && !currentUserId.equals(userId) ){
 
 					String format = "%s has changed his nickname to: %s";
 					AkiInternalStorageUtil.storeNewMessage(context, chatRoom,
-							AkiApplication.SYSTEM_SENDER_ID, String.format(format, oldNickname, nickname));
+							AkiApplication.SYSTEM_SENDER_ID, String.format(format, oldNickname, nickname.asString()));
 				}
-				AkiInternalStorageUtil.cacheUserNickname(context, userId, nickname);
+				AkiInternalStorageUtil.cacheUserNickname(context, userId, nickname.asString());
 			}
 
 			boolean anonymous = true;

@@ -210,7 +210,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				viewHolder.senderName.setText(currentUser.getFirstName());
 			}
 			AkiInternalStorageUtil.cacheUserFirstName(context, senderId, currentUser.getFirstName());
-			AkiInternalStorageUtil.cacheUserFirstName(context, currentUser.getId(), currentUser.getName());
+			AkiInternalStorageUtil.cacheUserFullName(context, currentUser.getId(), currentUser.getName());
 		}
 		else{
 
