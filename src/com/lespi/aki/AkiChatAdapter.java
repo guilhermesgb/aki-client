@@ -101,17 +101,17 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		return output;
 	}
 
-	private double calculateDistance(AkiLocation currentLocation, AkiLocation senderLocation) {
+	public static double calculateDistance(AkiLocation currentLocation, AkiLocation senderLocation) {
 		
 		int R = 6371;
-		double lat1 = ( currentLocation.latitude * Math.PI ) / 180;
-		double lat2 = ( senderLocation.latitude * Math.PI ) / 180;
-		double latDelta = ( (currentLocation.latitude - senderLocation.latitude) * Math.PI ) / 180;
-		double longDelta = ( (currentLocation.longitude - senderLocation.longitude) * Math.PI ) / 180;
-		
-		double a = Math.pow(Math.sin(latDelta), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(longDelta), 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		double lat1 = Math.toRadians(currentLocation.latitude);
+		double lat2 = Math.toRadians(senderLocation.latitude);
+		double dLat = Math.toRadians(senderLocation.latitude - currentLocation.latitude);
+		double dLong = Math.toRadians(senderLocation.longitude - currentLocation.longitude);
 
+		double a = Math.pow(Math.sin(dLat/2), 2) + Math.cos(lat1) *
+				Math.cos(lat2) * Math.pow(Math.sin(dLong/2), 2);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 		return R * c;
 	}
 	
