@@ -101,7 +101,8 @@ public class AkiSettingsFragment extends SherlockFragment {
 						nicknameBox.setText(nickname);
 					}
 
-					if ( newNickname.trim().isEmpty() ){
+					newNickname = newNickname.trim();
+					if ( newNickname.isEmpty() ){
 						CharSequence toastText = "Nickname cannot be blank!";
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
