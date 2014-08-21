@@ -26,7 +26,7 @@ public class AkiApplication extends Application {
 	
 	public static final String SYSTEM_SENDER_ID = "System";
 	
-	public static final double CHAT_RANGE = 0.05f; // In kilometers
+	public static final double CHAT_RANGE = 0.015f; // In kilometers
 	
 	public static CookieManager cookieManager;
 	static {

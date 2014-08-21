@@ -301,6 +301,9 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				else{
 					double distance = calculateDistance(currentLocation, senderLocation);
 					
+					Log.d(AkiApplication.TAG,
+							"Distance to " + AkiInternalStorageUtil.getCachedUserNickname(context, senderId) + ": " + distance);
+					
 					double proportion = (distance / AkiApplication.CHAT_RANGE);
 					
 					if ( proportion >= 1 ){
