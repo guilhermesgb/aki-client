@@ -20,6 +20,7 @@ public class AkiApplication extends Application {
 
 	public static boolean IN_BACKGROUND = true;
 	public static boolean IN_SETTINGS = false;
+	public static boolean LOGGED_IN = false;
 	
 	public static int INCOMING_MESSAGES_COUNTER = 0;
 	public static final int INCOMING_MESSAGE_NOTIFICATION_ID = 1011;
@@ -27,6 +28,15 @@ public class AkiApplication extends Application {
 	public static final String SYSTEM_SENDER_ID = "System";
 	
 	public static final double CHAT_RANGE = 0.015f; // In kilometers
+	
+    public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+
+    public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
+    public static final int FAST_CEILING_IN_SECONDS = 1;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS =
+            1000 * UPDATE_INTERVAL_IN_SECONDS;
+    public static final long FAST_INTERVAL_CEILING_IN_MILLISECONDS =
+            1000 * FAST_CEILING_IN_SECONDS;
 	
 	public static CookieManager cookieManager;
 	static {
@@ -75,5 +85,12 @@ public class AkiApplication extends Application {
 	public static void isNotShowingSettingsMenu() {
 		IN_SETTINGS = false;
 	}
+	
+	public static void isLoggedIn() {
+		LOGGED_IN = true;
+	}
 
+	public static void isNotLoggedIn() {
+		LOGGED_IN = false;
+	}
 }

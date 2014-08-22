@@ -1,8 +1,6 @@
 package com.lespi.aki.utils;
 
 import android.content.Context;
-import android.location.Location;
-import android.location.LocationManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -260,16 +258,5 @@ public class AkiServerUtil {
 				callback.onCancel();
 			}
 		});
-	}
-
-	public static void updateGeolocation(Context context, String userId) {
-
-		LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-		if ( locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ) {
-			Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-			if ( location != null ){
-				AkiInternalStorageUtil.cacheUserLocation(context, userId, location);
-			}
-		}
 	}
 }

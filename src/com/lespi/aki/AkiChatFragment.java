@@ -69,7 +69,7 @@ public class AkiChatFragment extends SherlockFragment{
 			return;
 		}
 		
-		if (state.isOpened()) {
+		if ( state.isOpened() ) {
 
 			Request.newMeRequest(session, new Request.GraphUserCallback() {
 
@@ -78,8 +78,6 @@ public class AkiChatFragment extends SherlockFragment{
 					if ( user != null ){
 
 						refreshReceivedMessages(activity, session, user);
-						
-						AkiServerUtil.updateGeolocation(activity.getApplicationContext(), user.getId());
 						
 						switchToChatArea(activity, user.getId());
 						final ImageButton sendMessageBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_send_btn);
@@ -180,6 +178,11 @@ public class AkiChatFragment extends SherlockFragment{
 	}
 
 	private void switchToLoginArea(final AkiMainActivity activity, boolean showSplash){
+		AkiApplication.isNotLoggedIn();
+		if ( activity.locationServicesConnected() ){
+			activity.stopPeriodicLocationUpdates();
+		}
+		
 		AkiInternalStorageUtil.wipeCachedUserLocation(activity.getApplicationContext(), new AsyncCallback() {
 			
 			@Override
@@ -222,6 +225,11 @@ public class AkiChatFragment extends SherlockFragment{
 	}
 
 	private void switchToChatArea(AkiMainActivity activity, String currentUserId){
+		AkiApplication.isLoggedIn();
+		if ( activity.locationServicesConnected() ){
+			activity.startPeriodicLocationUpdates();
+		}
+		
 		AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), currentUserId);
 		
 		final LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
