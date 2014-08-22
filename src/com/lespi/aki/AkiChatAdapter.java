@@ -320,7 +320,11 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 					}
 					else{
 						viewHolder.senderDistance.setImageResource(R.drawable.indicator_very_close);
-						viewHolder.senderDistance.setImageAlpha((int)(255 * ( 1 - (proportion % 0.35 + (proportion % 0.35) * 1.8))));
+						int opacity = (int)(255 * ( 1 - (proportion % 0.35 + (proportion % 0.35) * 1.8)));
+						if ( opacity < 128 ){
+							opacity = 128;
+						}
+						viewHolder.senderDistance.setImageAlpha(opacity);
 					}
 				}
 			}

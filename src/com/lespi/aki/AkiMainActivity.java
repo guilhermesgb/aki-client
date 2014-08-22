@@ -259,6 +259,9 @@ public class AkiMainActivity extends SlidingFragmentActivity implements
 		AkiInternalStorageUtil.cacheUserLocation(context, currentUserId, location);
 		Log.w(AkiApplication.TAG, "Current location updated to: " +
 				location.getLatitude() + ", " + location.getLongitude());
+
+		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+		chatAdapter.notifyDataSetChanged();
 		
 		double probability = (new Random()).nextDouble();
 		if ( (!AkiApplication.IN_BACKGROUND && probability > 0.95)
