@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+  <head>
+    <link rel="stylesheet" type="text/css" href="file:///android_asset/css/bootstrap.min.css">
+  </head>
+
+  <body style="background-color: transparent; style="height: 100%;">
+    <div id="_carousel" class="carousel slide" data-ride="carousel" data-interval="false" data-wrap="false" style="height: 100%;">
+      <ol class="carousel-indicators">
+        <li data-target="#_carousel" data-slide-to="0" class="active"></li>
+	<li data-target="#_carousel" data-slide-to="1"></li>
+	<li data-target="#_carousel" data-slide-to="2"></li>
+      </ol>
+      <div class="carousel-inner" style="width: 100%; height: 535px;">
+        <div class="item active">
+            <div class="carousel-caption">
+              <h1 style="color: black;">Welcome to Aki</h1>
+	      <p>
+	        "Explore those places you already love. In a new way."
+	      </p>
+	    </div>
+	</div>
+        <div class="item">
+            <div class="carousel-caption">
+              <h1>Tutorial</h1>
+	      <p>
+	        "Some instructions!"
+	      </p>
+	    </div>
+	</div>
+        <div class="item">
+            <div class="carousel-caption">
+              <h1>Tutorial 2</h1>
+	      <p>
+	        "More instructions!"
+	      </p>
+	    </div>
+	</div>
+      </div>
+<!--      <a class="left carousel-control" href="#_carousel" role="button" data-slide="prev"><span class="glyphicon glyphicon-chevron-left"></span></a>
+      <a class="right carousel-control" href="#_carousel" role="button" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a>-->
+    </div>
+    <script type="text/javascript" src="file:///android_asset/js/jquery.min.js"></script>
+    <script type="text/javascript" src="file:///android_asset/js/jquery.mobile.custom.min.js"></script>
+    <script type="text/javascript" src="file:///android_asset/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+
+      $(document).ready(function() {
+
+        $.event.special.swipe.scrollSupressionThreshold = 10;
+        $.event.special.swipe.horizontalDistanceThreshold = (screen.availWidth) / 180;
+        $.event.special.swipe.verticalDistanceThreshold = screen.availHeight / 13;
+        $.event.special.swipe.durationThreshold = 1000;
+
+        $("#_carousel").swiperight(function() {
+          $(this).carousel('prev');
+        });
+        $("#_carousel").swipeleft(function() {
+          $(this).carousel('next');
+        });
+      });
+    </script>
+  </body>
+
+</html>

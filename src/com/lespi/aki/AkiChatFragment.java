@@ -2,6 +2,7 @@ package com.lespi.aki;
 
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -11,6 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -50,14 +54,39 @@ public class AkiChatFragment extends SherlockFragment{
 		}
 	};
 
+	private class WebViewMonitor extends WebViewClient {
+		
+		@Override
+		public void onPageFinished(WebView view, String url) {
+			super.onPageFinished(view, url);
+			view.setBackgroundColor(0x00000000);
+			view.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+		}
+	}
+	
+	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 			ViewGroup container, Bundle savedInstanceState){
 
 		View view = inflater.inflate(R.layout.aki_chat_fragment, container, false);
+
 		LoginButton authButton = (LoginButton) view.findViewById(R.id.com_lespi_aki_main_login_auth_btn);
 		authButton.setFragment(this);
 		authButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+		
+		WebView webView = new WebView(getActivity().getApplicationContext());
+		webView.setClickable(true);
+		webView.getSettings().setJavaScriptEnabled(true);
+		webView.setWebViewClient(new WebViewMonitor());
+		webView.setBackgroundColor(0x00000000);
+		webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+		webView.loadUrl("file:///android_asset/aki.html");
+
+		LinearLayout loginLayout = (LinearLayout) container.findViewById(R.id.com_lespi_aki_main_login);
+		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		loginLayout.addView(webView, 0, params);
+
 		return view;
 	}
 
