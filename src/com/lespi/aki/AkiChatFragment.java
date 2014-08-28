@@ -208,6 +208,10 @@ public class AkiChatFragment extends SherlockFragment{
 	}
 
 	private void switchToLoginArea(final AkiMainActivity activity, boolean showSplash){
+		if ( AkiApplication.LOGGED_IN ){
+			WebView webView = (WebView) activity.findViewById(R.id.com_lespi_aki_main_login_webview);
+			webView.loadUrl("javascript:show_login_screen();");
+		}
 		AkiApplication.isNotLoggedIn();
 		if ( activity.locationServicesConnected() ){
 			activity.stopPeriodicLocationUpdates();
@@ -240,9 +244,6 @@ public class AkiChatFragment extends SherlockFragment{
 		chatArea.setVisibility(View.GONE);
 		loginArea.setVisibility(View.VISIBLE);
 
-		WebView webView = (WebView) activity.findViewById(R.id.com_lespi_aki_main_login_webview);
-		webView.loadUrl("javascript:show_login_screen();");
-		
 		SlidingMenu slidingMenu = activity.getSlidingMenu();
 		slidingMenu.showContent();
 		slidingMenu.setSlidingEnabled(false);
