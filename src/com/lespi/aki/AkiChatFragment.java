@@ -83,6 +83,7 @@ public class AkiChatFragment extends SherlockFragment{
 		webView.setBackgroundColor(0x00000000);
 		webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
 		webView.loadUrl("file:///android_asset/aki.html");
+		webView.setId(R.id.com_lespi_aki_main_login_webview);
 
 		RelativeLayout loginLayout = (RelativeLayout) container.findViewById(R.id.com_lespi_aki_main_login);
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
@@ -239,6 +240,9 @@ public class AkiChatFragment extends SherlockFragment{
 		chatArea.setVisibility(View.GONE);
 		loginArea.setVisibility(View.VISIBLE);
 
+		WebView webView = (WebView) activity.findViewById(R.id.com_lespi_aki_main_login_webview);
+		webView.loadUrl("javascript:show_login_screen();");
+		
 		SlidingMenu slidingMenu = activity.getSlidingMenu();
 		slidingMenu.showContent();
 		slidingMenu.setSlidingEnabled(false);
