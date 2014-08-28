@@ -23,8 +23,11 @@
         background-repeat: repeat-x;
       }
       .carousel-control.left,
-      .carousel-control.right {
+      .carousel-control.left:hover,
+      .carousel-control.right,
+      .carousel-control.right:hover {
         background-image: none;
+        opacity: 1;
       }
       @keyframes fadein {
         from { opacity: 0; }
@@ -40,7 +43,7 @@
         animation: fadein 2s;
       }
       .fade-in-later {
-        opacity: 0;
+        opacity: 0 !important;
         -webkit-animation-delay: 4s;
         animation-delay: 4s;
         -webkit-animation-fill-mode: forwards;
@@ -98,6 +101,7 @@
       $("#_carousel").on("slide.bs.carousel", function(event) {
         $(".carousel-control").addClass("fade-in-now");
         $(".carousel-control").removeClass("fade-in-later");
+        $(".carousel-control").blur();
         if ( $(event.relatedTarget).hasClass("first") ){
           $(".left.carousel-control").hide();
           $(".right.carousel-control").show();
