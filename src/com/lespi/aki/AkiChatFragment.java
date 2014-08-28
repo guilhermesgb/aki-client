@@ -86,8 +86,8 @@ public class AkiChatFragment extends SherlockFragment{
 
 		RelativeLayout loginLayout = (RelativeLayout) container.findViewById(R.id.com_lespi_aki_main_login);
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-		loginLayout.addView(webView, 1, params);
-
+		params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		loginLayout.addView(webView, 0, params);
 		return view;
 	}
 
