@@ -126,7 +126,7 @@ public class AkiMainActivity extends SlidingFragmentActivity implements
 		AkiApplication.isNowInBackground();
 
 		if ( AkiServerUtil.isActiveOnServer() ){
-			AkiServerUtil.leaveServer(getApplicationContext());
+			AkiServerUtil.sendInactiveOnServer(getApplicationContext());
 		}
 	}
 

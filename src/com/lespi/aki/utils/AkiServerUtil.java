@@ -30,24 +30,19 @@ public class AkiServerUtil {
 			@Override
 			public void onSuccess(Object response) {
 				JsonObject responseJSON = (JsonObject) response;
-				setActiveOnServer(true);
-				if ( AkiApplication.DEBUG_MODE ){
-					String username = responseJSON.get("username").asString();
-					CharSequence toastText = "You are logged as: " + username;
-					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-					toast.show();
+				if ( !responseJSON.get("username").isNull() ){
+					setActiveOnServer(true);
+					callback.onSuccess(response);
 				}
-				callback.onSuccess(response);
+				else{
+					setActiveOnServer(false);
+					callback.onFailure(null);
+				}
 			}
 
 			@Override
 			public void onFailure(Throwable failure) {
 				setActiveOnServer(false);
-				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = "You are not logged.";
-					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-					toast.show();
-				}
 				callback.onFailure(failure);
 			}
 
@@ -134,9 +129,9 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void leaveServer(final Context context){
+	public static void sendInactiveOnServer(final Context context){
 
-		AkiHttpUtil.doPOSTHttpRequest("/leave", new AsyncCallback() {
+		AkiHttpUtil.doPOSTHttpRequest("/inactive", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -155,17 +150,17 @@ public class AkiServerUtil {
 			@Override
 			public void onFailure(Throwable failure) {
 				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = "You could not send leave.";
+					CharSequence toastText = "You could not send inactive.";
 					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 					toast.show();
 				}
-				Log.e(AkiApplication.TAG, "Could not leave server.");
+				Log.e(AkiApplication.TAG, "Could not send inactive.");
 				failure.printStackTrace();
 			}
 
 			@Override
 			public void onCancel() {
-				Log.e(AkiApplication.TAG, "Endpoint:leaveServer callback canceled.");
+				Log.e(AkiApplication.TAG, "Endpoint:sendInactiveOnServer callback canceled.");
 			}
 		});
 	}

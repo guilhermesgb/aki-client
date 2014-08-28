@@ -202,7 +202,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 			switchToLoginArea(activity, false);
 			if ( AkiServerUtil.isActiveOnServer() ){
-				AkiServerUtil.leaveServer(activity.getApplicationContext());
+				AkiServerUtil.sendInactiveOnServer(activity.getApplicationContext());
 			}
 		}
 	}
@@ -343,13 +343,15 @@ public class AkiChatFragment extends SherlockFragment{
 
 				@Override
 				public void onSuccess(Object response) {
-					AkiServerUtil.leaveServer(activity.getApplicationContext());
+					AkiServerUtil.sendInactiveOnServer(activity.getApplicationContext());
 				}
 
 				@Override
 				public void onFailure(Throwable failure) {
-					Log.e(AkiApplication.TAG, "Could not get presence from server.");
-					failure.printStackTrace();
+					Log.i(AkiApplication.TAG, "Could not get presence from server.");
+					if ( failure != null ){
+						failure.printStackTrace();
+					}
 				}
 
 				@Override
