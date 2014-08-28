@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#343f4f"
+    android:background="@color/com_lespi_aki_splash_color"
     tools:context="com.lespi.aki.AkiSplashActivity"
     tools:ignore="MergeRootFrame" >
 

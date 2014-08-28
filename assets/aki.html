@@ -2,48 +2,92 @@
 <html style="height: 100%;">
   <head>
     <link rel="stylesheet" type="text/css" href="file:///android_asset/css/bootstrap.min.css">
+    <style rel="stylesheet" type="text/css">
+      @keyframes fadein {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      @-webkit-keyframes fadein {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      .fade-in-later,
+      .fade-in-now {
+        -webkit-animation: fadein 2s;
+        animation: fadein 2s;
+      }
+      .fade-in-later {
+        opacity: 0;
+        -webkit-animation-delay: 4s;
+        animation-delay: 4s;
+        -webkit-animation-fill-mode: forwards;
+        animation-fill-mode: forwards;
+      }
+    </style>
   </head>
 
   <body style="background-color: transparent; style="height: 100%;">
     <div id="_carousel" class="carousel slide" data-ride="carousel" data-interval="false" data-wrap="false" style="height: 100%;">
       <ol class="carousel-indicators">
         <li data-target="#_carousel" data-slide-to="0" class="active"></li>
-	<li data-target="#_carousel" data-slide-to="1"></li>
-	<li data-target="#_carousel" data-slide-to="2"></li>
+        <li data-target="#_carousel" data-slide-to="1"></li>
+        <li data-target="#_carousel" data-slide-to="2"></li>
       </ol>
-      <div class="carousel-inner" style="width: 100%; height: 535px;">
-        <div class="item active">
-            <div class="carousel-caption">
-              <h1 style="color: black;">Welcome to Aki</h1>
-	      <p>
-	        "Explore those places you already love. In a new way."
-	      </p>
-	    </div>
-	</div>
-        <div class="item">
-            <div class="carousel-caption">
-              <h1>Tutorial</h1>
-	      <p>
-	        "Some instructions!"
-	      </p>
-	    </div>
-	</div>
-        <div class="item">
-            <div class="carousel-caption">
-              <h1>Tutorial 2</h1>
-	      <p>
-	        "More instructions!"
-	      </p>
-	    </div>
-	</div>
+      <div class="carousel-inner" style="width: 100%; height: 435px;">
+        <div class="first item active" style="width: 100%; height: 435px;">
+          <img src="file:///android_asset/img/logo.png" class="fade-in-now img-responsive" style="padding-top: 30%; margin-left: auto; margin-right: auto;">
+          <div class="fade-in-later carousel-caption"">
+            <p>
+              Wanna know how it works?
+            </p>
+            <p>
+              Swipe to the right!
+            </p>
+          </div>
+        </div>
+        <div class="item" style="width: 100%; height: 435px; background-image: url('file:///android_asset/img/background.png'); background-repeat: repeat-x;">
+          <div class="carousel-caption">
+            <h1>Tutorial</h1>
+            <p>
+              "Some instructions!"
+            </p>
+          </div>
+        </div>
+        <div class="last item" style="width: 100%; height: 435px; background-image: url('file:///android_asset/img/background.png'); background-repeat: repeat-x;">
+          <div class="carousel-caption">
+            <h1>Tutorial 2</h1>
+            <p>
+              "More instructions!"
+            </p>
+          </div>
+        </div>
       </div>
-<!--      <a class="left carousel-control" href="#_carousel" role="button" data-slide="prev"><span class="glyphicon glyphicon-chevron-left"></span></a>
-      <a class="right carousel-control" href="#_carousel" role="button" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a>-->
+      <a class="fade-in-now left carousel-control" href="#_carousel" role="button" data-slide="prev"><span class="glyphicon glyphicon-chevron-left"></span></a>
+      <a class="fade-in-later right carousel-control" href="#_carousel" role="button" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a>
     </div>
     <script type="text/javascript" src="file:///android_asset/js/jquery.min.js"></script>
     <script type="text/javascript" src="file:///android_asset/js/jquery.mobile.custom.min.js"></script>
     <script type="text/javascript" src="file:///android_asset/js/bootstrap.min.js"></script>
     <script type="text/javascript">
+
+      $(".left.carousel-control").hide();
+
+      $("#_carousel").on("slide.bs.carousel", function(event) {
+        $(".carousel-control").addClass("fade-in-now");
+        $(".carousel-control").removeClass("fade-in-later");
+        if ( $(event.relatedTarget).hasClass("first") ){
+          $(".left.carousel-control").hide();
+          $(".right.carousel-control").show();
+        }
+        else if ( $(event.relatedTarget).hasClass("last") ) {
+          $(".right.carousel-control").hide();
+          $(".left.carousel-control").show();
+        }
+        else{
+          $(".left.carousel-control").show();
+          $(".right.carousel-control").show();
+        }
+      });
 
       $(document).ready(function() {
 
@@ -61,5 +105,4 @@
       });
     </script>
   </body>
-
 </html>

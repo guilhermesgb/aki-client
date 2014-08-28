@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -83,9 +84,9 @@ public class AkiChatFragment extends SherlockFragment{
 		webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
 		webView.loadUrl("file:///android_asset/aki.html");
 
-		LinearLayout loginLayout = (LinearLayout) container.findViewById(R.id.com_lespi_aki_main_login);
-		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-		loginLayout.addView(webView, 0, params);
+		RelativeLayout loginLayout = (RelativeLayout) container.findViewById(R.id.com_lespi_aki_main_login);
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		loginLayout.addView(webView, 1, params);
 
 		return view;
 	}
@@ -235,7 +236,7 @@ public class AkiChatFragment extends SherlockFragment{
 		});
 		
 		final LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
-		final LinearLayout loginArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
+		final RelativeLayout loginArea = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.GONE);
 		loginArea.setVisibility(View.VISIBLE);
 
@@ -262,7 +263,7 @@ public class AkiChatFragment extends SherlockFragment{
 		AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), currentUserId);
 		
 		final LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
-		final LinearLayout loginArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
+		final RelativeLayout loginArea = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.VISIBLE);
 		loginArea.setVisibility(View.GONE);
 
