@@ -151,7 +151,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 
 			final ImageView settingsPicture = (ImageView) activity.findViewById(R.id.com_lespi_aki_main_settings_picture);
 
-			Bitmap placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown);
+			Bitmap placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown_gender);
 			String gender = currentUser.asMap().get("gender").toString();
 			if ( gender != null ){
 				AkiInternalStorageUtil.cacheUserGender(context, currentUser.getId(), gender);

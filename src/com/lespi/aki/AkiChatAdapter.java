@@ -121,6 +121,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		public ImageView senderPicture;
 		public TextView message;
 		public ImageView senderDistance;
+		public ImageView senderGender;
 	}
 
 	@SuppressLint("CutPasteId")
@@ -182,6 +183,8 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			viewHolder.message.setAlpha(1);
 			viewHolder.senderDistance = (ImageView) rowView.findViewById(R.id.com_lespi_aki_message_sender_distance);
 			viewHolder.senderDistance.setImageAlpha(255);
+			viewHolder.senderGender = (ImageView) rowView.findViewById(R.id.com_lespi_aki_message_sender_gender);
+			viewHolder.senderGender.setImageAlpha(255);
 			rowView.setTag(viewHolder);
 		}
 
@@ -356,17 +359,21 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			gender = AkiInternalStorageUtil.getCachedUserGender(context, senderId);
 		}
 
-		Bitmap placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown);
+		Bitmap picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown_gender);
+		Bitmap genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_unknown_gender);
 		if ( gender != null ){
 			if ( gender.equals("male") ){
-				placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_male);
+				picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_male);
+				genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_male);
 			}
 			else if ( gender.equals("female") ){
-				placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_female);				
+				picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_female);				
+				genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_female);
 			}
 		}
-		viewHolder.senderPicture.setImageBitmap(getRoundedBitmap(placeholder));
-
+		viewHolder.senderPicture.setImageBitmap(getRoundedBitmap(picturePlaceholder));
+		viewHolder.senderGender.setImageBitmap(genderPlaceholder);
+		
 		if ( !( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
 				|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) )
 				|| currentUser.getId().equals(senderId) ){

@@ -22,7 +22,7 @@
         android:id="@+id/com_lespi_aki_message_text_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:singleLine="true"
         android:textColor="@color/com_lespi_aki_message_text_color_system"
@@ -41,6 +41,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/com_lespi_aki_message_sender_distance_hint"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/com_lespi_aki_message_sender_gender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/com_lespi_aki_message_sender_gender_hint"
         android:visibility="gone" />
 
 </RelativeLayout>
