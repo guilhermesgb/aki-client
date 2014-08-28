@@ -170,7 +170,7 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void enterChatRoom(Context context, String newChatRoom) {
+	public static void enterChatRoom(Context context, String currentUserId, String newChatRoom) {
 
 		String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
 		if ( currentChatRoom == null ){
@@ -191,6 +191,7 @@ public class AkiServerUtil {
 					currentChatRoom + "} because will be assigned to new chat room " +
 					"address {" + newChatRoom + "}.");
 			AkiInternalStorageUtil.removeCachedMessages(context, currentChatRoom);
+			AkiInternalStorageUtil.setAnonymousSetting(context, currentUserId, true);
 		}
 
 		if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){

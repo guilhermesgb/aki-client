@@ -136,8 +136,16 @@ public class AkiSettingsFragment extends SherlockFragment {
 
 				@Override
 				public void onClick(View view) {
-					AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), anonymousCheck.isChecked());
-					AkiServerUtil.sendPresenceToServer(context, currentUser.getId());
+					if ( anonymousCheck.isChecked() != true && !AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
+						AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), anonymousCheck.isChecked());
+						AkiServerUtil.sendPresenceToServer(context, currentUser.getId());
+					}
+					else{
+						anonymousCheck.setChecked(false);
+						CharSequence toastText = "You cannot be anonymous again, in this chat room!";
+						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+						toast.show();
+					}
 				}
 			});
 

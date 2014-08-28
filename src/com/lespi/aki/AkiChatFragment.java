@@ -107,9 +107,8 @@ public class AkiChatFragment extends SherlockFragment{
 				public void onCompleted(final GraphUser user, Response response) {
 					if ( user != null ){
 
-						refreshReceivedMessages(activity, session, user);
-						
 						switchToChatArea(activity, user.getId());
+						refreshReceivedMessages(activity, session, user);
 						final ImageButton sendMessageBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_send_btn);
 						sendMessageBtn.setEnabled(false);
 						Button openSettingsBtn = (Button) activity.findViewById(R.id.com_lespi_aki_main_chat_opensettings_btn);
@@ -127,7 +126,7 @@ public class AkiChatFragment extends SherlockFragment{
 							@Override
 							public void onSuccess(Object response) {
 								JsonObject responseJSON = (JsonObject) response;
-								AkiServerUtil.enterChatRoom(activity.getApplicationContext(), responseJSON.get("chat_room").asString());
+								AkiServerUtil.enterChatRoom(activity.getApplicationContext(), user.getId(), responseJSON.get("chat_room").asString());
 
 								refreshSettings(activity, session, user, new AsyncCallback(){
 
