@@ -373,6 +373,13 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		}
 		viewHolder.senderPicture.setImageBitmap(getRoundedBitmap(picturePlaceholder));
 		viewHolder.senderGender.setImageBitmap(genderPlaceholder);
+		if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
+				|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
+			viewHolder.senderGender.setImageAlpha(0);
+		}
+		else{
+			viewHolder.senderGender.setImageAlpha(255);			
+		}
 		
 		if ( !( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
 				|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) )
