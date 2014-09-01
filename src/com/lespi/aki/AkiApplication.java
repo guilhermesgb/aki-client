@@ -24,10 +24,11 @@ public class AkiApplication extends Application {
 	
 	public static int INCOMING_MESSAGES_COUNTER = 0;
 	public static final int INCOMING_MESSAGE_NOTIFICATION_ID = 1011;
+	public static final int EXITED_ROOM_NOTIFICATION_ID = 1012;
 	
 	public static final String SYSTEM_SENDER_ID = "System";
 	
-	public static final double CHAT_RANGE = 0.05f; // In kilometers
+	public static final float MIN_RADIUS = 0.05f; // In kilometers
 	
     public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
@@ -37,7 +38,7 @@ public class AkiApplication extends Application {
             1000 * UPDATE_INTERVAL_IN_SECONDS;
     public static final long FAST_INTERVAL_CEILING_IN_MILLISECONDS =
             1000 * FAST_CEILING_IN_SECONDS;
-	
+    
 	public static CookieManager cookieManager;
 	static {
 		disableConnectionReuseIfNecessary();

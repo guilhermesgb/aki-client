@@ -56,7 +56,7 @@ public class AkiChatFragment extends SherlockFragment{
 	};
 
 	private class WebViewMonitor extends WebViewClient {
-		
+
 		@Override
 		public void onPageFinished(WebView view, String url) {
 			super.onPageFinished(view, url);
@@ -64,7 +64,7 @@ public class AkiChatFragment extends SherlockFragment{
 			view.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
 		}
 	}
-	
+
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	public View onCreateView(LayoutInflater inflater,
@@ -75,7 +75,7 @@ public class AkiChatFragment extends SherlockFragment{
 		LoginButton authButton = (LoginButton) view.findViewById(R.id.com_lespi_aki_main_login_auth_btn);
 		authButton.setFragment(this);
 		authButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-		
+
 		WebView webView = new WebView(getActivity().getApplicationContext());
 		webView.setClickable(true);
 		webView.getSettings().setJavaScriptEnabled(true);
@@ -99,7 +99,7 @@ public class AkiChatFragment extends SherlockFragment{
 			Log.d(AkiApplication.TAG, "Facebook session callback called but there is no MainActivity alive, so ignored session change event.");
 			return;
 		}
-		
+
 		if ( state.isOpened() ) {
 
 			Request.newMeRequest(session, new Request.GraphUserCallback() {
@@ -127,12 +127,14 @@ public class AkiChatFragment extends SherlockFragment{
 							@Override
 							public void onSuccess(Object response) {
 								JsonObject responseJSON = (JsonObject) response;
-								AkiServerUtil.enterChatRoom(activity.getApplicationContext(), user.getId(), responseJSON.get("chat_room").asString());
+								AkiServerUtil.enterChatRoom(activity, user.getId(), responseJSON.get("chat_room").asString());
 
 								refreshSettings(activity, session, user, new AsyncCallback(){
 
 									@Override
 									public void onSuccess(Object response) {
+										activity.setGeofence();
+
 										refreshReceivedMessages(activity, session, user);
 										sendMessageBtn.setEnabled(true);
 										sendMessageBtn.setOnClickListener(new OnClickListener() {
@@ -202,7 +204,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 			switchToLoginArea(activity, false);
 			if ( AkiServerUtil.isActiveOnServer() ){
-				AkiServerUtil.sendInactiveOnServer(activity.getApplicationContext());
+				AkiServerUtil.sendInactiveToServer(activity.getApplicationContext());
 			}
 		}
 	}
@@ -215,30 +217,58 @@ public class AkiChatFragment extends SherlockFragment{
 		AkiApplication.isNotLoggedIn();
 		if ( activity.locationServicesConnected() ){
 			activity.stopPeriodicLocationUpdates();
+			activity.removeGeofence();
 		}
-		
-		AkiInternalStorageUtil.wipeCachedUserLocation(activity.getApplicationContext(), new AsyncCallback() {
-			
+
+		final Context context = activity.getApplicationContext();
+
+		AkiInternalStorageUtil.wipeCachedUserLocation(context, new AsyncCallback() {
+
 			@Override
 			public void onSuccess(Object response) {
-				AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
-				AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), null);
+				AkiInternalStorageUtil.setCurrentUser(context, null);
 			}
-			
+
 			@Override
 			public void onFailure(Throwable failure) {
 				Log.e(AkiApplication.TAG, "Could not wipe cached user location.");
 				failure.printStackTrace();
-				AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
-				AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), null);
+				AkiInternalStorageUtil.setCurrentUser(context, null);
 			}
-			
+
 			@Override
 			public void onCancel() {
 				Log.e(AkiApplication.TAG, "Wipe cached user location callback canceled.");
 			}
 		});
-		
+
+		if ( AkiApplication.LOGGED_IN ){
+			
+			AkiServerUtil.sendExitToServer(context, new AsyncCallback() {
+				
+				@Override
+				public void onSuccess(Object response) {
+					AkiServerUtil.leaveChatRoom(context);
+					
+					CharSequence toastText = "You exited a chat room!";
+					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+					toast.show();
+					onResume();
+				}
+				
+				@Override
+				public void onFailure(Throwable failure) {
+					Log.e(AkiApplication.TAG, "A problem happened while exiting chat room!");
+					failure.printStackTrace();
+				}
+				
+				@Override
+				public void onCancel() {
+					Log.e(AkiApplication.TAG, "Could not cancel exiting chat room.");
+				}
+			});
+		}
+
 		final LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
 		final RelativeLayout loginArea = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.GONE);
@@ -263,9 +293,9 @@ public class AkiChatFragment extends SherlockFragment{
 		if ( activity.locationServicesConnected() ){
 			activity.startPeriodicLocationUpdates();
 		}
-		
+
 		AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), currentUserId);
-		
+
 		final LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
 		final RelativeLayout loginArea = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.VISIBLE);
@@ -284,7 +314,7 @@ public class AkiChatFragment extends SherlockFragment{
 	private void refreshReceivedMessages(final AkiMainActivity activity, final Session session, final GraphUser currentUser) {
 
 		final Context context = activity.getApplicationContext();
-		
+
 		final AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 		chatAdapter.setCurrentUser(currentUser);
 		chatAdapter.setCurrentSession(session);
@@ -336,14 +366,14 @@ public class AkiChatFragment extends SherlockFragment{
 			Log.e(AkiApplication.TAG, "onResume event called but there is no MainActivity alive, so ignored session change event.");
 			return;
 		}
-		
+
 		session = Session.getActiveSession();
 		if (session == null || !(session.isOpened() || session.isClosed()) ) {
 			AkiServerUtil.getPresenceFromServer(activity.getApplicationContext(), new AsyncCallback() {
 
 				@Override
 				public void onSuccess(Object response) {
-					AkiServerUtil.sendInactiveOnServer(activity.getApplicationContext());
+					AkiServerUtil.sendInactiveToServer(activity.getApplicationContext());
 				}
 
 				@Override

@@ -2,7 +2,6 @@ package com.lespi.aki.utils;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.lespi.aki.AkiApplication;
 import com.lespi.aki.AkiMainActivity;
@@ -98,11 +97,6 @@ public class AkiServerUtil {
 			@Override
 			public void onSuccess(Object response) {
 				setActiveOnServer(true);
-				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = "You have just sent presence as: " + userId;
-					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-					toast.show();
-				}
 				if ( callback != null ){
 					callback.onSuccess(response);
 				}
@@ -110,11 +104,6 @@ public class AkiServerUtil {
 
 			@Override
 			public void onFailure(Throwable failure) {
-				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = "You could not send presence.";
-					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-					toast.show();
-				}
 				if ( callback != null ){
 					callback.onFailure(failure);
 				}
@@ -129,7 +118,7 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void sendInactiveOnServer(final Context context){
+	public static void sendInactiveToServer(final Context context){
 
 		AkiHttpUtil.doPOSTHttpRequest("/inactive", new AsyncCallback() {
 
@@ -139,32 +128,50 @@ public class AkiServerUtil {
 				String responseCode = responseJSON.get("code").asString();
 				if ( responseCode.equals("ok") ){
 					setActiveOnServer(false);
-					if ( AkiApplication.DEBUG_MODE ){
-						CharSequence toastText = "You have just sent leave.";
-						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-						toast.show();
-					}
 				}				
 			}
 
 			@Override
 			public void onFailure(Throwable failure) {
-				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = "You could not send inactive.";
-					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-					toast.show();
-				}
 				Log.e(AkiApplication.TAG, "Could not send inactive.");
 				failure.printStackTrace();
 			}
 
 			@Override
 			public void onCancel() {
-				Log.e(AkiApplication.TAG, "Endpoint:sendInactiveOnServer callback canceled.");
+				Log.e(AkiApplication.TAG, "Endpoint:sendInactiveToServer callback canceled.");
 			}
 		});
 	}
 
+	public static void sendExitToServer(final Context context, final AsyncCallback callback){
+
+		AkiHttpUtil.doPOSTHttpRequest("/exit", new AsyncCallback() {
+
+			@Override
+			public void onSuccess(Object response) {
+				JsonObject responseJSON = (JsonObject) response;
+				String responseCode = responseJSON.get("code").asString();
+				if ( responseCode.equals("ok") ){
+					setActiveOnServer(false);
+					callback.onSuccess(response);
+				}
+			}
+
+			@Override
+			public void onFailure(Throwable failure) {
+				Log.e(AkiApplication.TAG, "Could not send exit.");
+				callback.onFailure(failure);
+			}
+
+			@Override
+			public void onCancel() {
+				Log.e(AkiApplication.TAG, "Endpoint:sendExitToServer callback canceled.");
+				callback.onCancel();
+			}
+		});
+	}
+	
 	public static void enterChatRoom(Context context, String currentUserId, String newChatRoom) {
 
 		String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
@@ -195,6 +202,10 @@ public class AkiServerUtil {
 		}
 		AkiInternalStorageUtil.setCurrentChatRoom(context, newChatRoom);
 		Log.i(AkiApplication.TAG, "Current chat room set to chat room address {" + newChatRoom + "}.");
+		
+		AkiInternalStorageUtil.wipeCachedGeofenceCenter(context);
+		AkiInternalStorageUtil.cacheGeofenceRadius(context, -1);
+		AkiInternalStorageUtil.willUpdateGeofence(context);
 	}
 
 	public static void leaveChatRoom(Context context) {
@@ -205,6 +216,7 @@ public class AkiServerUtil {
 		}
 		else{
 			PushService.unsubscribe(context, currentChatRoom);
+			AkiInternalStorageUtil.setCurrentChatRoom(context, null);
 			Log.i(AkiApplication.TAG, "Unsubscribed from chat room address {" + currentChatRoom + "}.");
 		}
 		for ( String remainingChatRoom : PushService.getSubscriptions(context) ){
@@ -231,21 +243,11 @@ public class AkiServerUtil {
 
 			@Override
 			public void onSuccess(Object response) {
-				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = "Message sent!";
-					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-					toast.show();
-				}
 				callback.onSuccess(response);
 			}
 
 			@Override
 			public void onFailure(Throwable failure) {
-				if ( AkiApplication.DEBUG_MODE ){
-					CharSequence toastText = "You could not send message!";
-					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-					toast.show();
-				}
 				callback.onFailure(failure);
 			}
 

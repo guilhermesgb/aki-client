@@ -383,4 +383,79 @@ public class AkiInternalStorageUtil {
 			callback.onFailure(e);
 		}
 	}
+
+	public static AkiLocation getCachedGeofenceCenter(Context context) {
+
+		AkiLocation center = null;
+		try{
+			ObjectInputStream ois = new ObjectInputStream(context.openFileInput(context.getString(R.string.com_lespi_aki_data_geofence_center)));
+
+			center = (AkiLocation) ois.readObject();
+			ois.close();
+		}
+		catch (FileNotFoundException e){
+			Log.i(AkiApplication.TAG, "There is no cached geofence center.");
+		}
+		catch (ClassNotFoundException e){
+			Log.e(AkiApplication.TAG, "A problem happened while trying to retrieve" +
+					" the cached geofence center.");
+			e.printStackTrace();
+		}
+		catch (IOException e){
+			Log.e(AkiApplication.TAG, "A problem happened while trying to retrieve" +
+					" the cached geofence center.");
+			e.printStackTrace();
+		}
+		return center;
+	}
+	
+	public static void cacheGeofenceCenter(Context context, AkiLocation center) {
+
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+					context.getString(R.string.com_lespi_aki_data_geofence_center), Context.MODE_PRIVATE));
+			oos.writeObject(center);
+			oos.close();
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "A problem happened while trying to cache the geofence center.");
+			e.printStackTrace();
+		}
+	}
+
+	public static void wipeCachedGeofenceCenter(Context context) {
+		
+		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_geofence_center));
+		file.delete();
+	}
+
+	public static float getCachedGeofenceRadius(Context context) {
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getFloat(context.getString(R.string.com_lespi_aki_data_geofence_radius), -1);
+	}
+	
+	public static void cacheGeofenceRadius(Context context, float radius) {
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putFloat(context.getString(R.string.com_lespi_aki_data_geofence_radius), radius);
+		editor.commit();
+	}
+
+	public static boolean shouldUpdateGeofence(Context context) {
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_geofence_should_update), false);
+	}
+
+	public static void willUpdateGeofence(Context context) {
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_geofence_should_update), true);
+		editor.commit();
+	}
+	
+	public static void willNotUpdateGeofence(Context context) {
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_geofence_should_update), false);
+		editor.commit();
+	}
 }

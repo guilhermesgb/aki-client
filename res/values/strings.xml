@@ -23,6 +23,7 @@
     <string name="com_lespi_aki_notif_new_message_text">"You've received a new message."</string>
     <string name="com_lespi_aki_notif_new_messages_title">"%d new messages from Aki"</string>
     <string name="com_lespi_aki_notif_new_messages_text">"You've received %d new messages."</string>
+    <string name="com_lespi_aki_notif_exit_title">You exited a chat room.</string>
     <string name="com_lespi_aki_preferences">com_lespi_aki_data_chat_file</string>
     <string name="com_lespi_aki_data_current_user">current-user</string>
     <string name="com_lespi_aki_data_current_chat_room">current-chat-room</string>
@@ -36,5 +37,8 @@
 	<string name="com_lespi_aki_data_chat_messages">chat-room_</string>
     <string name="com_lespi_aki_data_mandatory_setting_missing">mandatory-setting-missing</string>
     <string name="com_lespi_aki_data_anonymous_setting">anonymous-setting_</string>
+    <string name="com_lespi_aki_data_geofence_should_update">geofence-should-update</string>
+    <string name="com_lespi_aki_data_geofence_center">geofence-center</string>
+    <string name="com_lespi_aki_data_geofence_radius">geofence-radius</string>
     
 </resources>

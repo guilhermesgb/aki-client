@@ -61,7 +61,7 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 			Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 			
 			NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(context)
-			        .setSmallIcon(R.drawable.new_message_icon)
+			        .setSmallIcon(R.drawable.notification_icon)
 			        .setContentTitle(contentTitle)
 			        .setContentText(contentText)
 			        .setNumber(AkiApplication.INCOMING_MESSAGES_COUNTER)

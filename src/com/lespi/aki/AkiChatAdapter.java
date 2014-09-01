@@ -307,7 +307,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 					Log.d(AkiApplication.TAG,
 							"Distance to " + AkiInternalStorageUtil.getCachedUserNickname(context, senderId) + ": " + distance);
 					
-					double proportion = (distance / AkiApplication.CHAT_RANGE);
+					double proportion = (distance / (AkiApplication.MIN_RADIUS * 2));
 					
 					if ( proportion >= 1 ){
 						viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
