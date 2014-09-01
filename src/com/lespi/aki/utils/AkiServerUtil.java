@@ -30,7 +30,7 @@ public class AkiServerUtil {
 			@Override
 			public void onSuccess(Object response) {
 				JsonObject responseJSON = (JsonObject) response;
-				if ( !responseJSON.get("username").isNull() ){
+				if ( responseJSON.get("user_id") != null && !responseJSON.get("user_id").isNull() ){
 					setActiveOnServer(true);
 					callback.onSuccess(response);
 				}
