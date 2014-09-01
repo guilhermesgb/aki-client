@@ -21,6 +21,12 @@
     <string name="com_lespi_aki_message_sender_picture_hint">A small picture</string>
     <string name="com_lespi_aki_message_sender_distance_hint">A small distance indicator</string>
     <string name="com_lespi_aki_message_sender_gender_hint">A small gender indicator</string>
+    <string name="com_lespi_aki_message_system_nickname_change_male"> has changed his nickname to: </string>
+    <string name="com_lespi_aki_message_system_nickname_change_female"> has changed her nickname to: </string>
+    <string name="com_lespi_aki_message_system_nickname_change_other"> has changed the nickname to: </string>
+    <string name="com_lespi_aki_message_system_realname_reveal_male"> has revealed he\'s called: </string>
+    <string name="com_lespi_aki_message_system_realname_reveal_female"> has revealed she\'s called: </string>
+    <string name="com_lespi_aki_message_system_realname_reveal_other"> has revealed that is called: </string>
     <string name="com_lespi_aki_notif_new_message_title">"New message from Aki"</string>
     <string name="com_lespi_aki_notif_new_message_text">"You've received a new message."</string>
     <string name="com_lespi_aki_notif_new_messages_title">"%d new messages from Aki"</string>

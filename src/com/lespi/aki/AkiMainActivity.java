@@ -2,7 +2,6 @@ package com.lespi.aki;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -317,12 +316,6 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 		chatAdapter.notifyDataSetChanged();
-
-		double probability = (new Random()).nextDouble();
-		if ( (!AkiApplication.IN_BACKGROUND && probability > 0.95)
-				|| (AkiApplication.IN_BACKGROUND && probability > 0.75) ){
-			AkiServerUtil.sendPresenceToServer(context, currentUserId);
-		}
 	}
 
 	public void startPeriodicLocationUpdates() {

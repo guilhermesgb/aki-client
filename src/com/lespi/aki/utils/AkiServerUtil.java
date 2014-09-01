@@ -220,7 +220,6 @@ public class AkiServerUtil {
 					currentChatRoom + "} because will be assigned to new chat room " +
 					"address {" + newChatRoom + "}.");
 			AkiInternalStorageUtil.removeCachedMessages(context, currentChatRoom);
-			AkiInternalStorageUtil.setAnonymousSetting(context, currentUserId, true);
 		}
 
 		if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
@@ -229,7 +228,8 @@ public class AkiServerUtil {
 		}
 		AkiInternalStorageUtil.setCurrentChatRoom(context, newChatRoom);
 		Log.i(AkiApplication.TAG, "Current chat room set to chat room address {" + newChatRoom + "}.");
-		
+
+		AkiInternalStorageUtil.setAnonymousSetting(context, currentUserId, true);
 		AkiInternalStorageUtil.wipeCachedGeofenceCenter(context);
 		AkiInternalStorageUtil.cacheGeofenceRadius(context, -1);
 		AkiInternalStorageUtil.willUpdateGeofence(context);

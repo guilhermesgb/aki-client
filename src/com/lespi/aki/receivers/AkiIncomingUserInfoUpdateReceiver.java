@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.lespi.aki.AkiApplication;
 import com.lespi.aki.AkiChatAdapter;
+import com.lespi.aki.R;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
@@ -38,19 +39,19 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 
 			JsonValue fullName = incomingData.get("full_name");
 			if ( fullName != null ){
-				String oldFullName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
-				if ( oldFullName != null && !oldFullName.equals(fullName.asString())
-						&& currentUserId != null && !currentUserId.equals(userId) ){
-
-					String format = "%s is now called: %s";
-					AkiInternalStorageUtil.storeNewMessage(context, chatRoom,
-							AkiApplication.SYSTEM_SENDER_ID, String.format(format, oldFullName, fullName.asString()));
-				}
 				AkiInternalStorageUtil.cacheUserFullName(context, userId, fullName.asString());
 			}
 			
+			String knownGender = "unknown";
 			JsonValue userGender = incomingData.get("gender");
 			if ( userGender != null ){
+				
+				if ( userGender.asString().equals("male") ){
+					knownGender = "male";
+				}
+				else if ( userGender.asString().equals("female") ){
+					knownGender = "female";
+				}
 
 				AkiInternalStorageUtil.cacheUserGender(context, userId, userGender.asString());
 			}
@@ -62,7 +63,14 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 				if ( oldNickname != null && !oldNickname.equals(nickname.asString())
 						&& currentUserId != null && !currentUserId.equals(userId) ){
 
-					String format = "%s has changed his nickname to: %s";
+					int formatId = R.string.com_lespi_aki_message_system_nickname_change_other;
+					if ( knownGender.equals("male") ){
+						formatId = R.string.com_lespi_aki_message_system_nickname_change_male;
+					}
+					else if ( knownGender.equals("female") ){
+						formatId = R.string.com_lespi_aki_message_system_nickname_change_female;
+					}
+					String format = "%s" + context.getResources().getString(formatId) + "%s";
 					AkiInternalStorageUtil.storeNewMessage(context, chatRoom,
 							AkiApplication.SYSTEM_SENDER_ID, String.format(format, oldNickname, nickname.asString()));
 				}
@@ -79,12 +87,19 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 			}
 			boolean previouslyAnonymous = AkiInternalStorageUtil.getAnonymousSetting(context, userId);
 			if ( !anonymous && previouslyAnonymous ){
-				if ( userGender != null && fullName != null
+				if ( fullName != null
 						&& currentUserId != null && !currentUserId.equals(userId) ){
 
-					String format = userGender.equals("female") ? "%s has revealed she's called: %s" : "%s has revealed he's called: %s";
+					int formatId = R.string.com_lespi_aki_message_system_realname_reveal_other;
+					if ( knownGender.equals("male") ){
+						formatId = R.string.com_lespi_aki_message_system_realname_reveal_male;
+					}
+					else if ( knownGender.equals("female") ){
+						formatId = R.string.com_lespi_aki_message_system_realname_reveal_female;
+					}
+					String format = "%s" + context.getResources().getString(formatId) + "%s";
 					AkiInternalStorageUtil.storeNewMessage(context, chatRoom,
-							AkiApplication.SYSTEM_SENDER_ID, String.format(format, nickname, fullName));
+							AkiApplication.SYSTEM_SENDER_ID, String.format(format, nickname.asString(), fullName.asString()));
 				}
 			}
 			AkiInternalStorageUtil.setAnonymousSetting(context, userId, anonymous);

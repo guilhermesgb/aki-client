@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -122,9 +123,8 @@ public class AkiChatFragment extends SherlockFragment{
 								activity.getSlidingMenu().showMenu(true);
 							}
 						});
-						ImageButton exitChatBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_exit_btn);
-						exitChatBtn.setEnabled(true);
-						exitChatBtn.setOnClickListener(new OnClickListener() {
+						
+						OnClickListener exitBtnClickListener = new OnClickListener() {
 
 							@Override
 							public void onClick(View view) {
@@ -133,6 +133,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 									@Override
 									public void onSuccess(Object response) {
+										AkiInternalStorageUtil.setAnonymousSetting(activity.getApplicationContext(), user.getId(), true);
 										AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
 										activity.stopPeriodicLocationUpdates();
 										activity.removeGeofence();
@@ -151,7 +152,8 @@ public class AkiChatFragment extends SherlockFragment{
 										
 										Intent intent = new Intent(Intent.ACTION_MAIN);
 										intent.addCategory(Intent.CATEGORY_HOME);
-										startActivity(intent);
+										getActivity().startActivity(intent);
+										getActivity().finish();
 									}
 
 									@Override
@@ -166,11 +168,16 @@ public class AkiChatFragment extends SherlockFragment{
 									}
 								});
 							}
-						});
-
-						ImageButton skipChatBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_skip_btn);
-						skipChatBtn.setEnabled(true);
-						skipChatBtn.setOnClickListener(new OnClickListener() {
+						};
+						
+						ImageButton exitChatBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_exit_btn);
+						exitChatBtn.setEnabled(true);
+						exitChatBtn.setOnClickListener(exitBtnClickListener);
+						Button exitChatBtnText = (Button) activity.findViewById(R.id.com_lespi_aki_main_chat_exit_btn_text);
+						exitChatBtnText.setEnabled(true);
+						exitChatBtnText.setOnClickListener(exitBtnClickListener);
+						
+						OnClickListener skipBtnClickListener = new OnClickListener() {
 
 							@Override
 							public void onClick(View view) {
@@ -178,6 +185,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 									@Override
 									public void onSuccess(Object response) {
+										AkiInternalStorageUtil.setAnonymousSetting(activity.getApplicationContext(), user.getId(), true);
 										AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
 										activity.removeGeofence();
 
@@ -200,7 +208,14 @@ public class AkiChatFragment extends SherlockFragment{
 									}
 								});
 							}
-						});
+						};
+						
+						ImageButton skipChatBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_skip_btn);
+						skipChatBtn.setEnabled(true);
+						skipChatBtn.setOnClickListener(skipBtnClickListener);
+						Button skipChatBtnText = (Button) activity.findViewById(R.id.com_lespi_aki_main_chat_skip_btn_text);
+						skipChatBtnText.setEnabled(true);
+						skipChatBtnText.setOnClickListener(skipBtnClickListener);
 						
 						AkiServerUtil.sendPresenceToServer(activity.getApplicationContext(), user.getId(), new AsyncCallback() {
 
