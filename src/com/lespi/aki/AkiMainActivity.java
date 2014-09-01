@@ -382,7 +382,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 									else{
 
 										String contentTitle = context.getString(R.string.com_lespi_aki_notif_exit_title);
-										String contentText = "You walked away from a chat room by going too far from it.";
+										String contentText = "You walked too far away from a chat room.";
 										
 										Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 										

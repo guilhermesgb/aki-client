@@ -171,6 +171,33 @@ public class AkiServerUtil {
 			}
 		});
 	}
+
+	public static void sendSkipToServer(final Context context, final AsyncCallback callback){
+
+		AkiHttpUtil.doPOSTHttpRequest("/skip", new AsyncCallback() {
+
+			@Override
+			public void onSuccess(Object response) {
+				JsonObject responseJSON = (JsonObject) response;
+				String responseCode = responseJSON.get("code").asString();
+				if ( responseCode.equals("ok") ){
+					callback.onSuccess(response);
+				}
+			}
+
+			@Override
+			public void onFailure(Throwable failure) {
+				Log.e(AkiApplication.TAG, "Could not send exit.");
+				callback.onFailure(failure);
+			}
+
+			@Override
+			public void onCancel() {
+				Log.e(AkiApplication.TAG, "Endpoint:sendExitToServer callback canceled.");
+				callback.onCancel();
+			}
+		});
+	}
 	
 	public static void enterChatRoom(Context context, String currentUserId, String newChatRoom) {
 

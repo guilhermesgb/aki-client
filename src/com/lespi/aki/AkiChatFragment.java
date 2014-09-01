@@ -3,10 +3,12 @@ package com.lespi.aki;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -120,7 +122,86 @@ public class AkiChatFragment extends SherlockFragment{
 								activity.getSlidingMenu().showMenu(true);
 							}
 						});
+						ImageButton exitChatBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_exit_btn);
+						exitChatBtn.setEnabled(true);
+						exitChatBtn.setOnClickListener(new OnClickListener() {
 
+							@Override
+							public void onClick(View view) {
+								
+								AkiServerUtil.sendExitToServer(activity.getApplicationContext(), new AsyncCallback() {
+
+									@Override
+									public void onSuccess(Object response) {
+										AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
+										activity.stopPeriodicLocationUpdates();
+										activity.removeGeofence();
+
+										String contentTitle = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_title);
+										String contentText = "You've left a chat room manually.";
+										
+										NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(activity.getApplicationContext())
+										.setSmallIcon(R.drawable.notification_icon)
+										.setContentTitle(contentTitle)
+										.setContentText(contentText)
+										.setAutoCancel(true);
+
+										NotificationManager notificationManager = (NotificationManager) activity.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+										notificationManager.notify(AkiApplication.EXITED_ROOM_NOTIFICATION_ID, notifyBuilder.build());
+										
+										Intent intent = new Intent(Intent.ACTION_MAIN);
+										intent.addCategory(Intent.CATEGORY_HOME);
+										startActivity(intent);
+									}
+
+									@Override
+									public void onFailure(Throwable failure) {
+										Log.e(AkiApplication.TAG, "A problem happened while exiting chat room!");
+										failure.printStackTrace();
+									}
+
+									@Override
+									public void onCancel() {
+										Log.e(AkiApplication.TAG, "Could not cancel exiting chat room.");
+									}
+								});
+							}
+						});
+
+						ImageButton skipChatBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_skip_btn);
+						skipChatBtn.setEnabled(true);
+						skipChatBtn.setOnClickListener(new OnClickListener() {
+
+							@Override
+							public void onClick(View view) {
+								AkiServerUtil.sendSkipToServer(activity.getApplicationContext(), new AsyncCallback() {
+
+									@Override
+									public void onSuccess(Object response) {
+										AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
+										activity.removeGeofence();
+
+										CharSequence toastText = "You have skipped into another chat room!";
+										Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+										toast.show();
+										
+										activity.onResume();
+									}
+
+									@Override
+									public void onFailure(Throwable failure) {
+										Log.e(AkiApplication.TAG, "A problem happened while skipping chat room!");
+										failure.printStackTrace();
+									}
+
+									@Override
+									public void onCancel() {
+										Log.e(AkiApplication.TAG, "Could not cancel skipping chat room.");
+									}
+								});
+							}
+						});
+						
 						AkiServerUtil.sendPresenceToServer(activity.getApplicationContext(), user.getId(), new AsyncCallback() {
 
 							@Override
@@ -241,25 +322,25 @@ public class AkiChatFragment extends SherlockFragment{
 		});
 
 		if ( AkiApplication.LOGGED_IN ){
-			
+
 			AkiServerUtil.sendExitToServer(context, new AsyncCallback() {
-				
+
 				@Override
 				public void onSuccess(Object response) {
 					AkiServerUtil.leaveChatRoom(context);
-					
+
 					CharSequence toastText = "You exited a chat room!";
 					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 					toast.show();
 					onResume();
 				}
-				
+
 				@Override
 				public void onFailure(Throwable failure) {
 					Log.e(AkiApplication.TAG, "A problem happened while exiting chat room!");
 					failure.printStackTrace();
 				}
-				
+
 				@Override
 				public void onCancel() {
 					Log.e(AkiApplication.TAG, "Could not cancel exiting chat room.");
@@ -280,7 +361,7 @@ public class AkiChatFragment extends SherlockFragment{
 		chatAdapter.clear();
 
 		AkiApplication.isNotLoggedIn();
-		
+
 		if ( showSplash && (!seenSplash) ){
 			Intent intent = new Intent(activity, AkiSplashActivity.class);
 			startActivity(intent);
