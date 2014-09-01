@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -112,7 +111,7 @@ public class AkiChatFragment extends SherlockFragment{
 						refreshReceivedMessages(activity, session, user);
 						final ImageButton sendMessageBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_send_btn);
 						sendMessageBtn.setEnabled(false);
-						Button openSettingsBtn = (Button) activity.findViewById(R.id.com_lespi_aki_main_chat_opensettings_btn);
+						ImageButton openSettingsBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_settings_btn);
 						openSettingsBtn.setEnabled(true);
 						openSettingsBtn.setOnClickListener(new OnClickListener() {
 

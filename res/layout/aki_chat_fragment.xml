@@ -19,15 +19,6 @@
         android:visibility="gone"
         tools:ignore="MergeRootFrame" >
 
-<!--         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="162dp"
-            android:contentDescription="@string/com_lespi_aki_splash_logo_hint"
-            android:src="@drawable/logo" />-->
-
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="@dimen/button_height"
@@ -62,13 +53,62 @@
             android:background="#333f4f"
             android:orientation="horizontal" >
 
-            <Button
-                android:id="@+id/com_lespi_aki_main_chat_opensettings_btn"
-                style="@style/AkiButton"
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:text="@string/com_lespi_aki_main_chat_opensettings_text" />
+                android:layout_gravity="center"
+                android:gravity="start"
+                android:textSize="18sp"
+                android:textColor="@color/com_lespi_aki_message_text_color_system"
+                android:text="@string/com_lespi_aki_main_chat_exit_text" />
+
+            <ImageButton
+                android:id="@+id/com_lespi_aki_main_chat_exit_btn"
+                style="@style/AkiButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="start"
+                android:contentDescription="@string/com_lespi_aki_main_chat_exit_text"
+                android:src="@drawable/icon_exit" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:textColor="@color/com_lespi_aki_message_text_color_system"
+                android:text="@string/com_lespi_aki_main_chat_skip_text" />
+
+            <ImageButton
+                android:id="@+id/com_lespi_aki_main_chat_skip_btn"
+                style="@style/AkiButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:contentDescription="@string/com_lespi_aki_main_chat_skip_text"
+                android:src="@drawable/icon_skip" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="end"
+                android:textSize="20sp"
+                android:textColor="@color/com_lespi_aki_message_text_color_system"
+                android:text="@string/com_lespi_aki_main_chat_settings_text" />
+
+            <ImageButton
+                android:id="@+id/com_lespi_aki_main_chat_settings_btn"
+                style="@style/AkiButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="end"
+                android:contentDescription="@string/com_lespi_aki_main_chat_settings_text"
+                android:src="@drawable/icon_settings" />
         </LinearLayout>
 
         <ListView
