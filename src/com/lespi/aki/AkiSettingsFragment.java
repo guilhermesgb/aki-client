@@ -51,7 +51,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 	public void refreshSettings(final AkiMainActivity activity, final Session currentSession,
 			final GraphUser currentUser, final AsyncCallback callback) {
 
-		if ( activity == null ){
+		if ( activity == null || currentUser == null ){
 			return;
 		}
 		

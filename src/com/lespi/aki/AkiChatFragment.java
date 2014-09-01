@@ -214,7 +214,6 @@ public class AkiChatFragment extends SherlockFragment{
 			WebView webView = (WebView) activity.findViewById(R.id.com_lespi_aki_main_login_webview);
 			webView.loadUrl("javascript:show_login_screen();");
 		}
-		AkiApplication.isNotLoggedIn();
 		if ( activity.locationServicesConnected() ){
 			activity.stopPeriodicLocationUpdates();
 			activity.removeGeofence();
@@ -281,6 +280,8 @@ public class AkiChatFragment extends SherlockFragment{
 		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 		chatAdapter.clear();
 
+		AkiApplication.isNotLoggedIn();
+		
 		if ( showSplash && (!seenSplash) ){
 			Intent intent = new Intent(activity, AkiSplashActivity.class);
 			startActivity(intent);
