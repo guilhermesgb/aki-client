@@ -181,8 +181,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 								JsonValue.readFrom(response.getRawResponse())
 								.asObject().get("data") == null ){
 
-							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-									"picture from Facebook.");
+							Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from Facebook.");
 							return;
 						}
 						JsonObject information = JsonValue.readFrom(response.getRawResponse())

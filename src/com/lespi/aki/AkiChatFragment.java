@@ -36,6 +36,7 @@ import com.facebook.widget.LoginButton;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
+import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
 import com.parse.internal.AsyncCallback;
@@ -222,48 +223,52 @@ public class AkiChatFragment extends SherlockFragment{
 							@Override
 							public void onSuccess(Object response) {
 								JsonObject responseJSON = (JsonObject) response;
-								AkiServerUtil.enterChatRoom(activity, user.getId(), responseJSON.get("chat_room").asString());
+								final JsonValue chatRoomId = responseJSON.get("chat_room");
+								if ( chatRoomId != null ){
+									AkiServerUtil.enterChatRoom(activity, user.getId(), chatRoomId.asString());
+								}
 
 								refreshSettings(activity, session, user, new AsyncCallback(){
 
 									@Override
 									public void onSuccess(Object response) {
-										activity.setGeofence();
-
-										refreshReceivedMessages(activity, session, user);
-										sendMessageBtn.setEnabled(true);
-										sendMessageBtn.setOnClickListener(new OnClickListener() {
-
-											@Override
-											public void onClick(View view) {
-
-												final EditText chatBox = (EditText) activity.findViewById(R.id.com_lespi_aki_main_chat_input);
-												final String message = chatBox.getText().toString().trim();
-												if ( !message.isEmpty() ){
-													chatBox.setText("");
-													AkiServerUtil.sendMessage(activity.getApplicationContext(), message, new AsyncCallback() {
-
-														@Override
-														public void onSuccess(Object response) {
-															CharSequence toastText = "Message sent! :)";
-															Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
-															toast.show();
-														}
-
-														@Override
-														public void onFailure(Throwable failure) {
-															Log.e(AkiApplication.TAG, "You could not send message!");
-															failure.printStackTrace();
-														}
-
-														@Override
-														public void onCancel() {
-															Log.e(AkiApplication.TAG, "Endpoint:sendMessage callback canceled.");
-														}
-													});
+										if ( chatRoomId != null ){
+											activity.setGeofence();
+											refreshReceivedMessages(activity, session, user);
+											sendMessageBtn.setEnabled(true);
+											sendMessageBtn.setOnClickListener(new OnClickListener() {
+												
+												@Override
+												public void onClick(View view) {
+													
+													final EditText chatBox = (EditText) activity.findViewById(R.id.com_lespi_aki_main_chat_input);
+													final String message = chatBox.getText().toString().trim();
+													if ( !message.isEmpty() ){
+														chatBox.setText("");
+														AkiServerUtil.sendMessage(activity.getApplicationContext(), message, new AsyncCallback() {
+															
+															@Override
+															public void onSuccess(Object response) {
+																CharSequence toastText = "Message sent! :)";
+																Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+																toast.show();
+															}
+															
+															@Override
+															public void onFailure(Throwable failure) {
+																Log.e(AkiApplication.TAG, "You could not send message!");
+																failure.printStackTrace();
+															}
+															
+															@Override
+															public void onCancel() {
+																Log.e(AkiApplication.TAG, "Endpoint:sendMessage callback canceled.");
+															}
+														});
+													}
 												}
-											}
-										});
+											});
+										}
 									}
 
 									@Override
