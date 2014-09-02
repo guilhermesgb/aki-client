@@ -437,7 +437,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 				radius = AkiApplication.MIN_RADIUS;
 				AkiInternalStorageUtil.cacheGeofenceRadius(context, radius);
 			}
-
+			
 			currentGeofence = new Geofence.Builder()
 			.setCircularRegion(center.latitude, center.longitude, radius)
 			.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
@@ -445,6 +445,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 			.setRequestId(AkiApplication.TAG + ":geofence")
 			.build();
 			if ( locationClient.isConnected() ){
+				Log.w(AkiApplication.TAG, "Geofence will be updated to: center=(" + center.latitude + ", " + center.longitude + "), radius=" + radius);
 				locationClient.addGeofences(Collections.singletonList(currentGeofence), geofencePendingIntent, this);
 				AkiInternalStorageUtil.willNotUpdateGeofence(context);
 			}
@@ -466,7 +467,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 	@Override
 	public void onAddGeofencesResult(int statusCode, String[] geofenceRequestIds) {
 		if (LocationStatusCodes.SUCCESS == statusCode) {
-			Log.d(AkiApplication.TAG, "Geofence updated: " + geofenceRequestIds[0] + "!");
+			Log.d(AkiApplication.TAG, "Geofence updated successfully!");
 			if ( geofenceRequestIds.length > 1 ){
 				for ( int i=1; i<geofenceRequestIds.length; i++ ){
 					Log.w(AkiApplication.TAG, "Multiple geofences detected: " + geofenceRequestIds[i]);

@@ -154,6 +154,7 @@ public class AkiChatFragment extends SherlockFragment{
 										Intent intent = new Intent(Intent.ACTION_MAIN);
 										intent.addCategory(Intent.CATEGORY_HOME);
 										getActivity().startActivity(intent);
+										AkiApplication.isNotLoggedIn();
 										getActivity().finish();
 									}
 
@@ -218,21 +219,20 @@ public class AkiChatFragment extends SherlockFragment{
 						skipChatBtnText.setEnabled(true);
 						skipChatBtnText.setOnClickListener(skipBtnClickListener);
 						
-						AkiServerUtil.sendPresenceToServer(activity.getApplicationContext(), user.getId(), new AsyncCallback() {
+						refreshSettings(activity, session, user, new AsyncCallback(){
 
 							@Override
 							public void onSuccess(Object response) {
-								JsonObject responseJSON = (JsonObject) response;
-								final JsonValue chatRoomId = responseJSON.get("chat_room");
-								if ( chatRoomId != null ){
-									AkiServerUtil.enterChatRoom(activity, user.getId(), chatRoomId.asString());
-								}
 
-								refreshSettings(activity, session, user, new AsyncCallback(){
+								AkiServerUtil.sendPresenceToServer(activity.getApplicationContext(), user.getId(), new AsyncCallback() {
 
 									@Override
 									public void onSuccess(Object response) {
+
+										JsonObject responseJSON = (JsonObject) response;
+										final JsonValue chatRoomId = responseJSON.get("chat_room");
 										if ( chatRoomId != null ){
+											AkiServerUtil.enterChatRoom(activity, user.getId(), chatRoomId.asString());
 											activity.setGeofence();
 											refreshReceivedMessages(activity, session, user);
 											sendMessageBtn.setEnabled(true);
