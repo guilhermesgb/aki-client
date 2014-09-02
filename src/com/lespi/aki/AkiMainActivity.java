@@ -383,7 +383,12 @@ LocationClient.OnRemoveGeofencesResultListener {
 				@Override
 				public void onCancel() {
 					TextView warningText = (TextView) findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
-					warningText.setText(getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+					if ( AkiApplication.SERVER_DOWN ){
+						warningText.setText(getResources().getString(R.string.com_lespi_aki_main_chat_warning_server_down));
+					}
+					else{
+						warningText.setText(getResources().getString(R.string.com_lespi_aki_main_chat_warning_no_internet_connection_available));
+					}
 					warningText.setVisibility(View.VISIBLE);
 					Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled.");
 				}
@@ -475,7 +480,12 @@ LocationClient.OnRemoveGeofencesResultListener {
 								@Override
 								public void onCancel() {
 									TextView warningText = (TextView) findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
-									warningText.setText(getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+									if ( AkiApplication.SERVER_DOWN ){
+										warningText.setText(getResources().getString(R.string.com_lespi_aki_main_chat_warning_server_down));
+									}
+									else{
+										warningText.setText(getResources().getString(R.string.com_lespi_aki_main_chat_warning_no_internet_connection_available));
+									}
 									warningText.setVisibility(View.VISIBLE);
 									Log.e(AkiApplication.TAG, "Could not cancel exiting chat room.");
 								}

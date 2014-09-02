@@ -24,6 +24,33 @@ public class AkiServerUtil {
 		AkiServerUtil.activeOnServer = active;
 	}
 
+	public static void serverIsUp(final Context context, final AsyncCallback callback){
+
+		AkiHttpUtil.doGETHttpRequestAndWait(context, "/", new AsyncCallback() {
+
+			@Override
+			public void onSuccess(Object response) {
+				callback.onSuccess(response);
+			}
+
+			@Override
+			public void onFailure(Throwable failure) {
+				AkiApplication.serverDown();
+				callback.onFailure(failure);
+			}
+
+			@Override
+			public void onCancel() {
+				if ( AkiApplication.SERVER_DOWN ){
+					callback.onFailure(new Exception("Server is down!"));
+				}
+				else{
+					callback.onSuccess(null);
+				}
+			}
+		});
+	}
+
 	public static void getPresenceFromServer(final Context context, final AsyncCallback callback){
 
 		AkiHttpUtil.doGETHttpRequest(context, "/presence", new AsyncCallback() {
@@ -49,7 +76,6 @@ public class AkiServerUtil {
 
 			@Override
 			public void onCancel() {
-				//TODO: SHOW INTERNET NOT AVAILABLE OR SERVER DOWN MESSAGE!
 				callback.onCancel();
 			}
 		});
@@ -58,7 +84,7 @@ public class AkiServerUtil {
 	public static void sendPresenceToServer(final Context context, final String userId){
 		sendPresenceToServer(context, userId, null);
 	}
-	
+
 	public static void sendPresenceToServer(final Context context, final String userId, final AsyncCallback callback){
 
 		JsonObject payload = new JsonObject();
@@ -66,22 +92,22 @@ public class AkiServerUtil {
 		if ( firstName != null ){
 			payload.add("first_name", firstName);
 		}
-		
+
 		String fullName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
 		if ( fullName != null ){
 			payload.add("full_name", fullName);
 		}
-		
+
 		String gender = AkiInternalStorageUtil.getCachedUserGender(context, userId);
 		if ( gender != null ){
 			payload.add("gender", gender);
 		}
-		
+
 		String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
 		if ( nickname != null ){
 			payload.add("nickname", nickname);
 		}
-		
+
 		boolean anonymous = AkiInternalStorageUtil.getAnonymousSetting(context, userId);
 		payload.add("anonymous", anonymous);
 		AkiLocation location = AkiInternalStorageUtil.getCachedUserLocation(context, userId);
@@ -94,7 +120,7 @@ public class AkiServerUtil {
 		else{
 			payload.add("location", "unknown");
 		}
-		
+
 		AkiHttpUtil.doPOSTHttpRequest(context, "/presence/"+userId, payload, new AsyncCallback(){
 
 			@Override
@@ -114,7 +140,6 @@ public class AkiServerUtil {
 
 			@Override
 			public void onCancel() {
-				//TODO: SHOW INTERNET NOT AVAILABLE OR SERVER DOWN MESSAGE!
 				if ( callback != null ){
 					callback.onCancel();
 				}
@@ -170,7 +195,6 @@ public class AkiServerUtil {
 
 			@Override
 			public void onCancel() {
-				//TODO: SHOW INTERNET NOT AVAILABLE OR SERVER DOWN MESSAGE!
 				Log.e(AkiApplication.TAG, "Endpoint:sendExitToServer callback canceled.");
 				callback.onCancel();
 			}
@@ -198,13 +222,12 @@ public class AkiServerUtil {
 
 			@Override
 			public void onCancel() {
-				//TODO: SHOW INTERNET NOT AVAILABLE OR SERVER DOWN MESSAGE!
 				Log.e(AkiApplication.TAG, "Endpoint:sendExitToServer callback canceled.");
 				callback.onCancel();
 			}
 		});
 	}
-	
+
 	public static void enterChatRoom(Context context, String currentUserId, String newChatRoom) {
 
 		String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
@@ -292,7 +315,6 @@ public class AkiServerUtil {
 
 			@Override
 			public void onCancel() {
-				//TODO: SHOW INTERNET NOT AVAILABLE OR SERVER DOWN MESSAGE!
 				callback.onCancel();
 			}
 		});

@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,13 +33,13 @@ public abstract class AkiHttpUtil {
 		public HttpRequestExecutor(AsyncCallback callback){
 			this.callback = callback;
 		}
-		
+
 		@SuppressLint("DefaultLocale")
 		@Override
 		protected JsonObject doInBackground(String... params) {
 
 			try {
-				
+
 				String method = params[0];
 				URL url = new URL(params[1]);
 				URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
@@ -46,10 +47,10 @@ public abstract class AkiHttpUtil {
 				url = uri.toURL();
 				String headers = params[2];
 				String payload = params[3];
-			
+
 				HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
 				try{
-					
+
 					if ( headers != null ){
 
 						JsonObject headersJSON = JsonValue.readFrom(headers).asObject();
@@ -58,7 +59,7 @@ public abstract class AkiHttpUtil {
 							urlConn.setRequestProperty(key, value);
 						}
 					}
-					
+
 					if ( method.toUpperCase().equals("POST") ){
 						urlConn.setRequestMethod("POST");
 						if ( payload != null ){
@@ -67,18 +68,18 @@ public abstract class AkiHttpUtil {
 							out.write(payload.getBytes());
 						}
 					}
-					
+
 					urlConn.connect();
-					
+
 					int responseCode = urlConn.getResponseCode();
 					String responseBody = "";
 
 					try {
 						BufferedReader in = new BufferedReader(
-						        new InputStreamReader(urlConn.getInputStream()));
+								new InputStreamReader(urlConn.getInputStream()));
 						String inputLine;
 						StringBuffer response = new StringBuffer();
-				 
+
 						while ((inputLine = in.readLine()) != null) {
 							response.append(inputLine);
 						}
@@ -87,7 +88,7 @@ public abstract class AkiHttpUtil {
 					} catch(IOException e){
 						e.printStackTrace();
 					}
-					
+
 					JsonObject response = new JsonObject();
 					response.add("code", responseCode);
 					if ( responseCode == 200 ){
@@ -101,7 +102,7 @@ public abstract class AkiHttpUtil {
 				finally{
 					urlConn.disconnect();
 				}
-				
+
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			} catch (IOException e){
@@ -111,7 +112,7 @@ public abstract class AkiHttpUtil {
 			}
 			return null;
 		}
-		
+
 		@Override
 		protected void onPostExecute(JsonObject response) {
 			if ( response == null ){
@@ -125,25 +126,27 @@ public abstract class AkiHttpUtil {
 			if ( responseCode != null && responseCode.asInt() != 200 ){
 				Log.e(AkiApplication.TAG, "HTTP Request fail.");
 				if ( callback != null ){
+					AkiApplication.serverDown();
 					callback.onCancel();
 				}
 				return;
 			}
+			AkiApplication.serverNotDown();
 			JsonObject content = response.get("content").asObject();
 			if ( content != null ){
-				String endpointResponseCode = content.get("code").asString();
-				if ( endpointResponseCode.equals("ok") ){
+				JsonValue endpointResponseCode = content.get("code");
+				if ( endpointResponseCode.asString().equals("ok") ){
 					Log.i(AkiApplication.TAG, "HTTP Request success. Server Endpoint success: " + content.get("server").asString());
 					if ( callback != null ){
 						callback.onSuccess(content);
 					}
 					return;
 				}
-				else if ( endpointResponseCode.equals("error") ){
+				else if ( endpointResponseCode.asString().equals("error") ){
 					Log.e(AkiApplication.TAG, "HTTP Request success. Server Endpoint error: " + content.get("server").asString());
 				}
 				else{
-					Log.e(AkiApplication.TAG, "HTTP Request success. Server Endpoint problem: " + endpointResponseCode);
+					Log.e(AkiApplication.TAG, "HTTP Request success. Server Endpoint problem: " + endpointResponseCode.asString());
 				}
 			}
 			if ( callback != null ){
@@ -151,7 +154,7 @@ public abstract class AkiHttpUtil {
 			}
 		}
 	}
-	
+
 	private static void doHttpRequest(Context context, String method, String url, JsonObject headers, JsonObject payload, AsyncCallback callback){
 
 		if ( !isConnectedToTheInternet(context) ){
@@ -160,18 +163,18 @@ public abstract class AkiHttpUtil {
 			}
 			return;
 		}
-		
+
 		HttpRequestExecutor executor = (HttpRequestExecutor) new HttpRequestExecutor(callback);
 		executor.execute(method, "https://" + API_LOCATION + url,
 				headers != null ? headers.toString().trim() : null,
-				payload != null ? payload.toString().trim() : null);
+						payload != null ? payload.toString().trim() : null);
 	}
-	
+
 	public static void doGETHttpRequest(Context context, String url, AsyncCallback callback){
 		Log.i(AkiApplication.TAG, "GET " + url);
 		doHttpRequest(context, "GET", url, getBasicHeaders(), null, callback);
 	}
-	
+
 	public static void doPOSTHttpRequest(Context context, String url, AsyncCallback callback){
 		Log.i(AkiApplication.TAG, "POST " + url);
 		doHttpRequest(context, "POST", url, getBasicHeaders(), null, callback);
@@ -181,7 +184,35 @@ public abstract class AkiHttpUtil {
 		Log.i(AkiApplication.TAG, "POST " + url + " " + payload.toString());
 		doHttpRequest(context, "POST", url, getBasicHeaders(), payload, callback);
 	}
-	
+
+	private static JsonObject doHttpRequestAndWait(Context context, String method, String url, JsonObject headers, JsonObject payload, AsyncCallback callback){
+
+		if ( !isConnectedToTheInternet(context) ){
+			if ( callback != null ){
+				callback.onCancel();
+			}
+			return null;
+		}
+
+		HttpRequestExecutor executor = (HttpRequestExecutor) new HttpRequestExecutor(callback);
+		try {
+			return executor.execute(method, "https://" + API_LOCATION + url,
+					headers != null ? headers.toString().trim() : null,
+							payload != null ? payload.toString().trim() : null).get();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return null;
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static JsonObject doGETHttpRequestAndWait(Context context, String url, AsyncCallback callback){
+		Log.i(AkiApplication.TAG, "GET " + url);
+		return doHttpRequestAndWait(context, "GET", url, getBasicHeaders(), null, callback);
+	}
+
 	private static JsonObject getBasicHeaders(){
 		JsonObject headers = new JsonObject();
 		headers.add("Host", API_LOCATION);
@@ -191,8 +222,8 @@ public abstract class AkiHttpUtil {
 	}
 
 	public static boolean isConnectedToTheInternet(Context context) {
-	    final ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-	    final NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
-	    return (activeNetwork != null && activeNetwork.getState() == NetworkInfo.State.CONNECTED);
+		final ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		final NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+		return (activeNetwork != null && activeNetwork.getState() == NetworkInfo.State.CONNECTED);
 	}
 }

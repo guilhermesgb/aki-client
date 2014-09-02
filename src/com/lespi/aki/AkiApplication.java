@@ -21,6 +21,7 @@ public class AkiApplication extends Application {
 	public static boolean IN_BACKGROUND = true;
 	public static boolean IN_SETTINGS = false;
 	public static boolean LOGGED_IN = false;
+	public static boolean SERVER_DOWN = false;
 	
 	public static int INCOMING_MESSAGES_COUNTER = 0;
 	public static final int INCOMING_MESSAGE_NOTIFICATION_ID = 1011;
@@ -93,5 +94,13 @@ public class AkiApplication extends Application {
 
 	public static void isNotLoggedIn() {
 		LOGGED_IN = false;
+	}
+	
+	public static void serverDown(){
+		SERVER_DOWN = true;
+	}
+	
+	public static void serverNotDown(){
+		SERVER_DOWN = false;
 	}
 }

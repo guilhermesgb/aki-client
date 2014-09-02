@@ -111,7 +111,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 		if ( !AkiHttpUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
 			TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
-			warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+			warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_no_internet_connection_available));
 			warningText.setVisibility(View.VISIBLE);
 			CharSequence toastText = "No internet connection!";
 			Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
@@ -184,12 +184,19 @@ public class AkiChatFragment extends SherlockFragment{
 									@Override
 									public void onCancel() {
 										TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
-										warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+										CharSequence toastText;
+										if ( AkiApplication.SERVER_DOWN ){
+											warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_server_down));
+											toastText = "Our server is down!";
+										}
+										else{
+											warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_no_internet_connection_available));
+											toastText = "No internet connection!";
+										}
 										warningText.setVisibility(View.VISIBLE);
-										Log.e(AkiApplication.TAG, "Exiting chat room canceled.");
-										CharSequence toastText = "No internet connection!";
 										Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 										toast.show();
+										Log.e(AkiApplication.TAG, "Exiting chat room canceled.");
 									}
 								});
 							}
@@ -230,12 +237,19 @@ public class AkiChatFragment extends SherlockFragment{
 									@Override
 									public void onCancel() {
 										TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
-										warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+										CharSequence toastText;
+										if ( AkiApplication.SERVER_DOWN ){
+											warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_server_down));
+											toastText = "Our server is down!";
+										}
+										else{
+											warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_no_internet_connection_available));
+											toastText = "No internet connection!";
+										}
 										warningText.setVisibility(View.VISIBLE);
-										Log.e(AkiApplication.TAG, "Skipping chat room canceled.");
-										CharSequence toastText = "No internet connection!";
 										Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 										toast.show();
+										Log.e(AkiApplication.TAG, "Skipping chat room canceled.");
 									}
 								});
 							}
@@ -288,12 +302,19 @@ public class AkiChatFragment extends SherlockFragment{
 										@Override
 										public void onCancel() {
 											TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
-											warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+											CharSequence toastText;
+											if ( AkiApplication.SERVER_DOWN ){
+												warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_server_down));
+												toastText = "Our server is down!";
+											}
+											else{
+												warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_no_internet_connection_available));
+												toastText = "No internet connection!";
+											}
 											warningText.setVisibility(View.VISIBLE);
-											Log.e(AkiApplication.TAG, "Endpoint:sendMessage callback canceled.");
-											CharSequence toastText = "No internet connection!";
 											Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 											toast.show();
+											Log.e(AkiApplication.TAG, "Endpoint:sendMessage callback canceled.");
 										}
 									});
 								}
@@ -350,10 +371,15 @@ public class AkiChatFragment extends SherlockFragment{
 									@Override
 									public void onCancel() {
 										TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
-										warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+										if ( AkiApplication.SERVER_DOWN ){
+											warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_server_down));
+										}
+										else{
+											warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_no_internet_connection_available));
+										}
 										warningText.setVisibility(View.VISIBLE);
-										Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled.");
 										refreshReceivedMessages(activity, session, user);
+										Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled.");
 									}
 								});
 							}
@@ -545,46 +571,70 @@ public class AkiChatFragment extends SherlockFragment{
 			return;
 		}
 
-		if ( !AkiHttpUtil.isConnectedToTheInternet(getActivity().getApplicationContext()) ){
+		if ( !AkiHttpUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
 			ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_background_loading);
 			loadingIcon.setVisibility(View.GONE);
 			TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_background_text);
-			warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_internet_needed_to_start_using));
+			warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_internet_needed_to_start_using));
 			warningText.setVisibility(View.VISIBLE);
 			return;
 		}
-
-		Session session = Session.getActiveSession();
-		if (session != null &&
-				(session.isOpened() || session.isClosed()) ) {
-			onSessionStateChange(session, session.getState(), null);
-		}
-
-		uiHelper.onResume();
-
-		session = Session.getActiveSession();
-		if (session == null || !(session.isOpened() || session.isClosed()) ) {
-			AkiServerUtil.getPresenceFromServer(activity.getApplicationContext(), new AsyncCallback() {
-
+		else{
+			AkiServerUtil.serverIsUp(activity.getApplicationContext(), new AsyncCallback() {
+				
 				@Override
 				public void onSuccess(Object response) {
-					AkiServerUtil.sendInactiveToServer(activity.getApplicationContext());
-				}
+					Log.w(AkiApplication.TAG, "Server is up and running!");
+					Session session = Session.getActiveSession();
+					if (session != null &&
+							(session.isOpened() || session.isClosed()) ) {
+						onSessionStateChange(session, session.getState(), null);
+					}
 
-				@Override
-				public void onFailure(Throwable failure) {
-					Log.i(AkiApplication.TAG, "Could not get presence from server.");
-					if ( failure != null ){
-						failure.printStackTrace();
+					uiHelper.onResume();
+
+					session = Session.getActiveSession();
+					if (session == null || !(session.isOpened() || session.isClosed()) ) {
+						AkiServerUtil.getPresenceFromServer(activity.getApplicationContext(), new AsyncCallback() {
+
+							@Override
+							public void onSuccess(Object response) {
+								AkiServerUtil.sendInactiveToServer(activity.getApplicationContext());
+							}
+
+							@Override
+							public void onFailure(Throwable failure) {
+								Log.i(AkiApplication.TAG, "Could not get presence from server.");
+								if ( failure != null ){
+									failure.printStackTrace();
+								}
+							}
+
+							@Override
+							public void onCancel() {
+								Log.e(AkiApplication.TAG, "Endpoint:getPresenceFromServer callback canceled.");
+							}
+						});
+						switchToLoginArea(activity, true);
 					}
 				}
-
+				
+				@Override
+				public void onFailure(Throwable failure) {
+					Log.wtf(AkiApplication.TAG, "Server is down!!!");
+					failure.printStackTrace();
+					ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_background_loading);
+					loadingIcon.setVisibility(View.GONE);
+					TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_background_text);
+					warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_server_down));
+					warningText.setVisibility(View.VISIBLE);
+				}
+				
 				@Override
 				public void onCancel() {
-					Log.e(AkiApplication.TAG, "Endpoint:getPresenceFromServer callback canceled.");
+					Log.w(AkiApplication.TAG, "Canceled checking if Server is up and running!");
 				}
 			});
-			switchToLoginArea(activity, true);
 		}
 	}
 
