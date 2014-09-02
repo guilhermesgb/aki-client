@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.lespi.aki.AkiApplication;
 import com.lespi.aki.AkiMainActivity;
+import com.lespi.aki.R;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 import com.parse.PushService;
@@ -233,6 +234,9 @@ public class AkiServerUtil {
 		AkiInternalStorageUtil.wipeCachedGeofenceCenter(context);
 		AkiInternalStorageUtil.cacheGeofenceRadius(context, -1);
 		AkiInternalStorageUtil.willUpdateGeofence(context);
+
+		AkiInternalStorageUtil.storeNewMessage(context, newChatRoom, AkiApplication.SYSTEM_SENDER_ID,
+				context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room));
 	}
 
 	public static void leaveChatRoom(Context context) {

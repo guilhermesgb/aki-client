@@ -70,9 +70,9 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 					else if ( knownGender.equals("female") ){
 						formatId = R.string.com_lespi_aki_message_system_nickname_change_female;
 					}
-					String format = "%s" + context.getResources().getString(formatId) + "%s";
+					String systemMessage = "%s" + context.getResources().getString(formatId) + "%s";
 					AkiInternalStorageUtil.storeNewMessage(context, chatRoom,
-							AkiApplication.SYSTEM_SENDER_ID, String.format(format, oldNickname, nickname.asString()));
+							AkiApplication.SYSTEM_SENDER_ID, systemMessage);
 				}
 				AkiInternalStorageUtil.cacheUserNickname(context, userId, nickname.asString());
 			}
@@ -97,9 +97,9 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 					else if ( knownGender.equals("female") ){
 						formatId = R.string.com_lespi_aki_message_system_realname_reveal_female;
 					}
-					String format = "%s" + context.getResources().getString(formatId) + "%s";
+					String systemMessage = "%s" + context.getResources().getString(formatId) + "%s";
 					AkiInternalStorageUtil.storeNewMessage(context, chatRoom,
-							AkiApplication.SYSTEM_SENDER_ID, String.format(format, nickname.asString(), fullName.asString()));
+							AkiApplication.SYSTEM_SENDER_ID, systemMessage);
 				}
 			}
 			AkiInternalStorageUtil.setAnonymousSetting(context, userId, anonymous);

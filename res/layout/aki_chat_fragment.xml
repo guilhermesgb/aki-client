@@ -8,6 +8,32 @@
     tools:context=".AkiMainActivity" >
 
     <RelativeLayout
+        android:id="@+id/com_lespi_aki_main_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/com_lespi_aki_splash_color"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <ImageView
+            android:id="@+id/com_lespi_aki_main_background_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="162dp"
+            android:contentDescription="@string/com_lespi_aki_splash_logo_hint"
+            android:src="@drawable/logo" />
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:layout_below="@id/com_lespi_aki_main_background_logo" />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/com_lespi_aki_main_login"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -106,8 +132,15 @@
                 android:layout_centerVertical="true"
                 android:contentDescription="@string/com_lespi_aki_main_chat_settings_text"
                 android:src="@drawable/icon_settings" />
-
         </RelativeLayout>
+
+        <ProgressBar
+            android:id="@+id/com_lespi_aki_main_chat_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="15dp"
+            android:visibility="visible" />
 
         <ListView
             android:id="@+id/com_lespi_aki_main_messages_list"
