@@ -118,6 +118,15 @@ public class AkiChatFragment extends SherlockFragment{
 			toast.show();
 			return;
 		}
+		else if ( !AkiMainActivity.isLocationProviderEnabled(activity.getApplicationContext()) ){
+			TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+			warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_cannot_determine_location));
+			warningText.setVisibility(View.VISIBLE);
+			CharSequence toastText = "Cannot determine your location!";
+			Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+			toast.show();
+			return;
+		}
 
 		if ( state.isOpened() ) {
 
@@ -139,6 +148,17 @@ public class AkiChatFragment extends SherlockFragment{
 
 							@Override
 							public void onClick(View view) {
+
+								if ( !AkiMainActivity.isLocationProviderEnabled(activity.getApplicationContext()) ){
+									TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+									CharSequence toastText;
+									warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_cannot_determine_location));
+									toastText = "Please enable GPS!";
+									warningText.setVisibility(View.VISIBLE);
+									Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+									toast.show();									
+									return;
+								}
 
 								AkiServerUtil.sendExitToServer(activity.getApplicationContext(), new AsyncCallback() {
 
@@ -183,6 +203,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 									@Override
 									public void onCancel() {
+										//TODO
 										TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
 										CharSequence toastText;
 										if ( AkiApplication.SERVER_DOWN ){
@@ -206,6 +227,18 @@ public class AkiChatFragment extends SherlockFragment{
 
 							@Override
 							public void onClick(View view) {
+								
+								if ( !AkiMainActivity.isLocationProviderEnabled(activity.getApplicationContext()) ){
+									TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+									CharSequence toastText;
+									warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_cannot_determine_location));
+									toastText = "Please enable GPS!";
+									warningText.setVisibility(View.VISIBLE);
+									Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+									toast.show();									
+									return;
+								}
+								
 								AkiServerUtil.sendSkipToServer(activity.getApplicationContext(), new AsyncCallback() {
 
 									@Override
@@ -236,6 +269,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 									@Override
 									public void onCancel() {
+										//TODO
 										TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
 										CharSequence toastText;
 										if ( AkiApplication.SERVER_DOWN ){
@@ -274,6 +308,17 @@ public class AkiChatFragment extends SherlockFragment{
 							@Override
 							public void onClick(View view) {
 
+								if ( !AkiMainActivity.isLocationProviderEnabled(activity.getApplicationContext()) ){
+									TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+									CharSequence toastText;
+									warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_cannot_determine_location));
+									toastText = "Please enable GPS!";
+									warningText.setVisibility(View.VISIBLE);
+									Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+									toast.show();									
+									return;
+								}
+								
 								final EditText chatBox = (EditText) activity.findViewById(R.id.com_lespi_aki_main_chat_input);
 								final String message = chatBox.getText().toString().trim();
 								if ( !message.isEmpty() ){
@@ -301,6 +346,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 										@Override
 										public void onCancel() {
+											//TODO
 											TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
 											CharSequence toastText;
 											if ( AkiApplication.SERVER_DOWN ){
@@ -332,6 +378,13 @@ public class AkiChatFragment extends SherlockFragment{
 
 									@Override
 									public void onClick(View view) {
+										
+										if ( !AkiMainActivity.isLocationProviderEnabled(activity.getApplicationContext()) ){
+											TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+											warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_cannot_determine_location));
+											warningText.setVisibility(View.VISIBLE);
+											return;
+										}
 										activity.getSlidingMenu().showMenu(true);
 									}
 								});
@@ -370,6 +423,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 									@Override
 									public void onCancel() {
+										//TODO
 										TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
 										if ( AkiApplication.SERVER_DOWN ){
 											warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_server_down));
@@ -572,16 +626,56 @@ public class AkiChatFragment extends SherlockFragment{
 		}
 
 		if ( !AkiHttpUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
+
+			LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
+			RelativeLayout loginArea = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
+			chatArea.setVisibility(View.GONE);
+			loginArea.setVisibility(View.GONE);
+
 			ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_background_loading);
 			loadingIcon.setVisibility(View.GONE);
-			TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_background_text);
-			warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_internet_needed_to_start_using));
+			TextView backgroundWarningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_background_text);
+			backgroundWarningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_internet_needed_to_start_using));
+			backgroundWarningText.setVisibility(View.VISIBLE);
+
+			TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+			warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_no_internet_connection_available));
 			warningText.setVisibility(View.VISIBLE);
+
+			RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
+			background.setVisibility(View.VISIBLE);
+
+			activity.getSlidingMenu().showContent();
+			activity.getSlidingMenu().setSlidingEnabled(false);
+			return;
+		}
+		else if ( !AkiMainActivity.isLocationProviderEnabled(activity.getApplicationContext()) ){
+
+			LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
+			RelativeLayout loginArea = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
+			chatArea.setVisibility(View.GONE);
+			loginArea.setVisibility(View.GONE);
+
+			ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_background_loading);
+			loadingIcon.setVisibility(View.GONE);
+			TextView backgroundWarningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_background_text);
+			backgroundWarningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_gps_needed_to_start_using));
+			backgroundWarningText.setVisibility(View.VISIBLE);
+
+			TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+			warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_cannot_determine_location));
+			warningText.setVisibility(View.VISIBLE);
+
+			RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
+			background.setVisibility(View.VISIBLE);
+
+			activity.getSlidingMenu().showContent();
+			activity.getSlidingMenu().setSlidingEnabled(false);
 			return;
 		}
 		else{
 			AkiServerUtil.serverIsUp(activity.getApplicationContext(), new AsyncCallback() {
-				
+
 				@Override
 				public void onSuccess(Object response) {
 					Log.w(AkiApplication.TAG, "Server is up and running!");
@@ -618,18 +712,34 @@ public class AkiChatFragment extends SherlockFragment{
 						switchToLoginArea(activity, true);
 					}
 				}
-				
+
 				@Override
 				public void onFailure(Throwable failure) {
 					Log.wtf(AkiApplication.TAG, "Server is down!!!");
 					failure.printStackTrace();
+
+					LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
+					RelativeLayout loginArea = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
+					chatArea.setVisibility(View.GONE);
+					loginArea.setVisibility(View.GONE);
+
 					ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_background_loading);
 					loadingIcon.setVisibility(View.GONE);
-					TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_background_text);
-					warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_server_down));
+					TextView backgroundWarningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_background_text);
+					backgroundWarningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_internet_needed_to_start_using));
+					backgroundWarningText.setVisibility(View.VISIBLE);
+
+					TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+					warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_no_internet_connection_available));
 					warningText.setVisibility(View.VISIBLE);
+
+					RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
+					background.setVisibility(View.VISIBLE);
+
+					activity.getSlidingMenu().showContent();
+					activity.getSlidingMenu().setSlidingEnabled(false);
 				}
-				
+
 				@Override
 				public void onCancel() {
 					Log.w(AkiApplication.TAG, "Canceled checking if Server is up and running!");
