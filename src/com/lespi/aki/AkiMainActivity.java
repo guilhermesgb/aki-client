@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.Session;
@@ -37,6 +38,8 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnClosedListener;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnOpenedListener;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
+import com.lespi.aki.json.JsonObject;
+import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 import com.lespi.aki.utils.AkiServerUtil;
@@ -61,7 +64,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$onCreate");
-		
+
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
@@ -127,12 +130,12 @@ LocationClient.OnRemoveGeofencesResultListener {
 		geofencePendingIntent = PendingIntent.getService(this, 0,
 				new Intent(this, IncomingTransitionsIntentService.class),
 				PendingIntent.FLAG_UPDATE_CURRENT);
-		
+
 		ProgressBar loadingIcon = (ProgressBar) findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
 		loadingIcon.setVisibility(View.VISIBLE);
 		slidingMenu.showContent();
 		slidingMenu.setSlidingEnabled(false);
-		
+
 		RelativeLayout background = (RelativeLayout) findViewById(R.id.com_lespi_aki_main_background);
 		background.setVisibility(View.VISIBLE);
 	}
@@ -142,26 +145,26 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$onDestroy");
 		final Context context = getApplicationContext();
-		
+
 		stopPeriodicLocationUpdates();
 		removeGeofence();
-		
+
 		if ( AkiApplication.LOGGED_IN ){
 			AkiServerUtil.sendExitToServer(context, new AsyncCallback() {
 
 				@Override
 				public void onSuccess(Object response) {
 					AkiServerUtil.leaveChatRoom(context);
-					
+
 					String contentTitle = context.getString(R.string.com_lespi_aki_notif_exit_title);
 					String contentText = "You were kicked out of a chat room!";
-					
+
 					NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(context)
-					        .setSmallIcon(R.drawable.notification_icon)
-					        .setContentTitle(contentTitle)
-					        .setContentText(contentText)
-					        .setAutoCancel(true);
-					
+					.setSmallIcon(R.drawable.notification_icon)
+					.setContentTitle(contentTitle)
+					.setContentText(contentText)
+					.setAutoCancel(true);
+
 					NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 					notificationManager.notify(AkiApplication.EXITED_ROOM_NOTIFICATION_ID, notifyBuilder.build());
 				}
@@ -224,7 +227,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(AkiApplication.INCOMING_MESSAGE_NOTIFICATION_ID);
 		notificationManager.cancel(AkiApplication.EXITED_ROOM_NOTIFICATION_ID);
-		
+
 		if ( AkiServerUtil.isActiveOnServer() ){
 			chatFragment.onResume();
 		}
@@ -234,7 +237,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$onActivityResult");
-		
+
 		switch (requestCode) {
 		case AkiApplication.CONNECTION_FAILURE_RESOLUTION_REQUEST:
 
@@ -261,7 +264,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 	public boolean locationServicesConnected() {
 
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$locationServicesConnected");
-		
+
 		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 
 		if (ConnectionResult.SUCCESS == resultCode) {
@@ -304,7 +307,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 	public void onConnectionFailed(ConnectionResult connectionResult) {
 
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$onConnectionFailed");
-		
+
 		if (connectionResult.hasResolution()) {
 			try {
 				connectionResult.startResolutionForResult(this, 
@@ -327,8 +330,8 @@ LocationClient.OnRemoveGeofencesResultListener {
 	public void onLocationChanged(Location location) {
 
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$onLocationChanged");
-		
-		Context context = getApplicationContext();
+
+		final Context context = getApplicationContext();
 		if ( context == null ){
 			return;
 		}
@@ -338,35 +341,50 @@ LocationClient.OnRemoveGeofencesResultListener {
 		}
 
 		boolean sendPresence = false;
-		
-		AkiLocation oldLocation = AkiInternalStorageUtil.getCachedUserLocation(context, currentUserId);
-		if ( oldLocation == null ){
-			sendPresence = true;			
+
+		final AkiLocation oldLocation = AkiInternalStorageUtil.getCachedUserLocation(context, currentUserId);
+		if ( oldLocation == null || AkiApplication.LOGGED_IN ){
+			sendPresence = true;
 		}
-		
+
 		AkiInternalStorageUtil.cacheUserLocation(context, currentUserId, location);
 		Log.w(AkiApplication.TAG, "Current location updated to: " +
 				location.getLatitude() + ", " + location.getLongitude());
-		
+
 		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 		chatAdapter.notifyDataSetChanged();
-		
+
 		if ( sendPresence ){
 			AkiServerUtil.sendPresenceToServer(context, currentUserId, new AsyncCallback() {
-				
+
 				@Override
 				public void onSuccess(Object response) {
-					chatFragment.onResume();
+					if ( oldLocation == null ){
+						Log.d(AkiApplication.TAG, "Reloading as we just got user location information for the first time.");
+						chatFragment.onResume();
+					}
+					else if ( AkiApplication.LOGGED_IN ){
+						JsonObject responseJSON = (JsonObject) response;
+						final JsonValue newChatRoomId = responseJSON.get("chat_room");
+						String currentChatRoomId = AkiInternalStorageUtil.getCurrentChatRoom(context);
+						if ( newChatRoomId == null || ( currentChatRoomId != null && !newChatRoomId.asString().equals(currentChatRoomId) ) ){
+							Log.d(AkiApplication.TAG, "Server informed it is a good time to reload.");
+							chatFragment.onResume();
+						}
+					}
 				}
-				
+
 				@Override
 				public void onFailure(Throwable failure) {
 					Log.e(AkiApplication.TAG, "Could not send presence to server.");
 					failure.printStackTrace();
 				}
-				
+
 				@Override
 				public void onCancel() {
+					TextView warningText = (TextView) findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+					warningText.setText(getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+					warningText.setVisibility(View.VISIBLE);
 					Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled.");
 				}
 			});
@@ -399,9 +417,9 @@ LocationClient.OnRemoveGeofencesResultListener {
 				int errorCode = LocationClient.getErrorCode(intent);
 				Log.e(AkiApplication.TAG, "Location Service geofence error: " + Integer.toString(errorCode));
 			} else {
-				
+
 				final Context context = getApplicationContext();
-				
+
 				int transitionType = LocationClient.getGeofenceTransition(intent);
 				if ( transitionType == Geofence.GEOFENCE_TRANSITION_EXIT ) {
 
@@ -423,7 +441,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 									AkiServerUtil.leaveChatRoom(context);
 									removeGeofence();
 									if ( !AkiApplication.IN_BACKGROUND ){
-										
+
 										CharSequence toastText = "You walked away from a chat room!";
 										Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 										toast.show();
@@ -433,16 +451,16 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 										String contentTitle = context.getString(R.string.com_lespi_aki_notif_exit_title);
 										String contentText = "You walked too far away from a chat room.";
-										
+
 										Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-										
+
 										NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(context)
-										        .setSmallIcon(R.drawable.notification_icon)
-										        .setContentTitle(contentTitle)
-										        .setContentText(contentText)
-										        .setSound(alarmSound)
-										        .setAutoCancel(true);
-										
+										.setSmallIcon(R.drawable.notification_icon)
+										.setContentTitle(contentTitle)
+										.setContentText(contentText)
+										.setSound(alarmSound)
+										.setAutoCancel(true);
+
 										NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 										notificationManager.notify(AkiApplication.EXITED_ROOM_NOTIFICATION_ID, notifyBuilder.build());
 									}
@@ -456,6 +474,9 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 								@Override
 								public void onCancel() {
+									TextView warningText = (TextView) findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+									warningText.setText(getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+									warningText.setVisibility(View.VISIBLE);
 									Log.e(AkiApplication.TAG, "Could not cancel exiting chat room.");
 								}
 							});
@@ -496,7 +517,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 				radius = AkiApplication.MIN_RADIUS;
 				AkiInternalStorageUtil.cacheGeofenceRadius(context, radius);
 			}
-			
+
 			currentGeofence = new Geofence.Builder()
 			.setCircularRegion(center.latitude, center.longitude, radius)
 			.setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
@@ -514,10 +535,10 @@ LocationClient.OnRemoveGeofencesResultListener {
 	public void removeGeofence(){
 
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$removeGeofence");
-		
+
 		if ( locationClient.isConnected() ){
 			locationClient.removeGeofences(geofencePendingIntent, this);
-			
+
 			Context context = getApplicationContext();
 			AkiInternalStorageUtil.wipeCachedGeofenceCenter(context);
 			AkiInternalStorageUtil.cacheGeofenceRadius(context, -1);
@@ -585,7 +606,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 	private void showErrorDialog(int errorCode) {
 
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$showErrorDialog");
-		
+
 		Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(errorCode,
 				this, AkiApplication.CONNECTION_FAILURE_RESOLUTION_REQUEST);
 
@@ -614,4 +635,5 @@ LocationClient.OnRemoveGeofencesResultListener {
 			return dialog;
 		}
 	}
+
 }

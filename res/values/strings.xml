@@ -11,7 +11,9 @@
     <string name="com_lespi_aki_main_chat_settings_text">Settings</string>
     <string name="com_lespi_aki_main_chat_exit_text">Exit</string>
     <string name="com_lespi_aki_main_chat_skip_text">Skip</string>
-    <string name="com_lespi_aki_chat_loading_text">Please wait&#8230;</string>
+    <string name="com_lespi_aki_main_chat_loading_text">Please wait&#8230;</string>
+    <string name="com_lespi_aki_main_chat_no_internet_connection_available">No Internet connection available!</string>
+    <string name="com_lespi_aki_main_chat_internet_needed_to_start_using">You need Internet to start chatting!</string>
     <string name="com_lespi_aki_main_settings_logout_text">Log out from Aki</string>
     <string name="com_lespi_aki_main_settings_cover_hint">A cover photo</string>
     <string name="com_lespi_aki_main_settings_nickname_text">Your nickname:</string>

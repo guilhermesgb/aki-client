@@ -26,11 +26,21 @@
             android:src="@drawable/logo" />
 
         <ProgressBar
+            android:id="@+id/com_lespi_aki_main_background_loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/com_lespi_aki_main_background_logo"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp" />
+
+        <TextView
+            android:id="@+id/com_lespi_aki_main_background_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/com_lespi_aki_main_background_logo"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="30dp"
-            android:layout_below="@id/com_lespi_aki_main_background_logo" />
+            android:visibility="gone" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -134,6 +144,19 @@
                 android:src="@drawable/icon_settings" />
         </RelativeLayout>
 
+        <TextView
+            android:id="@+id/com_lespi_aki_main_chat_warning_text_area"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="15dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="15dp"
+            android:textColor="@color/com_lespi_aki_message_text_color_system"
+            android:textSize="20sp"
+            android:visibility="gone" />
+
         <ProgressBar
             android:id="@+id/com_lespi_aki_main_chat_progress_bar"
             android:layout_width="wrap_content"
@@ -150,6 +173,8 @@
             android:divider="@android:color/transparent"
             android:dividerHeight="7dp"
             android:padding="7dp"
+            android:alwaysDrawnWithCache="false"
+            android:stackFromBottom="true"
             android:scrollbars="horizontal" />
 
         <LinearLayout

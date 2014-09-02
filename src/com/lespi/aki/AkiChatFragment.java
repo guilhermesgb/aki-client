@@ -24,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -38,6 +39,7 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
+import com.lespi.aki.utils.AkiHttpUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
 import com.parse.internal.AsyncCallback;
@@ -98,14 +100,24 @@ public class AkiChatFragment extends SherlockFragment{
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
 		Log.v(AkiApplication.TAG, "AkiChatFragment$onSessionStateChange");
-		
+
 		final AkiMainActivity activity = (AkiMainActivity) getActivity();
 		if ( activity == null ){
 			Log.d(AkiApplication.TAG, "Facebook session callback called but there is no MainActivity alive, so ignored session change event.");
 			return;
 		}
-		
+
 		final ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
+
+		if ( !AkiHttpUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
+			TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+			warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+			warningText.setVisibility(View.VISIBLE);
+			CharSequence toastText = "No internet connection!";
+			Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+			toast.show();
+			return;
+		}
 
 		if ( state.isOpened() ) {
 
@@ -122,16 +134,19 @@ public class AkiChatFragment extends SherlockFragment{
 						}
 						final ImageButton sendMessageBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_send_btn);
 						sendMessageBtn.setEnabled(false);
-						
+
 						final OnClickListener exitBtnClickListener = new OnClickListener() {
 
 							@Override
 							public void onClick(View view) {
-								
+
 								AkiServerUtil.sendExitToServer(activity.getApplicationContext(), new AsyncCallback() {
 
 									@Override
 									public void onSuccess(Object response) {
+										TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+										warningText.setVisibility(View.GONE);
+
 										AkiInternalStorageUtil.setAnonymousSetting(activity.getApplicationContext(), user.getId(), true);
 										AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
 										activity.stopPeriodicLocationUpdates();
@@ -140,10 +155,10 @@ public class AkiChatFragment extends SherlockFragment{
 										AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 										chatAdapter.clear();
 										loadingIcon.setVisibility(View.VISIBLE);
-										
+
 										String contentTitle = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_title);
 										String contentText = "You've left a chat room manually.";
-										
+
 										NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(activity.getApplicationContext())
 										.setSmallIcon(R.drawable.notification_icon)
 										.setContentTitle(contentTitle)
@@ -152,7 +167,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 										NotificationManager notificationManager = (NotificationManager) activity.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 										notificationManager.notify(AkiApplication.EXITED_ROOM_NOTIFICATION_ID, notifyBuilder.build());
-										
+
 										Intent intent = new Intent(Intent.ACTION_MAIN);
 										intent.addCategory(Intent.CATEGORY_HOME);
 										getActivity().startActivity(intent);
@@ -168,12 +183,18 @@ public class AkiChatFragment extends SherlockFragment{
 
 									@Override
 									public void onCancel() {
-										Log.e(AkiApplication.TAG, "Could not cancel exiting chat room.");
+										TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+										warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+										warningText.setVisibility(View.VISIBLE);
+										Log.e(AkiApplication.TAG, "Exiting chat room canceled.");
+										CharSequence toastText = "No internet connection!";
+										Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+										toast.show();
 									}
 								});
 							}
 						};
-						
+
 						final OnClickListener skipBtnClickListener = new OnClickListener() {
 
 							@Override
@@ -182,6 +203,9 @@ public class AkiChatFragment extends SherlockFragment{
 
 									@Override
 									public void onSuccess(Object response) {
+										TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+										warningText.setVisibility(View.GONE);
+
 										AkiInternalStorageUtil.setAnonymousSetting(activity.getApplicationContext(), user.getId(), true);
 										AkiServerUtil.leaveChatRoom(activity.getApplicationContext());
 										activity.removeGeofence();
@@ -189,11 +213,11 @@ public class AkiChatFragment extends SherlockFragment{
 										AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 										chatAdapter.clear();
 										loadingIcon.setVisibility(View.VISIBLE);
-										
+
 										CharSequence toastText = "You have skipped into another chat room!";
 										Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 										toast.show();
-										
+
 										activity.onResume();
 									}
 
@@ -205,7 +229,13 @@ public class AkiChatFragment extends SherlockFragment{
 
 									@Override
 									public void onCancel() {
-										Log.e(AkiApplication.TAG, "Could not cancel skipping chat room.");
+										TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+										warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+										warningText.setVisibility(View.VISIBLE);
+										Log.e(AkiApplication.TAG, "Skipping chat room canceled.");
+										CharSequence toastText = "No internet connection!";
+										Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+										toast.show();
 									}
 								});
 							}
@@ -226,38 +256,50 @@ public class AkiChatFragment extends SherlockFragment{
 
 						sendMessageBtn.setEnabled(false);
 						sendMessageBtn.setOnClickListener(new OnClickListener() {
-							
+
 							@Override
 							public void onClick(View view) {
-								
+
 								final EditText chatBox = (EditText) activity.findViewById(R.id.com_lespi_aki_main_chat_input);
 								final String message = chatBox.getText().toString().trim();
 								if ( !message.isEmpty() ){
 									chatBox.setText("");
 									AkiServerUtil.sendMessage(activity.getApplicationContext(), message, new AsyncCallback() {
-										
+
 										@Override
 										public void onSuccess(Object response) {
+											TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+											warningText.setVisibility(View.GONE);
+
 											CharSequence toastText = "Message sent! :)";
 											Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 											toast.show();
 										}
-										
+
 										@Override
 										public void onFailure(Throwable failure) {
 											Log.e(AkiApplication.TAG, "You could not send message!");
 											failure.printStackTrace();
+											CharSequence toastText = "Message not sent!";
+											Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+											toast.show();
 										}
-										
+
 										@Override
 										public void onCancel() {
+											TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+											warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+											warningText.setVisibility(View.VISIBLE);
 											Log.e(AkiApplication.TAG, "Endpoint:sendMessage callback canceled.");
+											CharSequence toastText = "No internet connection!";
+											Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+											toast.show();
 										}
 									});
 								}
 							}
 						});
-						
+
 						refreshSettings(activity, session, user, new AsyncCallback(){
 
 							@Override
@@ -273,17 +315,20 @@ public class AkiChatFragment extends SherlockFragment{
 									}
 								});
 								activity.getSlidingMenu().setSlidingEnabled(true);
-								
+
 								AkiServerUtil.sendPresenceToServer(activity.getApplicationContext(), user.getId(), new AsyncCallback() {
 
 									@Override
 									public void onSuccess(Object response) {
 
+										TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+										warningText.setVisibility(View.GONE);
+
 										exitChatBtn.setEnabled(true);
 										exitChatBtnText.setEnabled(true);
 										skipChatBtn.setEnabled(true);
 										skipChatBtnText.setEnabled(true);
-										
+
 										JsonObject responseJSON = (JsonObject) response;
 										final JsonValue chatRoomId = responseJSON.get("chat_room");
 										if ( chatRoomId != null ){
@@ -304,6 +349,9 @@ public class AkiChatFragment extends SherlockFragment{
 
 									@Override
 									public void onCancel() {
+										TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+										warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_no_internet_connection_available));
+										warningText.setVisibility(View.VISIBLE);
 										Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled.");
 										refreshReceivedMessages(activity, session, user);
 									}
@@ -343,7 +391,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 		RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
 		background.setVisibility(View.GONE);
-		
+
 		final LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
 		final RelativeLayout loginArea = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.GONE);
@@ -357,7 +405,7 @@ public class AkiChatFragment extends SherlockFragment{
 		chatAdapter.clear();
 		ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
 		loadingIcon.setVisibility(View.VISIBLE);
-		
+
 		if ( activity.locationServicesConnected() ){
 			activity.stopPeriodicLocationUpdates();
 			activity.removeGeofence();
@@ -407,7 +455,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 				@Override
 				public void onCancel() {
-					Log.e(AkiApplication.TAG, "Could not cancel exiting chat room.");
+					Log.e(AkiApplication.TAG, "Exiting chat room canceled.");
 				}
 			});
 		}
@@ -431,7 +479,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 		RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
 		background.setVisibility(View.GONE);
-		
+
 		final LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
 		final RelativeLayout loginArea = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
 		chatArea.setVisibility(View.VISIBLE);
@@ -448,7 +496,7 @@ public class AkiChatFragment extends SherlockFragment{
 	}
 
 	private void refreshReceivedMessages(final AkiMainActivity activity, final Session session, final GraphUser currentUser) {
-		
+
 		final Context context = activity.getApplicationContext();
 
 		final AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
@@ -490,7 +538,22 @@ public class AkiChatFragment extends SherlockFragment{
 	public void onResume() {
 		super.onResume();
 		Log.v(AkiApplication.TAG, "AkiChatFragment$onResume");
-		
+
+		final AkiMainActivity activity = (AkiMainActivity) getActivity();
+		if ( activity == null ){
+			Log.e(AkiApplication.TAG, "onResume event called but there is no MainActivity alive, so ignored session change event.");
+			return;
+		}
+
+		if ( !AkiHttpUtil.isConnectedToTheInternet(getActivity().getApplicationContext()) ){
+			ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_background_loading);
+			loadingIcon.setVisibility(View.GONE);
+			TextView warningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_background_text);
+			warningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_internet_needed_to_start_using));
+			warningText.setVisibility(View.VISIBLE);
+			return;
+		}
+
 		Session session = Session.getActiveSession();
 		if (session != null &&
 				(session.isOpened() || session.isClosed()) ) {
@@ -498,12 +561,6 @@ public class AkiChatFragment extends SherlockFragment{
 		}
 
 		uiHelper.onResume();
-
-		final AkiMainActivity activity = (AkiMainActivity) getActivity();
-		if ( activity == null ){
-			Log.e(AkiApplication.TAG, "onResume event called but there is no MainActivity alive, so ignored session change event.");
-			return;
-		}
 
 		session = Session.getActiveSession();
 		if (session == null || !(session.isOpened() || session.isClosed()) ) {

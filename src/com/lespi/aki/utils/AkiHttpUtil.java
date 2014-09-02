@@ -11,6 +11,9 @@ import java.net.URI;
 import java.net.URL;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -122,7 +125,7 @@ public abstract class AkiHttpUtil {
 			if ( responseCode != null && responseCode.asInt() != 200 ){
 				Log.e(AkiApplication.TAG, "HTTP Request fail.");
 				if ( callback != null ){
-					callback.onFailure(new Exception("The HTTP Request failed."));
+					callback.onCancel();
 				}
 				return;
 			}
@@ -149,27 +152,34 @@ public abstract class AkiHttpUtil {
 		}
 	}
 	
-	private static void doHttpRequest(String method, String url, JsonObject headers, JsonObject payload, AsyncCallback callback){
+	private static void doHttpRequest(Context context, String method, String url, JsonObject headers, JsonObject payload, AsyncCallback callback){
 
+		if ( !isConnectedToTheInternet(context) ){
+			if ( callback != null ){
+				callback.onCancel();
+			}
+			return;
+		}
+		
 		HttpRequestExecutor executor = (HttpRequestExecutor) new HttpRequestExecutor(callback);
 		executor.execute(method, "https://" + API_LOCATION + url,
 				headers != null ? headers.toString().trim() : null,
 				payload != null ? payload.toString().trim() : null);
 	}
 	
-	public static void doGETHttpRequest(String url, AsyncCallback callback){
+	public static void doGETHttpRequest(Context context, String url, AsyncCallback callback){
 		Log.i(AkiApplication.TAG, "GET " + url);
-		doHttpRequest("GET", url, getBasicHeaders(), null, callback);
+		doHttpRequest(context, "GET", url, getBasicHeaders(), null, callback);
 	}
 	
-	public static void doPOSTHttpRequest(String url, AsyncCallback callback){
+	public static void doPOSTHttpRequest(Context context, String url, AsyncCallback callback){
 		Log.i(AkiApplication.TAG, "POST " + url);
-		doHttpRequest("POST", url, getBasicHeaders(), null, callback);
+		doHttpRequest(context, "POST", url, getBasicHeaders(), null, callback);
 	}
 
-	public static void doPOSTHttpRequest(String url, JsonObject payload, AsyncCallback callback){
+	public static void doPOSTHttpRequest(Context context, String url, JsonObject payload, AsyncCallback callback){
 		Log.i(AkiApplication.TAG, "POST " + url + " " + payload.toString());
-		doHttpRequest("POST", url, getBasicHeaders(), payload, callback);
+		doHttpRequest(context, "POST", url, getBasicHeaders(), payload, callback);
 	}
 	
 	private static JsonObject getBasicHeaders(){
@@ -180,4 +190,9 @@ public abstract class AkiHttpUtil {
 		return headers;
 	}
 
+	public static boolean isConnectedToTheInternet(Context context) {
+	    final ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+	    final NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+	    return (activeNetwork != null && activeNetwork.getState() == NetworkInfo.State.CONNECTED);
+	}
 }

@@ -32,8 +32,8 @@ public class AkiApplication extends Application {
 	
     public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
-    public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
-    public static final int FAST_CEILING_IN_SECONDS = 1;
+    public static final int UPDATE_INTERVAL_IN_SECONDS = 45;
+    public static final int FAST_CEILING_IN_SECONDS = 30;
     public static final long UPDATE_INTERVAL_IN_MILLISECONDS =
             1000 * UPDATE_INTERVAL_IN_SECONDS;
     public static final long FAST_INTERVAL_CEILING_IN_MILLISECONDS =

@@ -2,6 +2,7 @@ package com.lespi.aki.utils;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.lespi.aki.AkiApplication;
 import com.lespi.aki.AkiMainActivity;
@@ -25,7 +26,7 @@ public class AkiServerUtil {
 
 	public static void getPresenceFromServer(final Context context, final AsyncCallback callback){
 
-		AkiHttpUtil.doGETHttpRequest("/presence", new AsyncCallback() {
+		AkiHttpUtil.doGETHttpRequest(context, "/presence", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -48,6 +49,7 @@ public class AkiServerUtil {
 
 			@Override
 			public void onCancel() {
+				//TODO: SHOW INTERNET NOT AVAILABLE OR SERVER DOWN MESSAGE!
 				callback.onCancel();
 			}
 		});
@@ -93,7 +95,7 @@ public class AkiServerUtil {
 			payload.add("location", "unknown");
 		}
 		
-		AkiHttpUtil.doPOSTHttpRequest("/presence/"+userId, payload, new AsyncCallback(){
+		AkiHttpUtil.doPOSTHttpRequest(context, "/presence/"+userId, payload, new AsyncCallback(){
 
 			@Override
 			public void onSuccess(Object response) {
@@ -112,6 +114,7 @@ public class AkiServerUtil {
 
 			@Override
 			public void onCancel() {
+				//TODO: SHOW INTERNET NOT AVAILABLE OR SERVER DOWN MESSAGE!
 				if ( callback != null ){
 					callback.onCancel();
 				}
@@ -121,7 +124,7 @@ public class AkiServerUtil {
 
 	public static void sendInactiveToServer(final Context context){
 
-		AkiHttpUtil.doPOSTHttpRequest("/inactive", new AsyncCallback() {
+		AkiHttpUtil.doPOSTHttpRequest(context, "/inactive", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -147,7 +150,7 @@ public class AkiServerUtil {
 
 	public static void sendExitToServer(final Context context, final AsyncCallback callback){
 
-		AkiHttpUtil.doPOSTHttpRequest("/exit", new AsyncCallback() {
+		AkiHttpUtil.doPOSTHttpRequest(context, "/exit", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -167,6 +170,7 @@ public class AkiServerUtil {
 
 			@Override
 			public void onCancel() {
+				//TODO: SHOW INTERNET NOT AVAILABLE OR SERVER DOWN MESSAGE!
 				Log.e(AkiApplication.TAG, "Endpoint:sendExitToServer callback canceled.");
 				callback.onCancel();
 			}
@@ -175,7 +179,7 @@ public class AkiServerUtil {
 
 	public static void sendSkipToServer(final Context context, final AsyncCallback callback){
 
-		AkiHttpUtil.doPOSTHttpRequest("/skip", new AsyncCallback() {
+		AkiHttpUtil.doPOSTHttpRequest(context, "/skip", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -194,6 +198,7 @@ public class AkiServerUtil {
 
 			@Override
 			public void onCancel() {
+				//TODO: SHOW INTERNET NOT AVAILABLE OR SERVER DOWN MESSAGE!
 				Log.e(AkiApplication.TAG, "Endpoint:sendExitToServer callback canceled.");
 				callback.onCancel();
 			}
@@ -221,6 +226,9 @@ public class AkiServerUtil {
 					currentChatRoom + "} because will be assigned to new chat room " +
 					"address {" + newChatRoom + "}.");
 			AkiInternalStorageUtil.removeCachedMessages(context, currentChatRoom);
+			CharSequence toastText = "You were kicked from the chat room! Joining a new one...";
+			Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_LONG);
+			toast.show();
 		}
 
 		if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
@@ -270,7 +278,7 @@ public class AkiServerUtil {
 			payload.add("chat_room", currentChatRoom);
 		}
 
-		AkiHttpUtil.doPOSTHttpRequest("/message", payload, new AsyncCallback() {
+		AkiHttpUtil.doPOSTHttpRequest(context, "/message", payload, new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -284,6 +292,7 @@ public class AkiServerUtil {
 
 			@Override
 			public void onCancel() {
+				//TODO: SHOW INTERNET NOT AVAILABLE OR SERVER DOWN MESSAGE!
 				callback.onCancel();
 			}
 		});
