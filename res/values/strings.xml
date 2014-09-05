@@ -38,8 +38,8 @@
     <string name="com_lespi_aki_notif_new_message_text">"You've received a new message."</string>
     <string name="com_lespi_aki_notif_new_messages_title">"%d new messages from Aki"</string>
     <string name="com_lespi_aki_notif_new_messages_text">"You've received %d new messages."</string>
-    <string name="com_lespi_aki_notif_exit_title">You have exited a chat room</string>
-    <string name="com_lespi_aki_notif_skip_title">You have skipped a chat room</string>
+    <string name="com_lespi_aki_notif_exit_title">Chat room Exit</string>
+    <string name="com_lespi_aki_notif_exit_text">You have just left a chat room</string>
     <string name="com_lespi_aki_preferences">com_lespi_aki_data_chat_file</string>
     <string name="com_lespi_aki_data_current_user">current-user</string>
     <string name="com_lespi_aki_data_current_chat_room">current-chat-room</string>

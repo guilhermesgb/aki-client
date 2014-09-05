@@ -1,5 +1,8 @@
 package com.lespi.aki.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
@@ -237,10 +240,8 @@ public class AkiServerUtil {
 		else if ( currentChatRoom.equals(newChatRoom) ){
 			Log.i(AkiApplication.TAG, "No need to update current chat room, which" +
 					" has address {" + currentChatRoom + "}.");
-			if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
-				PushService.subscribe(context, newChatRoom, AkiMainActivity.class);
-				Log.i(AkiApplication.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
-			}
+			PushService.subscribe(context, newChatRoom, AkiMainActivity.class);
+			Log.i(AkiApplication.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
 			return;
 		}
 		else{
@@ -248,7 +249,6 @@ public class AkiServerUtil {
 			Log.i(AkiApplication.TAG, "Had to leave current chat room address {" +
 					currentChatRoom + "} because will be assigned to new chat room " +
 					"address {" + newChatRoom + "}.");
-			AkiInternalStorageUtil.removeCachedMessages(context, currentChatRoom);
 			CharSequence toastText = "You were kicked from the chat room! Joining a new one...";
 			Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_LONG);
 			toast.show();
@@ -280,11 +280,38 @@ public class AkiServerUtil {
 			PushService.unsubscribe(context, currentChatRoom);
 			AkiInternalStorageUtil.setCurrentChatRoom(context, null);
 			Log.i(AkiApplication.TAG, "Unsubscribed from chat room address {" + currentChatRoom + "}.");
+			AkiInternalStorageUtil.removeCachedMessages(context, currentChatRoom);
 		}
 		for ( String remainingChatRoom : PushService.getSubscriptions(context) ){
 			PushService.unsubscribe(context, remainingChatRoom);
 			Log.e(AkiApplication.TAG, "Cleanup -> unsubscribing from chat room address: {" + remainingChatRoom + "}.");
 		}
+	}
+
+	public static void getMembersList(final Context context, final AsyncCallback callback) {
+
+		AkiHttpUtil.doGETHttpRequest(context, "/members", new AsyncCallback() {
+
+			@Override
+			public void onSuccess(Object response) {
+				JsonObject members = ((JsonObject) response).get("members").asObject();
+				List<String> memberIds = new ArrayList<String>();
+				for ( String memberId : members.names() ){
+					memberIds.add(memberId);
+				}
+				callback.onSuccess(memberIds);
+			}
+
+			@Override
+			public void onFailure(Throwable failure) {
+				callback.onFailure(failure);
+			}
+
+			@Override
+			public void onCancel() {
+				callback.onCancel();
+			}
+		});
 	}
 
 	public static void sendMessage(final Context context, String message, final AsyncCallback callback) {

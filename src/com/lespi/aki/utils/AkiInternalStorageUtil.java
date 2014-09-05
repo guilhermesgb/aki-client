@@ -217,7 +217,7 @@ public class AkiInternalStorageUtil {
 	public static String getCachedUserGender(Context context, String userId) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
-		String fullName = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_gender)+userId, null);
+		String fullName = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_gender)+userId, "unknown");
 		return fullName;
 	}
 	

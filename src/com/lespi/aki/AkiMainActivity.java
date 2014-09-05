@@ -75,7 +75,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		setSlidingActionBarEnabled(true);
 
 		if (savedInstanceState == null) {
-			chatFragment = new AkiChatFragment();
+			chatFragment = AkiChatFragment.getInstance();
 		} else {
 			chatFragment = (AkiChatFragment) getSupportFragmentManager()
 					.findFragmentById(R.id.aki_chat_frame);
@@ -154,7 +154,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 					AkiServerUtil.leaveChatRoom(context);
 
 					String contentTitle = context.getString(R.string.com_lespi_aki_notif_exit_title);
-					String contentText = "You were kicked out of a chat room!";
+					String contentText = context.getString(R.string.com_lespi_aki_notif_exit_text);
 
 					NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(context)
 					.setSmallIcon(R.drawable.notification_icon)
@@ -340,7 +340,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		boolean sendPresence = false;
 
 		final AkiLocation oldLocation = AkiInternalStorageUtil.getCachedUserLocation(context, currentUserId);
-		if ( oldLocation == null || AkiApplication.LOGGED_IN ){
+		if ( oldLocation == null ){
 			sendPresence = true;
 		}
 
@@ -388,7 +388,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 					}
 					Toast toast = Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 					toast.show();
-					Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled.");
+					Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled!!");
 					onResume();
 				}
 			});
@@ -397,7 +397,9 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 	public void startPeriodicLocationUpdates() {
 		Log.w(AkiApplication.TAG, "Started periodic location updates!");
-		locationClient.requestLocationUpdates(locationRequest, this);
+		if ( locationClient.isConnected() ){
+			locationClient.requestLocationUpdates(locationRequest, this);
+		}
 	}
 
 	public void stopPeriodicLocationUpdates() {

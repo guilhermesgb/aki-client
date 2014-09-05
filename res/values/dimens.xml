@@ -12,6 +12,8 @@
     <dimen name="picture_layout_height_you">93dp</dimen>
     <dimen name="picture_layout_width_settings">71dp</dimen>
     <dimen name="picture_layout_height_settings">71dp</dimen>
+    <dimen name="picture_layout_width_members">54dp</dimen>
+    <dimen name="picture_layout_height_members">54dp</dimen>
     <dimen name="sender_name_size_me">12sp</dimen>
     <dimen name="message_size_me">16sp</dimen>
     <dimen name="sender_name_size_you">14sp</dimen>

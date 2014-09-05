@@ -1,5 +1,7 @@
 package com.lespi.aki.receivers;
 
+import java.util.List;
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -11,6 +13,8 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.lespi.aki.AkiApplication;
+import com.lespi.aki.AkiChatAdapter;
+import com.lespi.aki.AkiChatFragment;
 import com.lespi.aki.AkiMainActivity;
 import com.lespi.aki.R;
 import com.lespi.aki.json.JsonObject;
@@ -42,7 +46,17 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 
 		if ( !AkiApplication.IN_BACKGROUND ){
 
-			context.startActivity(intent);
+			AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+			List<JsonObject> messages = AkiChatAdapter.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context,
+					AkiInternalStorageUtil.getCurrentChatRoom(context)));
+			
+			chatAdapter.clear();
+			if ( messages != null ){
+				chatAdapter.addAll(messages);
+			}
+			chatAdapter.notifyDataSetChanged();
+			
+			AkiChatFragment.getInstance().externalRefreshAll();
 		}
 		else{
 			

@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.lespi.aki.AkiApplication;
 import com.lespi.aki.AkiChatAdapter;
+import com.lespi.aki.AkiChatFragment;
 import com.lespi.aki.R;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
@@ -125,6 +126,8 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 			
 			AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 			chatAdapter.notifyDataSetChanged();
+			
+			AkiChatFragment.getInstance().externalRefreshAll();
 		}
 	}
 }

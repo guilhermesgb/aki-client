@@ -6,10 +6,13 @@ import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,6 +23,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -53,7 +57,18 @@ public class AkiChatFragment extends SherlockFragment{
 	}
 
 	private UiLifecycleHelper uiHelper;
+	
+	private static AkiChatFragment instance;
 
+	private AkiChatFragment(){}
+	
+	public static AkiChatFragment getInstance(){
+		if ( instance == null ){
+			instance = new AkiChatFragment();
+		}
+		return instance;
+	}
+	
 	private Session.StatusCallback callback = new Session.StatusCallback() {
 		@Override
 		public void call(Session session, SessionState state, Exception exception) {
@@ -108,7 +123,10 @@ public class AkiChatFragment extends SherlockFragment{
 		}
 
 		final ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
-
+		loadingIcon.setVisibility(View.VISIBLE);
+		final RelativeLayout membersList = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+		membersList.setVisibility(View.GONE);
+		
 		if ( !AkiHttpUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
 			CharSequence toastText = "No internet connection!";
 			Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
@@ -134,7 +152,6 @@ public class AkiChatFragment extends SherlockFragment{
 
 						switchToChatArea(activity, user.getId());
 						if ( AkiInternalStorageUtil.getCurrentChatRoom(activity.getApplicationContext()) != null ){
-							loadingIcon.setVisibility(View.GONE);
 							refreshReceivedMessages(activity, session, user);
 						}
 						final ImageButton sendMessageBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_send_btn);
@@ -165,6 +182,7 @@ public class AkiChatFragment extends SherlockFragment{
 										AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 										chatAdapter.clear();
 										loadingIcon.setVisibility(View.VISIBLE);
+										membersList.setVisibility(View.GONE);
 
 										String contentTitle = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_title);
 										String contentText = "You've left a chat room manually.";
@@ -213,7 +231,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 							@Override
 							public void onClick(View view) {
-								
+
 								if ( !AkiMainActivity.isLocationProviderEnabled(activity.getApplicationContext()) ){
 									CharSequence toastText = "Please enable GPS!";
 									Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
@@ -221,7 +239,7 @@ public class AkiChatFragment extends SherlockFragment{
 									activity.onResume();
 									return;
 								}
-								
+
 								AkiServerUtil.sendSkipToServer(activity.getApplicationContext(), new AsyncCallback() {
 
 									@Override
@@ -234,6 +252,7 @@ public class AkiChatFragment extends SherlockFragment{
 										AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 										chatAdapter.clear();
 										loadingIcon.setVisibility(View.VISIBLE);
+										membersList.setVisibility(View.GONE);
 
 										CharSequence toastText = "You have skipped into another chat room!";
 										Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
@@ -292,7 +311,7 @@ public class AkiChatFragment extends SherlockFragment{
 									activity.onResume();
 									return;
 								}
-								
+
 								final EditText chatBox = (EditText) activity.findViewById(R.id.com_lespi_aki_main_chat_input);
 								final String message = chatBox.getText().toString().trim();
 								if ( !message.isEmpty() ){
@@ -304,7 +323,6 @@ public class AkiChatFragment extends SherlockFragment{
 											CharSequence toastText = "Message sent! :)";
 											Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 											toast.show();
-											activity.onResume();
 										}
 
 										@Override
@@ -346,7 +364,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 									@Override
 									public void onClick(View view) {
-										
+
 										if ( !AkiMainActivity.isLocationProviderEnabled(activity.getApplicationContext()) ){
 											activity.onResume();
 											return;
@@ -371,7 +389,6 @@ public class AkiChatFragment extends SherlockFragment{
 										if ( chatRoomId != null ){
 											AkiServerUtil.enterChatRoom(activity, user.getId(), chatRoomId.asString());
 											activity.setGeofence();
-											loadingIcon.setVisibility(View.GONE);
 											refreshReceivedMessages(activity, session, user);
 											sendMessageBtn.setEnabled(true);
 										}
@@ -432,6 +449,9 @@ public class AkiChatFragment extends SherlockFragment{
 			webView.loadUrl("javascript:show_login_screen();");
 		}
 
+		final RelativeLayout membersList = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+		membersList.setVisibility(View.GONE);
+		
 		RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
 		background.setVisibility(View.GONE);
 
@@ -518,6 +538,9 @@ public class AkiChatFragment extends SherlockFragment{
 			activity.startPeriodicLocationUpdates();
 		}
 
+		final RelativeLayout membersList = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+		membersList.setVisibility(View.GONE);
+		
 		AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), currentUserId);
 
 		RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
@@ -550,6 +573,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 			@Override
 			protected List<JsonObject> doInBackground(Void... params) {
+
 				JsonArray messages = AkiInternalStorageUtil.retrieveMessages(context,
 						AkiInternalStorageUtil.getCurrentChatRoom(context));
 				return AkiChatAdapter.toJsonObjectList(messages);
@@ -564,11 +588,150 @@ public class AkiChatFragment extends SherlockFragment{
 				}
 				ListView listView = (ListView) activity.findViewById(R.id.com_lespi_aki_main_messages_list);
 				listView.setAdapter(chatAdapter);
-				listView.setSelection(chatAdapter.getCount() - 1);				
+				listView.setSelection(chatAdapter.getCount() - 1);
+
+				refreshMembersList(activity, currentUser.getId());
 			}
 		}.execute();
 	}
 
+	private void refreshMembersList(final AkiMainActivity activity, final String currentUserId){
+
+		final Context context = activity.getApplicationContext();
+
+		AkiServerUtil.getMembersList(context, new AsyncCallback() {
+
+			@Override
+			public void onSuccess(Object response) {
+				@SuppressWarnings("unchecked")
+				List<String> memberIds = (List<String>) response;
+
+				SparseIntArray posToResourceId = new SparseIntArray();
+				posToResourceId.put(1, R.id.com_lespi_aki_main_chat_members_list_first);
+				posToResourceId.put(2, R.id.com_lespi_aki_main_chat_members_list_second);
+				posToResourceId.put(3, R.id.com_lespi_aki_main_chat_members_list_third);
+				posToResourceId.put(4, R.id.com_lespi_aki_main_chat_members_list_fourth);
+				posToResourceId.put(5, R.id.com_lespi_aki_main_chat_members_list_fifth);
+				posToResourceId.put(6, R.id.com_lespi_aki_main_chat_members_list_sixth);
+				posToResourceId.put(7, R.id.com_lespi_aki_main_chat_members_list_seventh);
+
+				for ( int i=1; i<=7; i++ ){
+					ImageView memberPicture = (ImageView) activity.findViewById(posToResourceId.get(i));
+					memberPicture.setVisibility(View.GONE);
+				}
+
+				int pos = 2;
+				for ( int i=0; i<memberIds.size(); i++ ){
+					if ( pos > 7 ){
+						break;
+					}
+
+					String memberId = memberIds.get(i);
+
+					ImageView memberPicture = (memberId.equals(currentUserId) ?
+							(ImageView) activity.findViewById(posToResourceId.get(1)) :
+								(ImageView) activity.findViewById(posToResourceId.get(pos++)));
+					memberPicture.setVisibility(View.VISIBLE);
+
+					boolean anonymous = AkiInternalStorageUtil.getAnonymousSetting(context, memberId);
+					String gender = AkiInternalStorageUtil.getCachedUserGender(context, memberId);
+
+					Bitmap picture = AkiInternalStorageUtil.getCachedUserPicture(context, memberId);
+					if ( memberId.equals(currentUserId) ){
+						if ( anonymous ){
+							memberPicture.setImageAlpha(128);
+						}
+						else{
+							memberPicture.setImageAlpha(255);
+						}
+						if ( picture != null ){
+							memberPicture.setImageBitmap(AkiChatAdapter.getRoundedBitmap(picture));
+							continue;
+						}
+						else{
+							Log.e(AkiApplication.TAG, "Refreshing members list: picture of current user (id " + memberId + ") not cached!");
+						}
+					}
+
+					memberPicture.setImageAlpha(255);
+
+					if ( !anonymous ){
+						if ( picture != null ){
+							memberPicture.setImageBitmap(AkiChatAdapter.getRoundedBitmap(picture));
+							continue;
+						}
+						else{
+							Log.e(AkiApplication.TAG, "Refreshing members list: picture of user (id " + memberId + ") not cached!");
+						}
+					}
+
+					if ( gender.equals("male") ){
+						picture = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_male);
+					}
+					else if ( gender.equals("female") ){
+						picture = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_female);
+					}
+					else{
+						picture = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown_gender);								
+					}
+
+					memberPicture.setImageBitmap(AkiChatAdapter.getRoundedBitmap(picture));
+
+				}
+				
+				final ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
+				loadingIcon.setVisibility(View.GONE);
+
+				final RelativeLayout membersList = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+				membersList.setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void onFailure(Throwable failure) {
+				Log.e(AkiApplication.TAG, "Tried to retrieve members list but currently not in a chat_room!");
+				failure.printStackTrace();
+			}
+
+			@Override
+			public void onCancel() {
+				CharSequence toastText;
+				if ( AkiApplication.SERVER_DOWN ){
+					toastText = "Our server is down!";
+				}
+				else{
+					toastText = "No internet connection!";
+				}
+				Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+				toast.show();
+				activity.onResume();
+				Log.e(AkiApplication.TAG, "Exiting chat room canceled.");						
+			}
+		});
+	}
+
+	public void externalRefreshAll(){
+		
+		AkiMainActivity activity = (AkiMainActivity) getActivity();
+		if ( activity == null ){
+			Log.i(AkiApplication.TAG, "Not supposed to refresh externally!");
+			return;
+		}
+		
+		String currentUserId = AkiInternalStorageUtil.getCurrentUser(activity.getApplicationContext());
+		if ( currentUserId == null ){
+			Log.i(AkiApplication.TAG, "Not supposed to refresh externally!");
+			return;
+		}
+		
+		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
+		
+		ListView listView = (ListView) activity.findViewById(R.id.com_lespi_aki_main_messages_list);
+		listView.setAdapter(chatAdapter);
+		listView.setSelection(chatAdapter.getCount() - 1);
+
+		refreshMembersList(activity, currentUserId);
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
