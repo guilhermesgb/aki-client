@@ -20,7 +20,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.Session;
 import com.google.android.gms.common.ConnectionResult;
@@ -379,15 +379,17 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 				@Override
 				public void onCancel() {
-					TextView warningText = (TextView) findViewById(R.id.com_lespi_aki_main_chat_warning_text_area);
+					CharSequence toastText;
 					if ( AkiApplication.SERVER_DOWN ){
-						warningText.setText(getResources().getString(R.string.com_lespi_aki_main_chat_warning_server_down));
+						toastText = "Our server is down!";
 					}
 					else{
-						warningText.setText(getResources().getString(R.string.com_lespi_aki_main_chat_warning_no_internet_connection_available));
+						toastText = "No internet connection!";
 					}
-					warningText.setVisibility(View.VISIBLE);
+					Toast toast = Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+					toast.show();
 					Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled.");
+					onResume();
 				}
 			});
 		}
