@@ -27,9 +27,9 @@ public class AkiServerUtil {
 		AkiServerUtil.activeOnServer = active;
 	}
 
-	public static void serverIsUp(final Context context, final AsyncCallback callback){
+	public static void isServerUp(final Context context, final AsyncCallback callback){
 
-		AkiHttpUtil.doGETHttpRequestAndWait(context, "/", new AsyncCallback() {
+		AkiHttpUtil.doGETHttpRequest(context, "/", new AsyncCallback() { //AndWait taken out
 
 			@Override
 			public void onSuccess(Object response) {
@@ -245,7 +245,7 @@ public class AkiServerUtil {
 			return;
 		}
 		else{
-			leaveChatRoom(context);
+			leaveChatRoom(context, currentUserId);
 			Log.i(AkiApplication.TAG, "Had to leave current chat room address {" +
 					currentChatRoom + "} because will be assigned to new chat room " +
 					"address {" + newChatRoom + "}.");
@@ -270,8 +270,12 @@ public class AkiServerUtil {
 				context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room));
 	}
 
-	public static void leaveChatRoom(Context context) {
+	public static void leaveChatRoom(Context context, String currentUserId) {
 
+		if ( currentUserId != null ){
+			AkiInternalStorageUtil.setAnonymousSetting(context, currentUserId, true);
+		}
+		
 		String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
 		if ( currentChatRoom == null ){
 			Log.i(AkiApplication.TAG, "No need to unsubscribe as no current chat room address is set.");

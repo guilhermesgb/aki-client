@@ -43,7 +43,7 @@ public class AkiInternalStorageUtil {
 		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_current_user), null);
 	}
 	
-	public static void setCurrentUser(Context context, String currentUserId) {
+	public static synchronized void setCurrentUser(Context context, String currentUserId) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
@@ -206,7 +206,7 @@ public class AkiInternalStorageUtil {
 		return fullName;
 	}
 	
-	public static void cacheUserFullName(Context context, String userId, String fullName) {
+	public static synchronized void cacheUserFullName(Context context, String userId, String fullName) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
@@ -221,7 +221,7 @@ public class AkiInternalStorageUtil {
 		return fullName;
 	}
 	
-	public static void cacheUserGender(Context context, String userId, String gender) {
+	public static synchronized void cacheUserGender(Context context, String userId, String gender) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
@@ -377,7 +377,6 @@ public class AkiInternalStorageUtil {
 			}
 			File file = new File(context.getFilesDir(), R.string.com_lespi_aki_data_user_location+userId);
 			file.delete();
-			AkiServerUtil.sendPresenceToServer(context, userId, callback);
 		}
 		catch (Exception e){
 			callback.onFailure(e);
@@ -409,7 +408,7 @@ public class AkiInternalStorageUtil {
 		return center;
 	}
 	
-	public static void cacheGeofenceCenter(Context context, AkiLocation center) {
+	public static synchronized void cacheGeofenceCenter(Context context, AkiLocation center) {
 
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
@@ -422,7 +421,7 @@ public class AkiInternalStorageUtil {
 		}
 	}
 
-	public static void wipeCachedGeofenceCenter(Context context) {
+	public static synchronized void wipeCachedGeofenceCenter(Context context) {
 		
 		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_geofence_center));
 		file.delete();
@@ -433,7 +432,7 @@ public class AkiInternalStorageUtil {
 		return sharedPref.getFloat(context.getString(R.string.com_lespi_aki_data_geofence_radius), -1);
 	}
 	
-	public static void cacheGeofenceRadius(Context context, float radius) {
+	public static synchronized void cacheGeofenceRadius(Context context, float radius) {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putFloat(context.getString(R.string.com_lespi_aki_data_geofence_radius), radius);
@@ -445,14 +444,14 @@ public class AkiInternalStorageUtil {
 		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_geofence_should_update), false);
 	}
 
-	public static void willUpdateGeofence(Context context) {
+	public static synchronized void willUpdateGeofence(Context context) {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_geofence_should_update), true);
 		editor.commit();
 	}
 	
-	public static void willNotUpdateGeofence(Context context) {
+	public static synchronized void willNotUpdateGeofence(Context context) {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_geofence_should_update), false);

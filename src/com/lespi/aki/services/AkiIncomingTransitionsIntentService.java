@@ -1,4 +1,4 @@
-package services;
+package com.lespi.aki.services;
 
 import java.util.List;
 
@@ -54,7 +54,9 @@ public class AkiIncomingTransitionsIntentService extends IntentService {
 
 							@Override
 							public void onSuccess(Object response) {
-								AkiServerUtil.leaveChatRoom(context);
+								
+								String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
+								AkiServerUtil.leaveChatRoom(context, currentUserId);
 								if ( !AkiApplication.IN_BACKGROUND ){
 
 									CharSequence toastText = "You walked away from a chat room!";

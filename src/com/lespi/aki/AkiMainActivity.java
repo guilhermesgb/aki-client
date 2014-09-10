@@ -2,7 +2,6 @@ package com.lespi.aki;
 
 import java.util.Collections;
 
-import services.AkiIncomingTransitionsIntentService;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -37,6 +36,7 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnOpenedListener;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
+import com.lespi.aki.services.AkiIncomingTransitionsIntentService;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 import com.lespi.aki.utils.AkiServerUtil;
@@ -81,13 +81,21 @@ LocationClient.OnRemoveGeofencesResultListener {
 					.findFragmentById(R.id.aki_chat_frame);
 		}
 
-		Bundle extras = getIntent().getExtras();
-		if ( extras != null ){
-			chatFragment.setSeenSplash(extras.getBoolean("seenSplash", false));
-		}
-
 		setContentView(R.layout.aki_chat_fragment);
 
+		RelativeLayout background = (RelativeLayout) findViewById(R.id.com_lespi_aki_main_background);
+		background.setVisibility(View.VISIBLE);
+		
+		Bundle extras = getIntent().getExtras();
+		if ( extras != null ){
+			boolean seenSplash = extras.getBoolean("seenSplash", false);
+			chatFragment.setSeenSplash(seenSplash);
+			
+			if ( seenSplash ){
+				background.setVisibility(View.GONE);
+			}
+		}
+		
 		getSupportFragmentManager()
 		.beginTransaction()
 		.replace(R.id.aki_chat_frame, chatFragment)
@@ -132,9 +140,6 @@ LocationClient.OnRemoveGeofencesResultListener {
 		loadingIcon.setVisibility(View.VISIBLE);
 		slidingMenu.showContent();
 		slidingMenu.setSlidingEnabled(false);
-
-		RelativeLayout background = (RelativeLayout) findViewById(R.id.com_lespi_aki_main_background);
-		background.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -151,7 +156,9 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 				@Override
 				public void onSuccess(Object response) {
-					AkiServerUtil.leaveChatRoom(context);
+					
+					String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
+					AkiServerUtil.leaveChatRoom(context, currentUserId);
 
 					String contentTitle = context.getString(R.string.com_lespi_aki_notif_exit_title);
 					String contentText = context.getString(R.string.com_lespi_aki_notif_exit_text);
@@ -348,8 +355,9 @@ LocationClient.OnRemoveGeofencesResultListener {
 		Log.w(AkiApplication.TAG, "Current location updated to: " +
 				location.getLatitude() + ", " + location.getLongitude());
 
-		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
-		chatAdapter.notifyDataSetChanged();
+		if ( chatFragment != null ){
+			chatFragment.externalRefreshAll();
+		}
 
 		if ( sendPresence ){
 			AkiServerUtil.sendPresenceToServer(context, currentUserId, new AsyncCallback() {
