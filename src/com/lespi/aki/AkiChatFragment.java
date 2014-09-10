@@ -61,7 +61,9 @@ public class AkiChatFragment extends SherlockFragment{
 	
 	private static AkiChatFragment instance;
 
-	private AkiChatFragment(){}
+	public AkiChatFragment(){
+		instance = this;
+	}
 	
 	public static AkiChatFragment getInstance(){
 		if ( instance == null ){
