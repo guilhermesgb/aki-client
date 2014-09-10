@@ -21,6 +21,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -147,12 +148,12 @@ public class AkiChatFragment extends SherlockFragment{
 			Request.newMeRequest(session, new Request.GraphUserCallback() {
 
 				@Override
-				public void onCompleted(final GraphUser user, Response response) {
-					if ( user != null ){
+				public void onCompleted(final GraphUser currentUser, Response response) {
+					if ( currentUser != null ){
 
-						switchToChatArea(activity, user.getId());
+						switchToChatArea(activity, currentUser.getId());
 						if ( AkiInternalStorageUtil.getCurrentChatRoom(activity.getApplicationContext()) != null ){
-							refreshReceivedMessages(activity, session, user);
+							refreshReceivedMessages(activity, session, currentUser);
 						}
 						final ImageButton sendMessageBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_send_btn);
 						sendMessageBtn.setEnabled(false);
@@ -174,7 +175,7 @@ public class AkiChatFragment extends SherlockFragment{
 
 									@Override
 									public void onSuccess(Object response) {
-										AkiServerUtil.leaveChatRoom(activity.getApplicationContext(), user.getId());
+										AkiServerUtil.leaveChatRoom(activity.getApplicationContext(), currentUser.getId());
 										activity.stopPeriodicLocationUpdates();
 										activity.removeGeofence();
 
@@ -244,8 +245,8 @@ public class AkiChatFragment extends SherlockFragment{
 									@Override
 									public void onSuccess(Object response) {
 
-										AkiInternalStorageUtil.setAnonymousSetting(activity.getApplicationContext(), user.getId(), true);
-										AkiServerUtil.leaveChatRoom(activity.getApplicationContext(), user.getId());
+										AkiInternalStorageUtil.setAnonymousSetting(activity.getApplicationContext(), currentUser.getId(), true);
+										AkiServerUtil.leaveChatRoom(activity.getApplicationContext(), currentUser.getId());
 										activity.removeGeofence();
 
 										AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
@@ -352,7 +353,7 @@ public class AkiChatFragment extends SherlockFragment{
 							}
 						});
 
-						refreshSettings(activity, session, user, new AsyncCallback(){
+						refreshSettings(activity, session, currentUser, new AsyncCallback(){
 
 							@Override
 							public void onSuccess(Object response) {
@@ -373,7 +374,7 @@ public class AkiChatFragment extends SherlockFragment{
 								});
 								activity.getSlidingMenu().setSlidingEnabled(true);
 
-								AkiServerUtil.sendPresenceToServer(activity.getApplicationContext(), user.getId(), new AsyncCallback() {
+								AkiServerUtil.sendPresenceToServer(activity.getApplicationContext(), currentUser.getId(), new AsyncCallback() {
 
 									@Override
 									public void onSuccess(Object response) {
@@ -386,9 +387,11 @@ public class AkiChatFragment extends SherlockFragment{
 										JsonObject responseJSON = (JsonObject) response;
 										final JsonValue chatRoomId = responseJSON.get("chat_room");
 										if ( chatRoomId != null ){
-											AkiServerUtil.enterChatRoom(activity, user.getId(), chatRoomId.asString());
+											AkiServerUtil.enterChatRoom(activity, currentUser.getId(), chatRoomId.asString());
+											final CheckBox anonymousCheck = (CheckBox) activity.findViewById(R.id.com_lespi_aki_main_settings_anonymous);
+											anonymousCheck.setChecked(AkiInternalStorageUtil.getAnonymousSetting(activity.getApplicationContext(), currentUser.getId()));
 											activity.setGeofence();
-											refreshReceivedMessages(activity, session, user);
+											refreshReceivedMessages(activity, session, currentUser);
 											sendMessageBtn.setEnabled(true);
 										}
 									}
@@ -397,7 +400,7 @@ public class AkiChatFragment extends SherlockFragment{
 									public void onFailure(Throwable failure) {
 										Log.e(AkiApplication.TAG, "Could not send presence to server.");
 										failure.printStackTrace();
-										refreshReceivedMessages(activity, session, user);
+										refreshReceivedMessages(activity, session, currentUser);
 									}
 
 									@Override
@@ -421,13 +424,13 @@ public class AkiChatFragment extends SherlockFragment{
 							public void onFailure(Throwable failure) {
 								Log.e(AkiApplication.TAG, "Could not refresh settings.");
 								failure.printStackTrace();
-								refreshReceivedMessages(activity, session, user);
+								refreshReceivedMessages(activity, session, currentUser);
 							}
 
 							@Override
 							public void onCancel() {
 								Log.e(AkiApplication.TAG, "Refresh of settings canceled.");
-								refreshReceivedMessages(activity, session, user);
+								refreshReceivedMessages(activity, session, currentUser);
 							}
 						});
 					}
@@ -555,7 +558,10 @@ public class AkiChatFragment extends SherlockFragment{
 	private void refreshSettings(final AkiMainActivity activity, final Session currentSession, 
 			final GraphUser currentUser, final AsyncCallback callback) {
 
-		activity.getSettingsFragment().refreshSettings(activity, currentSession, currentUser, callback);
+		AkiSettingsFragment settingsFragment = activity.getSettingsFragment();
+		if ( settingsFragment != null ){
+			settingsFragment.refreshSettings(activity, currentSession, currentUser, callback);
+		}
 	}
 
 	private void refreshReceivedMessages(final AkiMainActivity activity, final Session session, final GraphUser currentUser) {
