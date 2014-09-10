@@ -4,13 +4,18 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -24,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.HttpMethod;
@@ -43,36 +49,89 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	private final List<JsonObject> messages;
 	private GraphUser currentUser = null;
 	private Session currentSession = null;
+	private final int[] COLORS = new int[] {
+			R.color.com_lespi_aki_message_text_color_0,
+			R.color.com_lespi_aki_message_text_color_1,
+			R.color.com_lespi_aki_message_text_color_2,
+			R.color.com_lespi_aki_message_text_color_3,
+			R.color.com_lespi_aki_message_text_color_4,
+			R.color.com_lespi_aki_message_text_color_5,
+			R.color.com_lespi_aki_message_text_color_6
+			 };
 
+	Map<Integer, String> assignUserColor = new HashMap<Integer, String>();
 	private static AkiChatAdapter instance;
 
-	public static List<JsonObject> toJsonObjectList(JsonArray values){
+	public static List<JsonObject> toJsonObjectList(JsonArray values) {
 
-		if ( values == null ){
+		if (values == null) {
 			return null;
 		}
 		List<JsonObject> toReturn = new ArrayList<JsonObject>();
-		for (JsonValue value : values){
+		for (JsonValue value : values) {
 			toReturn.add(value.asObject());
 		}
 		return toReturn;
 	}
 
-	public static AkiChatAdapter getInstance(Context context){
-		if ( instance == null ){
+	public static AkiChatAdapter getInstance(Context context) {
+		if (instance == null) {
 			List<JsonObject> messages = new ArrayList<JsonObject>();
 			instance = new AkiChatAdapter(context, messages);
 		}
 		return instance;
 	}
 
-	private AkiChatAdapter(Context context, List<JsonObject> messages){
+	private AkiChatAdapter(Context context, List<JsonObject> messages) {
 		super(context, R.layout.aki_chat_message_you, messages);
 		this.context = context;
 		this.messages = messages;
+		initializeAssignColorMap();
+	}
+	
+	private void initializeAssignColorMap(){
+		this.assignUserColor.put(0, null);
+		this.assignUserColor.put(1, null);
+		this.assignUserColor.put(2, null);
+		this.assignUserColor.put(3, null);
+		this.assignUserColor.put(4, null);
+		this.assignUserColor.put(5, null);
+		this.assignUserColor.put(6, null);
+	}
+	
+	private boolean isColorAlreadyAssigned(int colorIndex) {
+		
+		if (assignUserColor.get(colorIndex) != null) 
+			return true;
+		return false;
+	}
+	
+	private void assignColor(String user) {
+		int idx = new Random().nextInt(COLORS.length);
+		
+		// if it is a new user that does not have a assigned color yet
+		if (!assignUserColor.containsValue(user)) {
+			while (isColorAlreadyAssigned(idx) ){
+				idx = new Random().nextInt(COLORS.length);
+			}
+			assignUserColor.put(idx, user);
+		}
+	}
+	
+	public int findColor(String user) {
+		Iterator<Map.Entry<Integer, String>> iterator = assignUserColor
+				.entrySet().iterator();
+
+		while (iterator.hasNext()) {
+			Map.Entry<Integer, String> entry = iterator.next();
+			if (entry.getValue() != null && entry.getValue().equals(user)) 
+				return entry.getKey();
+		}
+		
+		return -1;
 	}
 
-	public void setCurrentUser(GraphUser currentUser){
+	public void setCurrentUser(GraphUser currentUser) {
 		this.currentUser = currentUser;
 	}
 
@@ -81,8 +140,8 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	}
 
 	public static Bitmap getRoundedBitmap(Bitmap bitmap) {
-		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap
-				.getHeight(), Bitmap.Config.ARGB_8888);
+		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+				bitmap.getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(output);
 
 		final int color = 0xff424242;
@@ -101,21 +160,24 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		return output;
 	}
 
-	public static double calculateDistance(AkiLocation currentLocation, AkiLocation senderLocation) {
-		
+	public static double calculateDistance(AkiLocation currentLocation,
+			AkiLocation senderLocation) {
+
 		int R = 6371;
 		double lat1 = Math.toRadians(currentLocation.latitude);
 		double lat2 = Math.toRadians(senderLocation.latitude);
-		double dLat = Math.toRadians(senderLocation.latitude - currentLocation.latitude);
-		double dLong = Math.toRadians(senderLocation.longitude - currentLocation.longitude);
+		double dLat = Math.toRadians(senderLocation.latitude
+				- currentLocation.latitude);
+		double dLong = Math.toRadians(senderLocation.longitude
+				- currentLocation.longitude);
 
-		double a = Math.pow(Math.sin(dLat/2), 2) + Math.cos(lat1) *
-				Math.cos(lat2) * Math.pow(Math.sin(dLong/2), 2);
+		double a = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(lat1)
+				* Math.cos(lat2) * Math.pow(Math.sin(dLong / 2), 2);
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 		return R * c;
 	}
-	
-	static class ViewHolder{
+
+	static class ViewHolder {
 		public TextView senderId;
 		public TextView senderName;
 		public ImageView senderPicture;
@@ -126,7 +188,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 	@SuppressLint("CutPasteId")
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent){
+	public View getView(int position, View convertView, ViewGroup parent) {
 
 		final JsonObject newViewData = messages.get(position);
 
@@ -134,56 +196,76 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		boolean canReuse = false;
 
 		final String senderId = newViewData.get("sender").asString();
-
+		assignColor(senderId);
+		
 		int rowLayout = R.layout.aki_chat_message_you;
-		if ( senderId.equals(currentUser.getId()) ){
+		if (senderId.equals(currentUser.getId())) {
 			rowLayout = R.layout.aki_chat_message_me;
-		}
-		else if ( senderId.equals(AkiApplication.SYSTEM_SENDER_ID) ){
+		} else if (senderId.equals(AkiApplication.SYSTEM_SENDER_ID)) {
 			rowLayout = R.layout.aki_chat_message_system;
 		}
+			
+		if (rowView != null) {
 
-		if ( rowView != null ){
+			TextView senderIdView = (TextView) rowView
+					.findViewById(R.id.com_lespi_aki_message_sender_id);
 
-			TextView senderIdView = (TextView) rowView.findViewById(R.id.com_lespi_aki_message_sender_id);
-
-			if ( senderIdView.getText() != null && 
-					( senderIdView.getText().equals(AkiApplication.SYSTEM_SENDER_ID) || senderId.equals(AkiApplication.SYSTEM_SENDER_ID) ) ){
+			if (senderIdView.getText() != null
+					&& (senderIdView.getText().equals(
+							AkiApplication.SYSTEM_SENDER_ID) || senderId
+							.equals(AkiApplication.SYSTEM_SENDER_ID))) {
 				canReuse = false;
-			}
-			else if ( senderIdView.getText() != null && senderIdView.getText().equals(currentUser.getId()) ){
-				if ( senderId.equals(currentUser.getId()) ){
+			} else if (senderIdView.getText() != null
+					&& senderIdView.getText().equals(currentUser.getId())) {
+				if (senderId.equals(currentUser.getId())) {
 					canReuse = true;
-				}
-				else{
+				} else {
 					rowLayout = R.layout.aki_chat_message_you;
 				}
-			}
-			else if ( senderIdView.getText() != null && !senderIdView.getText().equals(currentUser.getId()) ) {
-				if ( !senderId.equals(currentUser.getId()) ){
+			} else if (senderIdView.getText() != null
+					&& !senderIdView.getText().equals(currentUser.getId())) {
+				if (!senderId.equals(currentUser.getId())) {
 					canReuse = true;
-				}
-				else{
+				} else {
 					rowLayout = R.layout.aki_chat_message_me;
 				}
 			}
 		}
 
+		if (!canReuse) {
 
-		if ( !canReuse ){
-
-			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			LayoutInflater inflater = (LayoutInflater) context
+					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			rowView = inflater.inflate(rowLayout, parent, false);
+			
+			int color = COLORS[findColor(senderId)];
+			if (senderId.equals(currentUser.getId())) {
+				RelativeLayout rl = (RelativeLayout) rowView.findViewById(R.id.com_lespi_aki_message_me_layout);
+				rl.setBackgroundColor(rowView.getResources().getColor( color  ) );
+			
+			// if it is not the current user, and not the system, it is other user
+			} else if (!senderId.equals(AkiApplication.SYSTEM_SENDER_ID)) {
+				RelativeLayout rl = (RelativeLayout) rowView.findViewById(R.id.com_lespi_aki_message_you_layout);
+				rl.setBackgroundColor(rowView.getResources().getColor( color  ) );
+			}
+			
+			
 			ViewHolder viewHolder = new ViewHolder();
-			viewHolder.senderId = (TextView) rowView.findViewById(R.id.com_lespi_aki_message_sender_id);
-			viewHolder.senderName = (TextView) rowView.findViewById(R.id.com_lespi_aki_message_sender_name);
+			viewHolder.senderId = (TextView) rowView
+					.findViewById(R.id.com_lespi_aki_message_sender_id);
+			viewHolder.senderName = (TextView) rowView
+					.findViewById(R.id.com_lespi_aki_message_sender_name);
 			viewHolder.senderName.setAlpha(1);
-			viewHolder.senderPicture = (ImageView) rowView.findViewById(R.id.com_lespi_aki_message_sender_picture);
-			viewHolder.message = (TextView) rowView.findViewById(R.id.com_lespi_aki_message_text_message);
+			viewHolder.senderPicture = (ImageView) rowView
+					.findViewById(R.id.com_lespi_aki_message_sender_picture);
+			viewHolder.message = (TextView) rowView
+					.findViewById(R.id.com_lespi_aki_message_text_message);
 			viewHolder.message.setAlpha(1);
-			viewHolder.senderDistance = (ImageView) rowView.findViewById(R.id.com_lespi_aki_message_sender_distance);
+			viewHolder.senderDistance = (ImageView) rowView
+					.findViewById(R.id.com_lespi_aki_message_sender_distance);
 			viewHolder.senderDistance.setImageAlpha(255);
-			viewHolder.senderGender = (ImageView) rowView.findViewById(R.id.com_lespi_aki_message_sender_gender);
+			viewHolder.senderGender = (ImageView) rowView
+					.findViewById(R.id.com_lespi_aki_message_sender_gender);
 			viewHolder.senderGender.setImageAlpha(255);
 			rowView.setTag(viewHolder);
 		}
@@ -193,138 +275,182 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		viewHolder.senderId.setText(senderId);
 		viewHolder.message.setText(newViewData.get("message").asString());
 
-		if ( senderId.equals(AkiApplication.SYSTEM_SENDER_ID) ){
+		if (senderId.equals(AkiApplication.SYSTEM_SENDER_ID)) {
 			return rowView;
 		}
 
-		if ( senderId.equals(currentUser.getId()) ){
+		if (senderId.equals(currentUser.getId())) {
 
-			if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId) ){
-				String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, senderId);
-				if ( nickname != null ){
+			if (AkiInternalStorageUtil.getAnonymousSetting(context, senderId)) {
+				String nickname = AkiInternalStorageUtil.getCachedUserNickname(
+						context, senderId);
+				if (nickname != null) {
 					viewHolder.senderName.setText(nickname);
-				}
-				else{
-					Log.e(AkiApplication.TAG, "Privacy setting for user " + senderId + " is anonymous but he has no nickname set.");
+				} else {
+					Log.e(AkiApplication.TAG, "Privacy setting for user "
+							+ senderId
+							+ " is anonymous but he has no nickname set.");
 					viewHolder.senderName.setText(senderId);
 				}
-			}
-			else{
+			} else {
 				viewHolder.senderName.setText(currentUser.getFirstName());
 			}
-			AkiInternalStorageUtil.cacheUserFirstName(context, senderId, currentUser.getFirstName());
-			AkiInternalStorageUtil.cacheUserFullName(context, currentUser.getId(), currentUser.getName());
-		}
-		else{
+			AkiInternalStorageUtil.cacheUserFirstName(context, senderId,
+					currentUser.getFirstName());
+			AkiInternalStorageUtil.cacheUserFullName(context,
+					currentUser.getId(), currentUser.getName());
+		} else {
 
-			String firstName = AkiInternalStorageUtil.getCachedUserFirstName(context, senderId);
-			if ( firstName != null ){
-				if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
-						|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
+			String firstName = AkiInternalStorageUtil.getCachedUserFirstName(
+					context, senderId);
+			if (firstName != null) {
+				if (AkiInternalStorageUtil.getAnonymousSetting(context,
+						senderId)
+						|| AkiInternalStorageUtil.getAnonymousSetting(context,
+								currentUser.getId())) {
 
-					String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, senderId);
-					if ( nickname != null ){
+					String nickname = AkiInternalStorageUtil
+							.getCachedUserNickname(context, senderId);
+					if (nickname != null) {
 						viewHolder.senderName.setText(nickname);
-					}
-					else{
-						Log.e(AkiApplication.TAG, "Privacy setting for user " + senderId + " is anonymous but he has no nickname set.");
+					} else {
+						Log.e(AkiApplication.TAG, "Privacy setting for user "
+								+ senderId
+								+ " is anonymous but he has no nickname set.");
 						viewHolder.senderName.setText(senderId);
 					}
-				}
-				else{
+				} else {
 					viewHolder.senderName.setText(firstName);
 				}
+			} else {
+
+				new Request(currentSession, "/" + senderId, null,
+						HttpMethod.GET, new Request.Callback() {
+							public void onCompleted(Response response) {
+								if (response.getError() == null) {
+
+									JsonObject information = JsonValue
+											.readFrom(response.getRawResponse())
+											.asObject();
+									String firstName = information.get(
+											"first_name").asString();
+									AkiInternalStorageUtil.cacheUserFirstName(
+											context, senderId, firstName);
+
+									if (AkiInternalStorageUtil
+											.getAnonymousSetting(context,
+													senderId)
+											|| AkiInternalStorageUtil
+													.getAnonymousSetting(
+															context,
+															currentUser.getId())) {
+
+										String nickname = AkiInternalStorageUtil
+												.getCachedUserNickname(context,
+														senderId);
+										if (nickname != null) {
+											viewHolder.senderName
+													.setText(nickname);
+										} else {
+											Log.e(AkiApplication.TAG,
+													"Privacy setting for user "
+															+ senderId
+															+ " is anonymous but he has no nickname set.");
+											viewHolder.senderName
+													.setText(senderId);
+										}
+									} else {
+										viewHolder.senderName
+												.setText(firstName);
+									}
+
+									String fullName = information.get("name")
+											.asString();
+									AkiInternalStorageUtil.cacheUserFullName(
+											context, senderId, fullName);
+								} else {
+									if (AkiInternalStorageUtil
+											.getAnonymousSetting(context,
+													senderId)
+											|| AkiInternalStorageUtil
+													.getAnonymousSetting(
+															context,
+															currentUser.getId())) {
+
+										String nickname = AkiInternalStorageUtil
+												.getCachedUserNickname(context,
+														senderId);
+										if (nickname != null) {
+											viewHolder.senderName
+													.setText(nickname);
+										} else {
+											Log.e(AkiApplication.TAG,
+													"Privacy setting for user "
+															+ senderId
+															+ " is anonymous but he has no nickname set.");
+											viewHolder.senderName
+													.setText(senderId);
+										}
+									} else {
+										Log.e(AkiApplication.TAG,
+												"A problem happened while trying to query user Name from Facebook.");
+										viewHolder.senderName.setText(senderId);
+									}
+								}
+							}
+						}).executeAsync();
 			}
-			else{
 
-				new Request(currentSession, "/"+senderId, null,	HttpMethod.GET,
-						new Request.Callback() {
-					public void onCompleted(Response response) {
-						if ( response.getError() == null ){
-
-							JsonObject information = JsonValue.readFrom(response.getRawResponse()).asObject();
-							String firstName = information.get("first_name").asString();
-							AkiInternalStorageUtil.cacheUserFirstName(context, senderId, firstName);
-
-							if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
-									|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
-
-								String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, senderId);
-								if ( nickname != null ){
-									viewHolder.senderName.setText(nickname);
-								}
-								else{
-									Log.e(AkiApplication.TAG, "Privacy setting for user " + senderId + " is anonymous but he has no nickname set.");
-									viewHolder.senderName.setText(senderId);
-								}
-							}
-							else{
-								viewHolder.senderName.setText(firstName);
-							}
-							
-							String fullName = information.get("name").asString();
-							AkiInternalStorageUtil.cacheUserFullName(context, senderId, fullName);
-						}
-						else{
-							if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
-									|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
-
-								String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, senderId);
-								if ( nickname != null ){
-									viewHolder.senderName.setText(nickname);
-								}
-								else{
-									Log.e(AkiApplication.TAG, "Privacy setting for user " + senderId + " is anonymous but he has no nickname set.");
-									viewHolder.senderName.setText(senderId);
-								}
-							}
-							else{
-								Log.e(AkiApplication.TAG, "A problem happened while trying to query user Name from Facebook.");
-								viewHolder.senderName.setText(senderId);
-							}
-						}
-					}
-				}).executeAsync();
-			}
-			
-			AkiLocation senderLocation = AkiInternalStorageUtil.getCachedUserLocation(context, senderId);
-			if ( senderLocation == null ){
-				Log.d(AkiApplication.TAG, "Cannot calculate distance to " + senderId + " because its location isn't available.");
-				viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
+			AkiLocation senderLocation = AkiInternalStorageUtil
+					.getCachedUserLocation(context, senderId);
+			if (senderLocation == null) {
+				Log.d(AkiApplication.TAG, "Cannot calculate distance to "
+						+ senderId + " because its location isn't available.");
+				viewHolder.senderDistance
+						.setImageResource(R.drawable.indicator_far);
 				viewHolder.senderDistance.setImageAlpha(0);
-			}
-			else {
+			} else {
 
-				AkiLocation currentLocation = AkiInternalStorageUtil.getCachedUserLocation(context, currentUser.getId());
-				if ( currentLocation == null ){
-					Log.d(AkiApplication.TAG, "Cannot calculate distance to " + senderId + " because current location isn't available.");
-					viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
+				AkiLocation currentLocation = AkiInternalStorageUtil
+						.getCachedUserLocation(context, currentUser.getId());
+				if (currentLocation == null) {
+					Log.d(AkiApplication.TAG, "Cannot calculate distance to "
+							+ senderId
+							+ " because current location isn't available.");
+					viewHolder.senderDistance
+							.setImageResource(R.drawable.indicator_far);
 					viewHolder.senderDistance.setImageAlpha(0);
-				}
-				else{
-					double distance = calculateDistance(currentLocation, senderLocation);
-					
+				} else {
+					double distance = calculateDistance(currentLocation,
+							senderLocation);
+
 					Log.d(AkiApplication.TAG,
-							"Distance to " + AkiInternalStorageUtil.getCachedUserNickname(context, senderId) + ": " + distance);
-					
+							"Distance to "
+									+ AkiInternalStorageUtil
+											.getCachedUserNickname(context,
+													senderId) + ": " + distance);
+
 					double proportion = (distance / (AkiApplication.MIN_RADIUS * 2));
-					
-					if ( proportion >= 1 ){
-						viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
+
+					if (proportion >= 1) {
+						viewHolder.senderDistance
+								.setImageResource(R.drawable.indicator_far);
 						viewHolder.senderDistance.setImageAlpha(255);
-					}
-					else if ( proportion >= 0.65 ){
-						viewHolder.senderDistance.setImageResource(R.drawable.indicator_far);
-						viewHolder.senderDistance.setImageAlpha((int)(255 * (proportion % 0.65 + (proportion % 0.65) * 1.8)));
-					}
-					else if ( proportion >= 0.35 ){
-						viewHolder.senderDistance.setImageResource(R.drawable.indicator_close);
-						viewHolder.senderDistance.setImageAlpha((int)(255 * ( 1 - (proportion % 0.35 + (proportion % 0.35) * 1.8))));
-					}
-					else{
-						viewHolder.senderDistance.setImageResource(R.drawable.indicator_very_close);
-						int opacity = (int)(255 * ( 1 - (proportion % 0.35 + (proportion % 0.35) * 1.8)));
-						if ( opacity < 128 ){
+					} else if (proportion >= 0.65) {
+						viewHolder.senderDistance
+								.setImageResource(R.drawable.indicator_far);
+						viewHolder.senderDistance
+								.setImageAlpha((int) (255 * (proportion % 0.65 + (proportion % 0.65) * 1.8)));
+					} else if (proportion >= 0.35) {
+						viewHolder.senderDistance
+								.setImageResource(R.drawable.indicator_close);
+						viewHolder.senderDistance
+								.setImageAlpha((int) (255 * (1 - (proportion % 0.35 + (proportion % 0.35) * 1.8))));
+					} else {
+						viewHolder.senderDistance
+								.setImageResource(R.drawable.indicator_very_close);
+						int opacity = (int) (255 * (1 - (proportion % 0.35 + (proportion % 0.35) * 1.8)));
+						if (opacity < 128) {
 							opacity = 128;
 						}
 						viewHolder.senderDistance.setImageAlpha(opacity);
@@ -333,133 +459,159 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			}
 		}
 
-		String gender = AkiInternalStorageUtil.getCachedUserGender(context, senderId);
-		if ( gender == null ){
-			new Request(currentSession, "/"+senderId, null,	HttpMethod.GET,
+		String gender = AkiInternalStorageUtil.getCachedUserGender(context,
+				senderId);
+		if (gender == null) {
+			new Request(currentSession, "/" + senderId, null, HttpMethod.GET,
 					new Request.Callback() {
-				public void onCompleted(Response response) {
-					if ( response.getError() == null ){
+						public void onCompleted(Response response) {
+							if (response.getError() == null) {
 
-						JsonObject information = JsonValue.readFrom(response.getRawResponse()).asObject();
-						JsonValue gender = information.get("gender");
-						if ( gender != null ){
-							AkiInternalStorageUtil.cacheUserGender(context, senderId, gender.asString());
+								JsonObject information = JsonValue.readFrom(
+										response.getRawResponse()).asObject();
+								JsonValue gender = information.get("gender");
+								if (gender != null) {
+									AkiInternalStorageUtil.cacheUserGender(
+											context, senderId,
+											gender.asString());
+								} else {
+									AkiInternalStorageUtil.cacheUserGender(
+											context, senderId, "unknown");
+								}
+							} else {
+								System.out.println(response.getError());
+								Log.e(AkiApplication.TAG,
+										"A problem happened while trying to query user "
+												+ "gender from Facebook.");
+							}
 						}
-						else{
-							AkiInternalStorageUtil.cacheUserGender(context, senderId, "unknown");									
-						}
-					}
-					else{
-						System.out.println(response.getError());
-						Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-								"gender from Facebook.");
-					}
-				}
-			}).executeAsync();
-			gender = AkiInternalStorageUtil.getCachedUserGender(context, senderId);
+					}).executeAsync();
+			gender = AkiInternalStorageUtil.getCachedUserGender(context,
+					senderId);
 		}
 
-		Bitmap picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown_gender);
-		Bitmap genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_unknown_gender);
-		if ( gender != null ){
-			if ( gender.equals("male") ){
-				picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_male);
-				genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_male);
-			}
-			else if ( gender.equals("female") ){
-				picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_female);				
-				genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_female);
+		Bitmap picturePlaceholder = BitmapFactory.decodeResource(
+				context.getResources(), R.drawable.no_picture_unknown_gender);
+		Bitmap genderPlaceholder = BitmapFactory.decodeResource(
+				context.getResources(), R.drawable.icon_unknown_gender);
+		if (gender != null) {
+			if (gender.equals("male")) {
+				picturePlaceholder = BitmapFactory.decodeResource(
+						context.getResources(), R.drawable.no_picture_male);
+				genderPlaceholder = BitmapFactory.decodeResource(
+						context.getResources(), R.drawable.icon_male);
+			} else if (gender.equals("female")) {
+				picturePlaceholder = BitmapFactory.decodeResource(
+						context.getResources(), R.drawable.no_picture_female);
+				genderPlaceholder = BitmapFactory.decodeResource(
+						context.getResources(), R.drawable.icon_female);
 			}
 		}
-		viewHolder.senderPicture.setImageBitmap(getRoundedBitmap(picturePlaceholder));
+		viewHolder.senderPicture
+				.setImageBitmap(getRoundedBitmap(picturePlaceholder));
 		viewHolder.senderGender.setImageBitmap(genderPlaceholder);
-		if ( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
-				|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
+		if (AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
+				|| AkiInternalStorageUtil.getAnonymousSetting(context,
+						currentUser.getId())) {
 			viewHolder.senderGender.setImageAlpha(0);
+		} else {
+			viewHolder.senderGender.setImageAlpha(255);
 		}
-		else{
-			viewHolder.senderGender.setImageAlpha(255);			
-		}
-		
-		if ( !( AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
-				|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) )
-				|| currentUser.getId().equals(senderId) ){
 
-			Bitmap picture = AkiInternalStorageUtil.getCachedUserPicture(context, senderId);
-			if ( picture != null ){
+		if (!(AkiInternalStorageUtil.getAnonymousSetting(context, senderId) || AkiInternalStorageUtil
+				.getAnonymousSetting(context, currentUser.getId()))
+				|| currentUser.getId().equals(senderId)) {
+
+			Bitmap picture = AkiInternalStorageUtil.getCachedUserPicture(
+					context, senderId);
+			if (picture != null) {
 
 				viewHolder.senderPicture.setImageBitmap(picture);
-			}
-			else{
+			} else {
 
 				Bundle params = new Bundle();
 				params.putBoolean("redirect", false);
 				params.putString("width", "143");
 				params.putString("height", "143");
-				new Request(currentSession, "/"+senderId+"/picture", params, HttpMethod.GET,
-						new Request.Callback() {
-					public void onCompleted(Response response) {
-						if ( response.getError() != null ||
-								JsonValue.readFrom(response.getRawResponse())
-								.asObject().get("data") == null ){
+				new Request(currentSession, "/" + senderId + "/picture",
+						params, HttpMethod.GET, new Request.Callback() {
+							public void onCompleted(Response response) {
+								if (response.getError() != null
+										|| JsonValue
+												.readFrom(
+														response.getRawResponse())
+												.asObject().get("data") == null) {
 
-							Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-									"picture from Facebook.");
-							return;
-						}
-						JsonObject information = JsonValue.readFrom(response.getRawResponse())
-								.asObject().get("data").asObject();
-
-						if ( information.get("is_silhouette").asBoolean() ){
-							Log.i(AkiApplication.TAG, "User does not have a picture from Facebook.");
-							return;
-						}
-
-						new AsyncTask<String, Void, Bitmap>() {
-
-							@Override
-							protected Bitmap doInBackground(String... params) {
-
-								try {
-									URL picture_address = new URL(params[0]);
-									Bitmap picture = getRoundedBitmap(BitmapFactory.
-											decodeStream(picture_address.openConnection().getInputStream()));
-
-									AkiInternalStorageUtil.cacheUserPicture(context, senderId, picture);
-									return picture;
-
-								} catch (MalformedURLException e) {
-									Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
-											" user picture from Facebook.");
-									e.printStackTrace();
-									return null;
-								} catch (IOException e) {
-									Log.e(AkiApplication.TAG, "A problem happened while trying to query" +
-											" user picture from Facebook.");
-									e.printStackTrace();
-									return null;
+									Log.e(AkiApplication.TAG,
+											"A problem happened while trying to query user "
+													+ "picture from Facebook.");
+									return;
 								}
-							}
+								JsonObject information = JsonValue
+										.readFrom(response.getRawResponse())
+										.asObject().get("data").asObject();
 
-							@Override
-							protected void onPostExecute(Bitmap picture){
-								if ( picture != null ){
-									viewHolder.senderPicture.setImageBitmap(picture);
+								if (information.get("is_silhouette")
+										.asBoolean()) {
+									Log.i(AkiApplication.TAG,
+											"User does not have a picture from Facebook.");
+									return;
 								}
-								else{
-									Log.e(AkiApplication.TAG, "A problem happened while trying to query user "+
-											"picture from Facebook.");
-								}									
-							}
 
-						}.execute(information.get("url").asString());
-					}
-				}).executeAsync();
+								new AsyncTask<String, Void, Bitmap>() {
+
+									@Override
+									protected Bitmap doInBackground(
+											String... params) {
+
+										try {
+											URL picture_address = new URL(
+													params[0]);
+											Bitmap picture = getRoundedBitmap(BitmapFactory
+													.decodeStream(picture_address
+															.openConnection()
+															.getInputStream()));
+
+											AkiInternalStorageUtil
+													.cacheUserPicture(context,
+															senderId, picture);
+											return picture;
+
+										} catch (MalformedURLException e) {
+											Log.e(AkiApplication.TAG,
+													"A problem happened while trying to query"
+															+ " user picture from Facebook.");
+											e.printStackTrace();
+											return null;
+										} catch (IOException e) {
+											Log.e(AkiApplication.TAG,
+													"A problem happened while trying to query"
+															+ " user picture from Facebook.");
+											e.printStackTrace();
+											return null;
+										}
+									}
+
+									@Override
+									protected void onPostExecute(Bitmap picture) {
+										if (picture != null) {
+											viewHolder.senderPicture
+													.setImageBitmap(picture);
+										} else {
+											Log.e(AkiApplication.TAG,
+													"A problem happened while trying to query user "
+															+ "picture from Facebook.");
+										}
+									}
+
+								}.execute(information.get("url").asString());
+							}
+						}).executeAsync();
 			}
-			if ( AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
+			if (AkiInternalStorageUtil.getAnonymousSetting(context,
+					currentUser.getId())) {
 				viewHolder.senderPicture.setImageAlpha(128);
-			}
-			else{
+			} else {
 				viewHolder.senderPicture.setImageAlpha(255);
 			}
 		}

@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/com_lespi_aki_message_box_color"
+    android:id="@+id/com_lespi_aki_message_you_layout"
     android:padding="2dp" >
 
     <TextView
