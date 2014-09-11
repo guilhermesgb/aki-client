@@ -131,14 +131,14 @@ public class AkiChatFragment extends SherlockFragment{
 		membersList.setVisibility(View.GONE);
 		
 		if ( !AkiHttpUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
-			CharSequence toastText = "No internet connection!";
+			CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_no_internet_connection);
 			Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 			toast.show();
 			activity.onResume();
 			return;
 		}
 		else if ( !AkiMainActivity.isLocationProviderEnabled(activity.getApplicationContext()) ){
-			CharSequence toastText = "Cannot determine your location!";
+			CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_cannot_determine_location);
 			Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 			toast.show();
 			activity.onResume();
@@ -166,7 +166,7 @@ public class AkiChatFragment extends SherlockFragment{
 							public void onClick(View view) {
 
 								if ( !AkiMainActivity.isLocationProviderEnabled(activity.getApplicationContext()) ){
-									CharSequence toastText = "Please enable GPS!";
+									CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_please_enable_gps);
 									Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 									toast.show();
 									activity.onResume();
@@ -187,7 +187,7 @@ public class AkiChatFragment extends SherlockFragment{
 										membersList.setVisibility(View.GONE);
 
 										String contentTitle = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_title);
-										String contentText = "You've left a chat room manually.";
+										String contentText = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_text);
 
 										NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(activity.getApplicationContext())
 										.setSmallIcon(R.drawable.notification_icon)
@@ -215,10 +215,10 @@ public class AkiChatFragment extends SherlockFragment{
 									public void onCancel() {
 										CharSequence toastText;
 										if ( AkiApplication.SERVER_DOWN ){
-											toastText = "Our server is down!";
+											toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_server_down);
 										}
 										else{
-											toastText = "No internet connection!";
+											toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_no_internet_connection);
 										}
 										Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 										toast.show();
@@ -235,7 +235,7 @@ public class AkiChatFragment extends SherlockFragment{
 							public void onClick(View view) {
 
 								if ( !AkiMainActivity.isLocationProviderEnabled(activity.getApplicationContext()) ){
-									CharSequence toastText = "Please enable GPS!";
+									CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_please_enable_gps);
 									Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 									toast.show();
 									activity.onResume();
@@ -256,7 +256,7 @@ public class AkiChatFragment extends SherlockFragment{
 										loadingIcon.setVisibility(View.VISIBLE);
 										membersList.setVisibility(View.GONE);
 
-										CharSequence toastText = "You have skipped into another chat room!";
+										CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_skipped_chat);
 										Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 										toast.show();
 
@@ -273,10 +273,10 @@ public class AkiChatFragment extends SherlockFragment{
 									public void onCancel() {
 										CharSequence toastText;
 										if ( AkiApplication.SERVER_DOWN ){
-											toastText = "Our server is down!";
+											toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_server_down);
 										}
 										else{
-											toastText = "No internet connection!";
+											toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_no_internet_connection);
 										}
 										Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 										toast.show();
@@ -307,7 +307,7 @@ public class AkiChatFragment extends SherlockFragment{
 							public void onClick(View view) {
 
 								if ( !AkiMainActivity.isLocationProviderEnabled(activity.getApplicationContext()) ){
-									CharSequence toastText = "Please enable GPS!";
+									CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_please_enable_gps);
 									Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 									toast.show();
 									activity.onResume();
@@ -322,16 +322,14 @@ public class AkiChatFragment extends SherlockFragment{
 
 										@Override
 										public void onSuccess(Object response) {
-											CharSequence toastText = "Message sent! :)";
-											Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
-											toast.show();
+											Log.i(AkiApplication.TAG, "Message: " + message + " sent!");
 										}
 
 										@Override
 										public void onFailure(Throwable failure) {
 											Log.e(AkiApplication.TAG, "You could not send message!");
 											failure.printStackTrace();
-											CharSequence toastText = "Message not sent!";
+											CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_message_not_sent);
 											Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 											toast.show();
 										}
@@ -340,10 +338,10 @@ public class AkiChatFragment extends SherlockFragment{
 										public void onCancel() {
 											CharSequence toastText;
 											if ( AkiApplication.SERVER_DOWN ){
-												toastText = "Our server is down!";
+												toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_server_down);
 											}
 											else{
-												toastText = "No internet connection!";
+												toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_no_internet_connection);
 											}
 											Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 											toast.show();
@@ -409,10 +407,10 @@ public class AkiChatFragment extends SherlockFragment{
 									public void onCancel() {
 										CharSequence toastText;
 										if ( AkiApplication.SERVER_DOWN ){
-											toastText = "Our server is down!";
+											toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_server_down);
 										}
 										else{
-											toastText = "No internet connection!";
+											toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_no_internet_connection);
 										}
 										Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 										toast.show();
@@ -513,7 +511,7 @@ public class AkiChatFragment extends SherlockFragment{
 						}
 					});
 					
-					CharSequence toastText = "You exited a chat room!";
+					CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_exited_chat);
 					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 					toast.show();
 				}
@@ -705,10 +703,10 @@ public class AkiChatFragment extends SherlockFragment{
 			public void onCancel() {
 				CharSequence toastText;
 				if ( AkiApplication.SERVER_DOWN ){
-					toastText = "Our server is down!";
+					toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_server_down);
 				}
 				else{
-					toastText = "No internet connection!";
+					toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_no_internet_connection);
 				}
 				Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 				toast.show();

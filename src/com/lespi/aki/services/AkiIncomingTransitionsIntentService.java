@@ -59,14 +59,14 @@ public class AkiIncomingTransitionsIntentService extends IntentService {
 								AkiServerUtil.leaveChatRoom(context, currentUserId);
 								if ( !AkiApplication.IN_BACKGROUND ){
 
-									CharSequence toastText = "You walked away from a chat room!";
+									CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_exited_chat_walking);
 									Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 									toast.show();
 								}
 								else{
 
 									String contentTitle = context.getString(R.string.com_lespi_aki_notif_exit_title);
-									String contentText = "You walked too far away from a chat room.";
+									String contentText = context.getString(R.string.com_lespi_aki_notif_exit_title_walking);
 
 									Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 

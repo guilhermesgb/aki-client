@@ -161,7 +161,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 					AkiServerUtil.leaveChatRoom(context, currentUserId);
 
 					String contentTitle = context.getString(R.string.com_lespi_aki_notif_exit_title);
-					String contentText = context.getString(R.string.com_lespi_aki_notif_exit_text);
+					String contentText = context.getString(R.string.com_lespi_aki_notif_exit_text_abort);
 
 					NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(context)
 					.setSmallIcon(R.drawable.notification_icon)
@@ -389,10 +389,10 @@ LocationClient.OnRemoveGeofencesResultListener {
 				public void onCancel() {
 					CharSequence toastText;
 					if ( AkiApplication.SERVER_DOWN ){
-						toastText = "Our server is down!";
+						toastText = context.getText(R.string.com_lespi_aki_toast_server_down);
 					}
 					else{
-						toastText = "No internet connection!";
+						toastText = context.getText(R.string.com_lespi_aki_toast_no_internet_connection);
 					}
 					Toast toast = Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 					toast.show();

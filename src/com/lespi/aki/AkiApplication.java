@@ -29,7 +29,7 @@ public class AkiApplication extends Application {
 	
 	public static final String SYSTEM_SENDER_ID = "System";
 	
-	public static final float MIN_RADIUS = 0.02f; // In kilometers
+	public static final float MIN_RADIUS = 0.03f; // In kilometers
 	
     public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 

@@ -249,7 +249,7 @@ public class AkiServerUtil {
 			Log.i(AkiApplication.TAG, "Had to leave current chat room address {" +
 					currentChatRoom + "} because will be assigned to new chat room " +
 					"address {" + newChatRoom + "}.");
-			CharSequence toastText = "You were kicked from the chat room! Joining a new one...";
+			CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_kicked_chat);
 			Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_LONG);
 			toast.show();
 		}

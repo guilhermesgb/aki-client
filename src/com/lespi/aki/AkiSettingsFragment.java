@@ -79,7 +79,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				slidingMenu.showMenu();
 				slidingMenu.setSlidingEnabled(false);
 				slidingMenu.setEnabled(false);
-				CharSequence toastText = "You must choose a nickname! :)";
+				CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_nickname_required);
 				Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 				toast.show();
 			}
@@ -103,7 +103,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 
 					newNickname = newNickname.trim();
 					if ( newNickname.isEmpty() ){
-						CharSequence toastText = "Nickname cannot be blank!";
+						CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_nickname_cannot_be_blank);
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
 						return;
@@ -119,12 +119,12 @@ public class AkiSettingsFragment extends SherlockFragment {
 						slidingMenu.showContent();
 						anonymousCheck.setEnabled(true);
 						callback.onSuccess(null);
-						CharSequence toastText = "Thanks for setting your nickname!";
+						CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_nickname_set);
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
 					}
 					else{
-						CharSequence toastText = "Nickname updated to " + newNickname + "!";
+						CharSequence toastText = context.getString(R.string.com_lespi_aki_toast_nickname_updated) + newNickname + "!";
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
 					}
@@ -142,7 +142,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 					}
 					else{
 						anonymousCheck.setChecked(false);
-						CharSequence toastText = "You cannot be anonymous again, in this chat room!";
+						CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_anonymous_cannot_be_set);
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
 					}

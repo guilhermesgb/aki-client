@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import android.annotation.SuppressLint;
@@ -15,7 +12,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -24,6 +20,7 @@ import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +56,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			R.color.com_lespi_aki_message_text_color_6
 			 };
 
-	Map<Integer, String> assignUserColor = new HashMap<Integer, String>();
+	SparseArray<String> assignUserColor = new SparseArray<String>();
 	private static AkiChatAdapter instance;
 
 	public static List<JsonObject> toJsonObjectList(JsonArray values) {
@@ -110,7 +107,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		int idx = new Random().nextInt(COLORS.length);
 		
 		// if it is a new user that does not have a assigned color yet
-		if (!assignUserColor.containsValue(user)) {
+		if (assignUserColor.indexOfValue(user) < 0 ) {
 			while (isColorAlreadyAssigned(idx) ){
 				idx = new Random().nextInt(COLORS.length);
 			}
@@ -119,15 +116,12 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	}
 	
 	public int findColor(String user) {
-		Iterator<Map.Entry<Integer, String>> iterator = assignUserColor
-				.entrySet().iterator();
-
-		while (iterator.hasNext()) {
-			Map.Entry<Integer, String> entry = iterator.next();
-			if (entry.getValue() != null && entry.getValue().equals(user)) 
-				return entry.getKey();
+		for ( int i=0; i<assignUserColor.size(); i++ ){
+			if (assignUserColor.valueAt(i) != null
+					&& assignUserColor.valueAt(i).equals(user)){
+				return assignUserColor.keyAt(i);
+			}
 		}
-		
 		return -1;
 	}
 
