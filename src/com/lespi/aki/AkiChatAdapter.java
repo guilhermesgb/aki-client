@@ -231,19 +231,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			LayoutInflater inflater = (LayoutInflater) context
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			rowView = inflater.inflate(rowLayout, parent, false);
-			
-			int color = COLORS[findColor(senderId) != null ? findColor(senderId) : android.R.color.white];
-			if (senderId.equals(currentUser.getId())) {
-				RelativeLayout rl = (RelativeLayout) rowView.findViewById(R.id.com_lespi_aki_message_me_layout);
-				rl.setBackgroundColor(rowView.getResources().getColor( color  ) );
-			
-			// if it is not the current user, and not the system, it is other user
-			} else if (!senderId.equals(AkiApplication.SYSTEM_SENDER_ID)) {
-				RelativeLayout rl = (RelativeLayout) rowView.findViewById(R.id.com_lespi_aki_message_you_layout);
-				rl.setBackgroundColor(rowView.getResources().getColor( color  ) );
-			}
-			
-			
+
 			ViewHolder viewHolder = new ViewHolder();
 			viewHolder.senderId = (TextView) rowView
 					.findViewById(R.id.com_lespi_aki_message_sender_id);
@@ -273,6 +261,17 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			return rowView;
 		}
 
+		Integer color = findColor(senderId);
+		color = COLORS[color != null ? color : android.R.color.white];
+		if (senderId.equals(currentUser.getId())) {
+			RelativeLayout rl = (RelativeLayout) rowView.findViewById(R.id.com_lespi_aki_message_me_layout);
+			rl.setBackgroundColor(rowView.getResources().getColor(color));
+		// if it is not the current user, and not the system, it is other user
+		} else if (!senderId.equals(AkiApplication.SYSTEM_SENDER_ID)) {
+			RelativeLayout rl = (RelativeLayout) rowView.findViewById(R.id.com_lespi_aki_message_you_layout);
+			rl.setBackgroundColor(rowView.getResources().getColor(color));
+		}
+		
 		if (senderId.equals(currentUser.getId())) {
 
 			if (AkiInternalStorageUtil.getAnonymousSetting(context, senderId)) {
