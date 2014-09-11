@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import android.annotation.SuppressLint;
@@ -20,7 +22,6 @@ import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	private final List<JsonObject> messages;
 	private GraphUser currentUser = null;
 	private Session currentSession = null;
+	
 	private final int[] COLORS = new int[] {
 			R.color.com_lespi_aki_message_text_color_0,
 			R.color.com_lespi_aki_message_text_color_1,
@@ -54,9 +56,9 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			R.color.com_lespi_aki_message_text_color_4,
 			R.color.com_lespi_aki_message_text_color_5,
 			R.color.com_lespi_aki_message_text_color_6
-			 };
-
-	SparseArray<String> assignUserColor = new SparseArray<String>();
+	};
+	private final Map<String, Integer> userToColorMapping;
+	
 	private static AkiChatAdapter instance;
 
 	public static List<JsonObject> toJsonObjectList(JsonArray values) {
@@ -83,56 +85,54 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		super(context, R.layout.aki_chat_message_you, messages);
 		this.context = context;
 		this.messages = messages;
-		initializeAssignColorMap();
+		userToColorMapping = new HashMap<String, Integer>();
 	}
 	
-	private void initializeAssignColorMap(){
-		this.assignUserColor.put(0, null);
-		this.assignUserColor.put(1, null);
-		this.assignUserColor.put(2, null);
-		this.assignUserColor.put(3, null);
-		this.assignUserColor.put(4, null);
-		this.assignUserColor.put(5, null);
-		this.assignUserColor.put(6, null);
-	}
-	
-	private boolean isColorAlreadyAssigned(int colorIndex) {
-		
-		if (assignUserColor.get(colorIndex) != null) 
-			return true;
-		return false;
-	}
-	
-	private void assignColor(String user) {
-		int idx = new Random().nextInt(COLORS.length);
-		
-		// if it is a new user that does not have a assigned color yet
-		if (assignUserColor.indexOfValue(user) < 0 ) {
-			while (isColorAlreadyAssigned(idx) ){
-				idx = new Random().nextInt(COLORS.length);
-			}
-			assignUserColor.put(idx, user);
-		}
-	}
-	
-	public int findColor(String user) {
-		for ( int i=0; i<assignUserColor.size(); i++ ){
-			if (assignUserColor.valueAt(i) != null
-					&& assignUserColor.valueAt(i).equals(user)){
-				return assignUserColor.keyAt(i);
-			}
-		}
-		return -1;
-	}
-
 	public void setCurrentUser(GraphUser currentUser) {
 		this.currentUser = currentUser;
+		if ( userToColorMapping.get(currentUser.getId()) == null ) {
+			Log.wtf("COLOR ALG", "SET NEW COLOR FOR CURRENT USER {" + currentUser.getId() + "}!");
+			userToColorMapping.put(currentUser.getId(), new Random().nextInt(COLORS.length));
+		}
 	}
 
 	public void setCurrentSession(Session currentSession) {
 		this.currentSession = currentSession;
 	}
 
+	private void assignColor(String userId, String currentUserId) {
+		if ( userToColorMapping.get(userId) == null ) {
+			Log.wtf("COLOR ALG", "CURRENT USER {" + currentUserId + "} HAS NO COLOR, SO PROCEED!");
+			boolean couldFindUnusedColor = false;
+			int idx = -1;
+			for ( int i=0; i<7; i++ ){
+				idx = new Random().nextInt(COLORS.length);
+				if ( userToColorMapping.containsValue(idx) ){
+					idx = new Random().nextInt(COLORS.length);
+				}
+				else{
+					couldFindUnusedColor = true;
+					break;
+				}
+			}
+			if ( couldFindUnusedColor ){
+				Log.wtf("COLOR ALG", "COULD FIND UNUSED COLOR FOR USER {" + userId + "}!");
+				userToColorMapping.put(userId, idx);
+			}
+			else{
+				Log.wtf("COLOR ALG", "COULD NOT FIND UNUSED COLOR FOR USER {" + userId + "}!");
+				idx = userToColorMapping.get(currentUserId);
+				userToColorMapping.clear();
+				userToColorMapping.put(currentUserId, idx);
+				assignColor(userId, currentUserId);
+			}
+		}
+	}
+	
+	public Integer findColor(String userId) {
+		return userToColorMapping.get(userId);
+	}
+	
 	public static Bitmap getRoundedBitmap(Bitmap bitmap) {
 		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
 				bitmap.getHeight(), Bitmap.Config.ARGB_8888);
@@ -190,7 +190,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		boolean canReuse = false;
 
 		final String senderId = newViewData.get("sender").asString();
-		assignColor(senderId);
+		assignColor(senderId, currentUser.getId());
 		
 		int rowLayout = R.layout.aki_chat_message_you;
 		if (senderId.equals(currentUser.getId())) {
@@ -232,7 +232,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			rowView = inflater.inflate(rowLayout, parent, false);
 			
-			int color = COLORS[findColor(senderId)];
+			int color = COLORS[findColor(senderId) != null ? findColor(senderId) : android.R.color.white];
 			if (senderId.equals(currentUser.getId())) {
 				RelativeLayout rl = (RelativeLayout) rowView.findViewById(R.id.com_lespi_aki_message_me_layout);
 				rl.setBackgroundColor(rowView.getResources().getColor( color  ) );
