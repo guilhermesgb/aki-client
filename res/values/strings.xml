@@ -65,6 +65,6 @@
 	<string name="com_lespi_aki_toast_nickname_required">You precisa escolher um nickname!</string>
 	<string name="com_lespi_aki_toast_nickname_cannot_be_blank">O nickname não pode ser vazio!</string>
 	<string name="com_lespi_aki_toast_nickname_set">Obrigado por escolher um nickname!</string>
-	<string name="com_lespi_aki_toast_nickname_updated">Seu nickname foi atualizado para </string>
+	<string name="com_lespi_aki_toast_nickname_updated">Seu nickname foi atualizado para</string>
 	<string name="com_lespi_aki_toast_anonymous_cannot_be_set">Você não pode mais ficar anônimo nessa sala de bate-papo!</string>
 </resources>

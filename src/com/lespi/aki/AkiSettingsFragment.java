@@ -124,7 +124,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 						toast.show();
 					}
 					else{
-						CharSequence toastText = context.getString(R.string.com_lespi_aki_toast_nickname_updated) + newNickname + "!";
+						CharSequence toastText = context.getString(R.string.com_lespi_aki_toast_nickname_updated) + " " + newNickname + "!";
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
 					}
