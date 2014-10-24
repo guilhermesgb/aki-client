@@ -3,6 +3,7 @@ package com.lespi.aki;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +11,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -189,7 +189,7 @@ public class AkiChatFragment extends SherlockFragment{
 										String contentTitle = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_title);
 										String contentText = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_text);
 
-										NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(activity.getApplicationContext())
+										Notification.Builder notifyBuilder = new Notification.Builder(activity.getApplicationContext())
 										.setSmallIcon(R.drawable.notification_icon)
 										.setContentTitle(contentTitle)
 										.setContentText(contentText)
