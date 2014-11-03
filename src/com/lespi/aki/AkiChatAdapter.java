@@ -176,7 +176,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		public TextView senderName;
 		public ImageView senderPicture;
 		public TextView message;
-		public ImageView senderDistance;
+//		public ImageView senderDistance;
 		public ImageView senderGender;
 	}
 
@@ -243,9 +243,9 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			viewHolder.message = (TextView) rowView
 					.findViewById(R.id.com_lespi_aki_message_text_message);
 			viewHolder.message.setAlpha(1);
-			viewHolder.senderDistance = (ImageView) rowView
-					.findViewById(R.id.com_lespi_aki_message_sender_distance);
-			viewHolder.senderDistance.setImageAlpha(255);
+//			viewHolder.senderDistance = (ImageView) rowView
+//					.findViewById(R.id.com_lespi_aki_message_sender_distance);
+//			viewHolder.senderDistance.setImageAlpha(255);
 			viewHolder.senderGender = (ImageView) rowView
 					.findViewById(R.id.com_lespi_aki_message_sender_gender);
 			viewHolder.senderGender.setImageAlpha(255);
@@ -394,62 +394,62 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 						}).executeAsync();
 			}
 
-			AkiLocation senderLocation = AkiInternalStorageUtil
-					.getCachedUserLocation(context, senderId);
-			if (senderLocation == null) {
-				Log.d(AkiApplication.TAG, "Cannot calculate distance to "
-						+ senderId + " because its location isn't available.");
-				viewHolder.senderDistance
-						.setImageResource(R.drawable.indicator_far);
-				viewHolder.senderDistance.setImageAlpha(0);
-			} else {
-
-				AkiLocation currentLocation = AkiInternalStorageUtil
-						.getCachedUserLocation(context, currentUser.getId());
-				if (currentLocation == null) {
-					Log.d(AkiApplication.TAG, "Cannot calculate distance to "
-							+ senderId
-							+ " because current location isn't available.");
-					viewHolder.senderDistance
-							.setImageResource(R.drawable.indicator_far);
-					viewHolder.senderDistance.setImageAlpha(0);
-				} else {
-					double distance = calculateDistance(currentLocation,
-							senderLocation);
-
-					Log.d(AkiApplication.TAG,
-							"Distance to "
-									+ AkiInternalStorageUtil
-											.getCachedUserNickname(context,
-													senderId) + ": " + distance);
-
-					double proportion = (distance / (AkiApplication.MIN_RADIUS * 2));
-
-					if (proportion >= 1) {
-						viewHolder.senderDistance
-								.setImageResource(R.drawable.indicator_far);
-						viewHolder.senderDistance.setImageAlpha(255);
-					} else if (proportion >= 0.65) {
-						viewHolder.senderDistance
-								.setImageResource(R.drawable.indicator_far);
-						viewHolder.senderDistance
-								.setImageAlpha((int) (255 * (proportion % 0.65 + (proportion % 0.65) * 1.8)));
-					} else if (proportion >= 0.35) {
-						viewHolder.senderDistance
-								.setImageResource(R.drawable.indicator_close);
-						viewHolder.senderDistance
-								.setImageAlpha((int) (255 * (1 - (proportion % 0.35 + (proportion % 0.35) * 1.8))));
-					} else {
-						viewHolder.senderDistance
-								.setImageResource(R.drawable.indicator_very_close);
-						int opacity = (int) (255 * (1 - (proportion % 0.35 + (proportion % 0.35) * 1.8)));
-						if (opacity < 128) {
-							opacity = 128;
-						}
-						viewHolder.senderDistance.setImageAlpha(opacity);
-					}
-				}
-			}
+//			AkiLocation senderLocation = AkiInternalStorageUtil
+//					.getCachedUserLocation(context, senderId);
+//			if (senderLocation == null) {
+//				Log.d(AkiApplication.TAG, "Cannot calculate distance to "
+//						+ senderId + " because its location isn't available.");
+//				viewHolder.senderDistance
+//						.setImageResource(R.drawable.indicator_far);
+//				viewHolder.senderDistance.setImageAlpha(0);
+//			} else {
+//
+//				AkiLocation currentLocation = AkiInternalStorageUtil
+//						.getCachedUserLocation(context, currentUser.getId());
+//				if (currentLocation == null) {
+//					Log.d(AkiApplication.TAG, "Cannot calculate distance to "
+//							+ senderId
+//							+ " because current location isn't available.");
+//					viewHolder.senderDistance
+//							.setImageResource(R.drawable.indicator_far);
+//					viewHolder.senderDistance.setImageAlpha(0);
+//				} else {
+//					double distance = calculateDistance(currentLocation,
+//							senderLocation);
+//
+//					Log.d(AkiApplication.TAG,
+//							"Distance to "
+//									+ AkiInternalStorageUtil
+//											.getCachedUserNickname(context,
+//													senderId) + ": " + distance);
+//
+//					double proportion = (distance / (AkiApplication.MIN_RADIUS * 2));
+//
+//					if (proportion >= 1) {
+//						viewHolder.senderDistance
+//								.setImageResource(R.drawable.indicator_far);
+//						viewHolder.senderDistance.setImageAlpha(255);
+//					} else if (proportion >= 0.65) {
+//						viewHolder.senderDistance
+//								.setImageResource(R.drawable.indicator_far);
+//						viewHolder.senderDistance
+//								.setImageAlpha((int) (255 * (proportion % 0.65 + (proportion % 0.65) * 1.8)));
+//					} else if (proportion >= 0.35) {
+//						viewHolder.senderDistance
+//								.setImageResource(R.drawable.indicator_close);
+//						viewHolder.senderDistance
+//								.setImageAlpha((int) (255 * (1 - (proportion % 0.35 + (proportion % 0.35) * 1.8))));
+//					} else {
+//						viewHolder.senderDistance
+//								.setImageResource(R.drawable.indicator_very_close);
+//						int opacity = (int) (255 * (1 - (proportion % 0.35 + (proportion % 0.35) * 1.8)));
+//						if (opacity < 128) {
+//							opacity = 128;
+//						}
+//						viewHolder.senderDistance.setImageAlpha(opacity);
+//					}
+//				}
+//			}
 		}
 
 		String gender = AkiInternalStorageUtil.getCachedUserGender(context,
