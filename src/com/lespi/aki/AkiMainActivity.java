@@ -4,6 +4,7 @@ import java.util.Collections;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -13,7 +14,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -163,7 +163,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 					String contentTitle = context.getString(R.string.com_lespi_aki_notif_exit_title);
 					String contentText = context.getString(R.string.com_lespi_aki_notif_exit_text_abort);
 
-					NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(context)
+					Notification.Builder notifyBuilder = new Notification.Builder(context)
 					.setSmallIcon(R.drawable.notification_icon)
 					.setContentTitle(contentTitle)
 					.setContentText(contentText)

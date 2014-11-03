@@ -2,6 +2,7 @@ package com.lespi.aki.receivers;
 
 import java.util.List;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -9,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.lespi.aki.AkiApplication;
@@ -74,7 +74,7 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 			
 			Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 			
-			NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(context)
+			Notification.Builder notifyBuilder = new Notification.Builder(context)
 			        .setSmallIcon(R.drawable.notification_icon)
 			        .setContentTitle(contentTitle)
 			        .setContentText(contentText)

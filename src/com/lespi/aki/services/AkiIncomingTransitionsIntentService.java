@@ -3,12 +3,12 @@ package com.lespi.aki.services;
 import java.util.List;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -70,7 +70,7 @@ public class AkiIncomingTransitionsIntentService extends IntentService {
 
 									Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-									NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(context)
+									Notification.Builder notifyBuilder = new Notification.Builder(context)
 									.setSmallIcon(R.drawable.notification_icon)
 									.setContentTitle(contentTitle)
 									.setContentText(contentText)
