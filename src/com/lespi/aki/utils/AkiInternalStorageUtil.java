@@ -130,6 +130,28 @@ public class AkiInternalStorageUtil {
 		editor.commit();
 	}
 	
+	public static boolean getCachedUserLiked(Context context, String userId){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_user_liked)+userId, false);
+	}
+
+	public static synchronized void cacheUserLiked(Context context, String userId, boolean liked) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_user_liked)+userId, liked);
+		editor.commit();
+	}
+
+	public static synchronized void unsetCachedUserLiked(Context context, String userId, String nickname) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_user_liked)+userId, false);
+		editor.commit();
+	}
+	
 	public static Bitmap getCachedUserPicture(Context context, String userId){
 
 		Bitmap picture = null;

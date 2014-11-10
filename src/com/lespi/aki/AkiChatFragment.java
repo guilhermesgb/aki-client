@@ -13,7 +13,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseIntArray;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -50,9 +53,10 @@ import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
 import com.parse.internal.AsyncCallback;
 
-public class AkiChatFragment extends SherlockFragment{
+public class AkiChatFragment extends SherlockFragment {
 
 	private boolean seenSplash = false;
+	 
 
 	public void setSeenSplash(boolean seenSplash) {
 		this.seenSplash = seenSplash;
@@ -324,6 +328,12 @@ public class AkiChatFragment extends SherlockFragment{
 										@Override
 										public void onSuccess(Object response) {
 											Log.i(AkiApplication.TAG, "Message: " + message + " sent!");
+											/*final JsonObject msg = new JsonObject();
+											msg.add("message", message);
+											msg.add("sender", currentUser.getId());
+											AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
+											chatAdapter.add(msg);
+											chatAdapter.notifyDataSetChanged();*/
 										}
 
 										@Override
@@ -904,4 +914,6 @@ public class AkiChatFragment extends SherlockFragment{
 		Log.v(AkiApplication.TAG, "AkiChatFragment$onSaveInstanceState");
 		uiHelper.onSaveInstanceState(outState);
 	}
+
+	
 }

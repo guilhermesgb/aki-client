@@ -44,7 +44,17 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp" />
 
-    
+    <ImageView
+        android:id="@+id/com_lespi_aki_message_like"
+        android:layout_width="@dimen/picture_layout_width_me"
+        android:layout_height="@dimen/picture_layout_height_me"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:alpha="0.8"
+        android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:src="@drawable/icon_like"/>
 
     <ImageView
         android:id="@+id/com_lespi_aki_message_sender_gender"

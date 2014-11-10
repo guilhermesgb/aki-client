@@ -22,9 +22,14 @@ import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -47,6 +52,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	private final List<JsonObject> messages;
 	private GraphUser currentUser = null;
 	private Session currentSession = null;
+	
 	
 	private final int[] COLORS = new int[] {
 			R.color.com_lespi_aki_message_text_color_0,
@@ -178,6 +184,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		public TextView message;
 //		public ImageView senderDistance;
 		public ImageView senderGender;
+		public ImageView likeIcon;
 	}
 
 	@SuppressLint("CutPasteId")
@@ -249,6 +256,18 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			viewHolder.senderGender = (ImageView) rowView
 					.findViewById(R.id.com_lespi_aki_message_sender_gender);
 			viewHolder.senderGender.setImageAlpha(255);
+			viewHolder.likeIcon= (ImageView) rowView.findViewById(R.id.com_lespi_aki_message_like);
+			boolean liked = AkiInternalStorageUtil.getCachedUserLiked(context, senderId);
+			if(viewHolder.likeIcon != null){
+				if(liked){
+					viewHolder.likeIcon.setVisibility(View.VISIBLE);
+				}else{
+					viewHolder.likeIcon.setVisibility(View.GONE);
+				}
+			}
+			
+		
+		
 			rowView.setTag(viewHolder);
 		}
 
@@ -608,6 +627,36 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				viewHolder.senderPicture.setImageAlpha(255);
 			}
 		}
+		final Animation hyperspaceJumpAnimation = AnimationUtils.loadAnimation(context, R.anim.jump_like);
+		
+		final GestureDetector mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener()
+		{
+			 @Override
+		        public boolean onDoubleTap(MotionEvent e) {
+				 	float x = e.getX();
+		            float y = e.getY();
+		            viewHolder.likeIcon.setVisibility(View.VISIBLE);
+		            viewHolder.likeIcon.startAnimation(hyperspaceJumpAnimation);
+		            AkiInternalStorageUtil.cacheUserLiked(context, senderId, true);
+		            Log.d("Double Tap", "Tapped at: (" + x + "," + y + ")");
+		            return true;
+		        }
+			 @Override
+			public boolean onDown(MotionEvent e) {
+				// TODO Auto-generated method stub
+				return true;
+			}
+		});
+		viewHolder.senderPicture.setOnTouchListener(new OnTouchListener() {
+			
+			
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                return mGestureDetector.onTouchEvent(event);
+            }
+
+        });
 		return rowView;
 	}
 }

@@ -46,6 +46,7 @@
     <string name="com_lespi_aki_data_user_picture">user-picture_</string>
     <string name="com_lespi_aki_data_user_coverphoto">user-cover_</string>
     <string name="com_lespi_aki_data_user_nickname">user-nickname_</string>
+    <string name="com_lespi_aki_data_user_liked">user-liked_</string>
     <string name="com_lespi_aki_data_user_location">user-location_</string>
     <string name="com_lespi_aki_data_chat_messages">chat-room_</string>
     <string name="com_lespi_aki_data_mandatory_setting_missing">mandatory-setting-missing</string>
