@@ -322,15 +322,15 @@ public class AkiServerUtil {
 
 		JsonObject payload = new JsonObject();
 		payload.add("message", message);
-		String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
-		if ( currentChatRoom == null ){
-			Log.e(AkiApplication.TAG, "Chat room address is not cached!");
-			callback.onFailure(new Exception("Chat room address is not cached!"));
-			return;
-		}
-		else{
-			payload.add("chat_room", currentChatRoom);
-		}
+//		String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
+//		if ( currentChatRoom == null ){
+//			Log.e(AkiApplication.TAG, "Chat room address is not cached!");
+//			callback.onFailure(new Exception("Chat room address is not cached!"));
+//			return;
+//		}
+//		else{
+//			payload.add("chat_room", currentChatRoom);
+//		}
 
 		AkiHttpUtil.doPOSTHttpRequest(context, "/message", payload, new AsyncCallback() {
 
