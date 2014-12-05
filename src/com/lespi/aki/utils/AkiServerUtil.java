@@ -3,6 +3,7 @@ package com.lespi.aki.utils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import android.content.Context;
 import android.os.Handler;
@@ -347,6 +348,7 @@ public class AkiServerUtil {
 
 		BigInteger temporaryTimestamp = new BigInteger(AkiInternalStorageUtil.getMostRecentTimestamp(context));
 		temporaryTimestamp = temporaryTimestamp.multiply(BigInteger.TEN).multiply(BigInteger.TEN);
+		temporaryTimestamp = temporaryTimestamp.add(new BigInteger(Integer.toString(new Random().nextInt(100))));
 		
 		final JsonObject temporaryMessage = AkiInternalStorageUtil.storeTemporaryMessage(context, chatRoom, currentUser,
 				message, temporaryTimestamp.toString());
@@ -369,7 +371,7 @@ public class AkiServerUtil {
 
 			@Override
 			public void onSuccess(Object response) {
-				restartGettingMessages(context);
+				AkiInternalStorageUtil.resetTimeout(context);
 				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
 				callback.onSuccess(response);
 			}
@@ -520,8 +522,4 @@ public class AkiServerUtil {
 		}
 	}
 	
-	public static void restartGettingMessages(final Context context){
-		stopGettingMessages(context);
-		getMessages(context);
-	}
 }

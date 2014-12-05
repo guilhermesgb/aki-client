@@ -50,6 +50,7 @@
     <string name="com_lespi_aki_data_user_nickname">user-nickname_</string>
     <string name="com_lespi_aki_data_user_location">user-location_</string>
     <string name="com_lespi_aki_data_chat_messages">chat-room_</string>
+    <string name="com_lespi_aki_data_chat_timestamps">chat-timestamps_</string>
     <string name="com_lespi_aki_data_mandatory_setting_missing">mandatory-setting-missing</string>
     <string name="com_lespi_aki_data_anonymous_setting">anonymous-setting_</string>
     <string name="com_lespi_aki_data_geofence_should_update">geofence-should-update</string>

@@ -9,7 +9,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -121,8 +123,18 @@ public class AkiInternalStorageUtil {
 
 		try {
 
+			Set<String> timestamps = retrieveTimestamps(context, chatRoom);
+			if ( timestamps.contains(timestamp) ){
+				return null;
+			}
+			timestamps.add(timestamp);
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+					context.getString(R.string.com_lespi_aki_data_chat_timestamps)+chatRoom, Context.MODE_PRIVATE));
+			oos.writeObject(timestamps);
+			oos.close();
+			
 			PriorityQueue<JsonObject> messages = retrieveMessages(context, chatRoom);
-
+			
 			JsonObject newMessage = new JsonObject();
 			newMessage.add("sender", from);
 			newMessage.add("message", content);
@@ -135,7 +147,7 @@ public class AkiInternalStorageUtil {
 
 			messages.add(newMessage);
 
-			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+			oos = new ObjectOutputStream(context.openFileOutput(
 					context.getString(R.string.com_lespi_aki_data_chat_messages)+chatRoom, Context.MODE_PRIVATE));
 			oos.writeObject(messages);
 			oos.close();
@@ -168,6 +180,31 @@ public class AkiInternalStorageUtil {
 			Log.e(AkiApplication.TAG, "Received confirmation that message of temporary timestamp " + temporaryMessage + " was received by the Server.");
 			e.printStackTrace();
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static synchronized Set<String> retrieveTimestamps(Context context, String chatRoom) {
+
+		Set<String> timestamps = new HashSet<String>();
+		if ( chatRoom == null ){
+			return timestamps;
+		}
+		try {
+
+			ObjectInputStream ois = new ObjectInputStream(context.openFileInput(
+					context.getString(R.string.com_lespi_aki_data_chat_timestamps)+chatRoom));
+			timestamps = (Set<String>) ois.readObject();
+			ois.close();
+		} catch (FileNotFoundException e) {
+			Log.i(AkiApplication.TAG, "There are no timestamps saved for chat room " + chatRoom + ".");
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "Could not retrieve timestamps saved in chat room " + chatRoom + ".");
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			Log.e(AkiApplication.TAG, "Could not retrieve timestamps saved in chat room " + chatRoom + ".");
+			e.printStackTrace();			
+		}
+		return timestamps;
 	}
 	
 	public static String getMostRecentTimestamp(Context context){
@@ -567,7 +604,7 @@ public class AkiInternalStorageUtil {
 	
 	public static int getNextTimeout(Context context) {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
-		int timeout = sharedPref.getInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 2);
+		int timeout = sharedPref.getInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 1);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		int nextTimeout = timeout * 2;
 		if ( nextTimeout > 60 ){
@@ -581,7 +618,7 @@ public class AkiInternalStorageUtil {
 	public static synchronized void resetTimeout(Context context) {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
-		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 2);
+		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 1);
 		editor.commit();
 	}
 
