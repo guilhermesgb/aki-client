@@ -75,7 +75,7 @@ public class AkiInternalStorageUtil {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static PriorityQueue<JsonObject> retrieveMessages(Context context, String chatRoom) {
+	public static synchronized PriorityQueue<JsonObject> retrieveMessages(Context context, String chatRoom) {
 
 		PriorityQueue<JsonObject> messages = new PriorityQueue<JsonObject>(11, new AkiMessageComparator());
 		if ( chatRoom == null ){
@@ -100,6 +100,15 @@ public class AkiInternalStorageUtil {
 	}
 
 	public static synchronized void storeNewMessage(Context context, String chatRoom, String from, String content, String timestamp) {
+		storeNewMessage(context, chatRoom, from, content, timestamp, false);
+	}
+	
+	public static synchronized JsonObject storeTemporaryMessage(Context context, String chatRoom, String from, String content, String timestamp) {
+		return storeNewMessage(context, chatRoom, from, content, timestamp, true);
+	}
+	
+	public static synchronized JsonObject storeNewMessage(Context context, String chatRoom, String from,
+			String content, String timestamp, boolean temporary) {
 
 		try {
 
@@ -109,12 +118,10 @@ public class AkiInternalStorageUtil {
 			newMessage.add("sender", from);
 			newMessage.add("message", content);
 			newMessage.add("timestamp", timestamp);
+			newMessage.add("is_temporary", Boolean.toString(temporary));
 			
-			Log.d(AkiApplication.TAG, "Timestamp: " + timestamp.toString());
-			
-			if ( compareTimestamps(timestamp, getMostRecentTimestamp(context)) == 1 ){
+			if ( !temporary && compareTimestamps(timestamp, getMostRecentTimestamp(context)) == 1 ){
 				setMostRecentTimestamp(context, timestamp);
-				Log.d(AkiApplication.TAG, "Obviously bigger, update most recent now!");
 			}
 
 			messages.add(newMessage);
@@ -123,13 +130,15 @@ public class AkiInternalStorageUtil {
 					context.getString(R.string.com_lespi_aki_data_chat_messages)+chatRoom, Context.MODE_PRIVATE));
 			oos.writeObject(messages);
 			oos.close();
+			return newMessage;
 		} catch (IOException e) {
 			Log.e(AkiApplication.TAG, "Message received from " + from + " could not be stored.");
 			e.printStackTrace();
+			return null;
 		}
 	}
 
-	public static void storeNewSystemMessage(Context context, String chatRoom, String content) {
+	public static synchronized void storeNewSystemMessage(Context context, String chatRoom, String content) {
 
 		String timestamp = getVeryNextTimestamp(getMostRecentTimestamp(context));
 		storeNewMessage(context, chatRoom, AkiApplication.SYSTEM_SENDER_ID, content, timestamp);
@@ -139,6 +148,23 @@ public class AkiInternalStorageUtil {
 
 		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_chat_messages)+chatRoom);
 		file.delete();
+	}
+	
+	public static synchronized void removeTemporaryMessage(Context context, String chatRoom, JsonObject temporaryMessage) {
+		
+		try {
+
+			PriorityQueue<JsonObject> messages = retrieveMessages(context, chatRoom);
+			messages.remove(temporaryMessage);
+
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+					context.getString(R.string.com_lespi_aki_data_chat_messages)+chatRoom, Context.MODE_PRIVATE));
+			oos.writeObject(messages);
+			oos.close();
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "Received confirmation that message of temporary timestamp " + temporaryMessage + " was received by the Server.");
+			e.printStackTrace();
+		}
 	}
 	
 	public static String getMostRecentTimestamp(Context context){
@@ -163,7 +189,7 @@ public class AkiInternalStorageUtil {
 	
 	public static String getVeryNextTimestamp(String timestamp){
 		BigInteger val = new BigInteger(timestamp);
-		val = val.add(new BigInteger("1"));
+		val = val.add(BigInteger.ONE);
 		return val.toString();
 	}
 	

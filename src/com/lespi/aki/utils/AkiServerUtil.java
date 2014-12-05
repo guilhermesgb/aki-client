@@ -1,5 +1,6 @@
 package com.lespi.aki.utils;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.lespi.aki.AkiApplication;
+import com.lespi.aki.AkiChatAdapter;
+import com.lespi.aki.AkiChatFragment;
 import com.lespi.aki.AkiMainActivity;
 import com.lespi.aki.R;
 import com.lespi.aki.json.JsonObject;
@@ -320,13 +323,39 @@ public class AkiServerUtil {
 
 	public static void sendMessage(final Context context, String message, final AsyncCallback callback) {
 
+		final String chatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
+		String currentUser = AkiInternalStorageUtil.getCurrentUser(context);
+		if ( chatRoom == null || currentUser == null ){
+			Log.e(AkiApplication.TAG, "Could not send message: no current_user_id or no current chat_room found.");
+			callback.onCancel();
+			return;
+		}
+
+		BigInteger temporaryTimestamp = new BigInteger(AkiInternalStorageUtil.getMostRecentTimestamp(context));
+		temporaryTimestamp = temporaryTimestamp.multiply(BigInteger.TEN).multiply(BigInteger.TEN);
+		
+		final JsonObject temporaryMessage = AkiInternalStorageUtil.storeTemporaryMessage(context, chatRoom, currentUser,
+				message, temporaryTimestamp.toString());
+		
+		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+		List<JsonObject> messages = AkiChatAdapter.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, chatRoom));
+		
+		chatAdapter.clear();
+		if ( messages != null ){
+			chatAdapter.addAll(messages);
+		}
+		chatAdapter.notifyDataSetChanged();
+		
+		AkiChatFragment.getInstance().externalRefreshAll();
+		
 		JsonObject payload = new JsonObject();
 		payload.add("message", message);
-
+		
 		AkiHttpUtil.doPOSTHttpRequest(context, "/message", payload, new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
+				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
 				callback.onSuccess(response);
 			}
 
