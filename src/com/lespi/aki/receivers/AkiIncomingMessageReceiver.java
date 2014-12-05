@@ -38,8 +38,9 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 		}
 		
 		String message = incomingData.get("message").asString();
+		String timestamp = incomingData.get("timestamp").asString();
 		
-		AkiInternalStorageUtil.storeNewMessage(context, chatRoom, from, message);
+		AkiInternalStorageUtil.storePushedMessage(context, chatRoom, from, message, timestamp);
 		
 		intent.setClass(context, AkiMainActivity.class);
 		intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

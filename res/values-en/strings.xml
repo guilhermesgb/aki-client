@@ -40,6 +40,8 @@
     <string name="com_lespi_aki_preferences">com_lespi_aki_data_chat_file</string>
     <string name="com_lespi_aki_data_current_user">current-user</string>
     <string name="com_lespi_aki_data_current_chat_room">current-chat-room</string>
+    <string name="com_lespi_aki_data_most_recent_timestamp">most-recent-timestamp</string>
+	<string name="com_lespi_aki_data_last_server_timestamp">last-server-timestamp</string>
     <string name="com_lespi_aki_data_user_firstname">user-firstname_</string>
     <string name="com_lespi_aki_data_user_fullname">user-fullname_</string>
     <string name="com_lespi_aki_data_user_gender">user-gender_</string>
@@ -48,11 +50,13 @@
     <string name="com_lespi_aki_data_user_nickname">user-nickname_</string>
     <string name="com_lespi_aki_data_user_location">user-location_</string>
     <string name="com_lespi_aki_data_chat_messages">chat-room_</string>
+    <string name="com_lespi_aki_data_chat_timestamps">chat-timestamps_</string>
     <string name="com_lespi_aki_data_mandatory_setting_missing">mandatory-setting-missing</string>
     <string name="com_lespi_aki_data_anonymous_setting">anonymous-setting_</string>
     <string name="com_lespi_aki_data_geofence_should_update">geofence-should-update</string>
     <string name="com_lespi_aki_data_geofence_center">geofence-center</string>
     <string name="com_lespi_aki_data_geofence_radius">geofence-radius</string>
+    <string name="com_lespi_aki_data_last_timeout">last-timeout</string>
     <string name="com_lespi_aki_toast_no_internet_connection">No internet connection!</string>
 	<string name="com_lespi_aki_toast_cannot_determine_location">Cannot determine your location!</string>
 	<string name="com_lespi_aki_toast_please_enable_gps">Please enable GPS!</string>
@@ -60,7 +64,7 @@
 	<string name="com_lespi_aki_toast_skipped_chat">You have skipped into another chat room!</string>
     <string name="com_lespi_aki_toast_message_not_sent">Message not sent!</string>
 	<string name="com_lespi_aki_toast_exited_chat">You exited a chat room!</string>
-	<string name="com_lespi_aki_toast_kicked_chat">You were kicked from the chat room! Joining a new one&#8230;</string>
+	<string name="com_lespi_aki_toast_kicked_chat">Joining a new chat room&#8230;</string>
 	<string name="com_lespi_aki_toast_exited_chat_walking">You walked away from a chat room!</string>
 	<string name="com_lespi_aki_toast_nickname_required">You must choose a nickname!</string>
 	<string name="com_lespi_aki_toast_nickname_cannot_be_blank">Nickname cannot be blank!</string>
