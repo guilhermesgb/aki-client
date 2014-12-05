@@ -1,6 +1,7 @@
 package com.lespi.aki;
 
 import java.util.List;
+import java.util.PriorityQueue;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -41,7 +42,6 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
-import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiHttpUtil;
@@ -577,7 +577,7 @@ public class AkiChatFragment extends SherlockFragment{
 			@Override
 			protected List<JsonObject> doInBackground(Void... params) {
 
-				JsonArray messages = AkiInternalStorageUtil.retrieveMessages(context,
+				PriorityQueue<JsonObject> messages = AkiInternalStorageUtil.retrieveMessages(context,
 						AkiInternalStorageUtil.getCurrentChatRoom(context));
 				return AkiChatAdapter.toJsonObjectList(messages);
 			}

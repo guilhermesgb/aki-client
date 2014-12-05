@@ -40,6 +40,7 @@
     <string name="com_lespi_aki_preferences">com_lespi_aki_data_chat_file</string>
     <string name="com_lespi_aki_data_current_user">current-user</string>
     <string name="com_lespi_aki_data_current_chat_room">current-chat-room</string>
+    <string name="com_lespi_aki_data_most_recent_timestamp">most-recent-timestamp</string>
     <string name="com_lespi_aki_data_user_firstname">user-firstname_</string>
     <string name="com_lespi_aki_data_user_fullname">user-fullname_</string>
     <string name="com_lespi_aki_data_user_gender">user-gender_</string>
@@ -60,11 +61,11 @@
 	<string name="com_lespi_aki_toast_skipped_chat">Você pulou de sala de bate-papo!</string>
     <string name="com_lespi_aki_toast_message_not_sent">Mensagem não enviada!</string>
 	<string name="com_lespi_aki_toast_exited_chat">Você saiu da sala de bate-papo!</string>
-	<string name="com_lespi_aki_toast_kicked_chat">Você foi expulso daquela sala de bate-papo! Indo para outra&#8230;</string>
+	<string name="com_lespi_aki_toast_kicked_chat">Indo para outra sala de bate-papo&#8230;</string>
 	<string name="com_lespi_aki_toast_exited_chat_walking">Você caminhou pra muito longe da sua sala de bate-papo!</string>
 	<string name="com_lespi_aki_toast_nickname_required">You precisa escolher um nickname!</string>
 	<string name="com_lespi_aki_toast_nickname_cannot_be_blank">O nickname não pode ser vazio!</string>
 	<string name="com_lespi_aki_toast_nickname_set">Obrigado por escolher um nickname!</string>
-	<string name="com_lespi_aki_toast_nickname_updated">Seu nickname foi atualizado para</string>
+	<string name="com_lespi_aki_toast_nickname_updated">Seu nickname foi atualizado para </string>
 	<string name="com_lespi_aki_toast_anonymous_cannot_be_set">Você não pode mais ficar anônimo nessa sala de bate-papo!</string>
 </resources>

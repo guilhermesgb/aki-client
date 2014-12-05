@@ -40,6 +40,7 @@
     <string name="com_lespi_aki_preferences">com_lespi_aki_data_chat_file</string>
     <string name="com_lespi_aki_data_current_user">current-user</string>
     <string name="com_lespi_aki_data_current_chat_room">current-chat-room</string>
+    <string name="com_lespi_aki_data_most_recent_timestamp">most-recent-timestamp</string>
     <string name="com_lespi_aki_data_user_firstname">user-firstname_</string>
     <string name="com_lespi_aki_data_user_fullname">user-fullname_</string>
     <string name="com_lespi_aki_data_user_gender">user-gender_</string>
@@ -60,7 +61,7 @@
 	<string name="com_lespi_aki_toast_skipped_chat">You have skipped into another chat room!</string>
     <string name="com_lespi_aki_toast_message_not_sent">Message not sent!</string>
 	<string name="com_lespi_aki_toast_exited_chat">You exited a chat room!</string>
-	<string name="com_lespi_aki_toast_kicked_chat">You were kicked from the chat room! Joining a new one&#8230;</string>
+	<string name="com_lespi_aki_toast_kicked_chat">Joining a new chat room&#8230;</string>
 	<string name="com_lespi_aki_toast_exited_chat_walking">You walked away from a chat room!</string>
 	<string name="com_lespi_aki_toast_nickname_required">You must choose a nickname!</string>
 	<string name="com_lespi_aki_toast_nickname_cannot_be_blank">Nickname cannot be blank!</string>

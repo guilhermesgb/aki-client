@@ -266,7 +266,7 @@ public class AkiServerUtil {
 		AkiInternalStorageUtil.cacheGeofenceRadius(context, -1);
 		AkiInternalStorageUtil.willUpdateGeofence(context);
 
-		AkiInternalStorageUtil.storeNewMessage(context, newChatRoom, AkiApplication.SYSTEM_SENDER_ID,
+		AkiInternalStorageUtil.storeNewSystemMessage(context, newChatRoom,
 				context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room));
 	}
 

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Random;
 
 import android.annotation.SuppressLint;
@@ -35,7 +36,6 @@ import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.model.GraphUser;
-import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
@@ -61,14 +61,14 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	
 	private static AkiChatAdapter instance;
 
-	public static List<JsonObject> toJsonObjectList(JsonArray values) {
+	public static List<JsonObject> toJsonObjectList(PriorityQueue<JsonObject> values) {
 
 		if (values == null) {
 			return null;
 		}
 		List<JsonObject> toReturn = new ArrayList<JsonObject>();
-		for (JsonValue value : values) {
-			toReturn.add(value.asObject());
+		while ( !values.isEmpty() ) {
+			toReturn.add(values.poll());
 		}
 		return toReturn;
 	}
