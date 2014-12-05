@@ -400,6 +400,7 @@ public class AkiServerUtil {
 			}
 			
 			String lastServerTimestamp = AkiInternalStorageUtil.getLastServerTimestamp(context);
+			Log.wtf("PULL MAN!", "USING LAST SERVER TT WE HAVE: " + lastServerTimestamp + "!");
 			String targetEndpoint = "/message/10?next=" + lastServerTimestamp;
 			
 			final Runnable self = this;
@@ -412,6 +413,7 @@ public class AkiServerUtil {
 					if ( !nT.isNull() ){
 						String nextTimestamp = nT.asString();
 						AkiInternalStorageUtil.setLastServerTimestamp(context, nextTimestamp);
+						Log.wtf("PULL MAN!", "(just got response from server) SETTING LAST SERVER TT TO: " + nextTimestamp + "!");
 					}
 
 					boolean isFinished = ((JsonObject) response).get("finished").asBoolean();

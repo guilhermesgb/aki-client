@@ -184,7 +184,7 @@ public class AkiInternalStorageUtil {
 		editor.commit();
 	}
 
-	public static String getLastServerTimestamp(Context context){
+	public static synchronized String getLastServerTimestamp(Context context){
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_last_server_timestamp), BigInteger.ZERO.toString());
@@ -567,7 +567,7 @@ public class AkiInternalStorageUtil {
 	
 	public static int getNextTimeout(Context context) {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
-		int timeout = sharedPref.getInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 1);
+		int timeout = sharedPref.getInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 2);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		int nextTimeout = timeout * 2;
 		if ( nextTimeout > 60 ){
@@ -581,7 +581,7 @@ public class AkiInternalStorageUtil {
 	public static synchronized void resetTimeout(Context context) {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
-		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 1);
+		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 2);
 		editor.commit();
 	}
 
