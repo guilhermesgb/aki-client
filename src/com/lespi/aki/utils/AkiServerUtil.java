@@ -18,6 +18,7 @@ import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
+import com.parse.ParseInstallation;
 import com.parse.PushService;
 import com.parse.internal.AsyncCallback;
 
@@ -31,6 +32,16 @@ public class AkiServerUtil {
 
 	public static synchronized void setActiveOnServer(boolean active){
 		AkiServerUtil.activeOnServer = active;
+		if ( active ){
+			ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+			installation.put("inactive", false);
+			installation.saveInBackground();			
+		}
+		else {
+			ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+			installation.put("inactive", true);
+			installation.saveInBackground();
+		}
 	}
 
 	public static void isServerUp(final Context context, final AsyncCallback callback){
