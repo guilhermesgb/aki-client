@@ -72,7 +72,7 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 						formatId = R.string.com_lespi_aki_message_system_nickname_change_female;
 					}
 					String format = "%s " + context.getResources().getString(formatId) + " %s";
-					AkiInternalStorageUtil.storeNewSystemMessage(context, chatRoom,
+					AkiInternalStorageUtil.storeSystemMessage(context, chatRoom,
 							String.format(format, oldNickname, nickname.asString()));
 				}
 				AkiInternalStorageUtil.cacheUserNickname(context, userId, nickname.asString());
@@ -99,7 +99,7 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 						formatId = R.string.com_lespi_aki_message_system_realname_reveal_female;
 					}
 					String format = "%s " + context.getResources().getString(formatId) + " %s";
-					AkiInternalStorageUtil.storeNewSystemMessage(context, chatRoom,
+					AkiInternalStorageUtil.storeSystemMessage(context, chatRoom,
 							String.format(format, nickname.asString(), fullName.asString()));
 				}
 			}

@@ -393,6 +393,7 @@ public class AkiChatFragment extends SherlockFragment{
 											activity.setGeofence();
 											refreshReceivedMessages(activity, session, currentUser);
 											sendMessageBtn.setEnabled(true);
+											AkiServerUtil.getMessages(activity.getApplicationContext());
 										}
 									}
 
@@ -481,6 +482,9 @@ public class AkiChatFragment extends SherlockFragment{
 			activity.removeGeofence();
 		}
 
+		Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
+		AkiServerUtil.stopGettingMessages(activity.getApplicationContext());
+		
 		final Context context = activity.getApplicationContext();
 
 		if ( AkiApplication.LOGGED_IN ){

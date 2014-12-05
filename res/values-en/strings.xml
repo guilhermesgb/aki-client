@@ -41,6 +41,7 @@
     <string name="com_lespi_aki_data_current_user">current-user</string>
     <string name="com_lespi_aki_data_current_chat_room">current-chat-room</string>
     <string name="com_lespi_aki_data_most_recent_timestamp">most-recent-timestamp</string>
+	<string name="com_lespi_aki_data_last_server_timestamp">last-server-timestamp</string>
     <string name="com_lespi_aki_data_user_firstname">user-firstname_</string>
     <string name="com_lespi_aki_data_user_fullname">user-fullname_</string>
     <string name="com_lespi_aki_data_user_gender">user-gender_</string>
@@ -54,6 +55,7 @@
     <string name="com_lespi_aki_data_geofence_should_update">geofence-should-update</string>
     <string name="com_lespi_aki_data_geofence_center">geofence-center</string>
     <string name="com_lespi_aki_data_geofence_radius">geofence-radius</string>
+    <string name="com_lespi_aki_data_last_timeout">last-timeout</string>
     <string name="com_lespi_aki_toast_no_internet_connection">No internet connection!</string>
 	<string name="com_lespi_aki_toast_cannot_determine_location">Cannot determine your location!</string>
 	<string name="com_lespi_aki_toast_please_enable_gps">Please enable GPS!</string>

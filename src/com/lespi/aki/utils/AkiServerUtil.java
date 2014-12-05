@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,7 +14,9 @@ import com.lespi.aki.AkiChatAdapter;
 import com.lespi.aki.AkiChatFragment;
 import com.lespi.aki.AkiMainActivity;
 import com.lespi.aki.R;
+import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
+import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 import com.parse.PushService;
 import com.parse.internal.AsyncCallback;
@@ -269,7 +272,7 @@ public class AkiServerUtil {
 		AkiInternalStorageUtil.cacheGeofenceRadius(context, -1);
 		AkiInternalStorageUtil.willUpdateGeofence(context);
 
-		AkiInternalStorageUtil.storeNewSystemMessage(context, newChatRoom,
+		AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
 				context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room));
 	}
 
@@ -355,6 +358,7 @@ public class AkiServerUtil {
 
 			@Override
 			public void onSuccess(Object response) {
+				restartGettingMessages(context);
 				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
 				callback.onSuccess(response);
 			}
@@ -369,5 +373,142 @@ public class AkiServerUtil {
 				callback.onCancel();
 			}
 		});
+	}
+	
+	public static class GetMessages implements Runnable {
+		
+		private final Context context;
+		private final Handler handler;
+		private int tolerance = 0;
+		
+		public GetMessages(Context context, Handler handler){
+			this.context = context;
+			this.handler = handler;
+		}
+		
+		@Override
+		public void run() {
+
+			Log.wtf("PULL MAN!", "getMessages runnable just started!");
+			
+			final String chatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
+			final String currentUser = AkiInternalStorageUtil.getCurrentUser(context);
+			
+			if ( chatRoom == null || currentUser == null ){
+				Log.e(AkiApplication.TAG, "GetMessages runnable stopped as either the current chat_room or current_user is missing!");
+				return;
+			}
+			
+			String lastServerTimestamp = AkiInternalStorageUtil.getLastServerTimestamp(context);
+			String targetEndpoint = "/message/10?next=" + lastServerTimestamp;
+			
+			final Runnable self = this;
+			AkiHttpUtil.doGETHttpRequest(context, targetEndpoint, new AsyncCallback() {
+
+				@Override
+				public void onSuccess(Object response) {
+
+					JsonValue nT = ((JsonObject) response).get("next");
+					if ( !nT.isNull() ){
+						String nextTimestamp = nT.asString();
+						AkiInternalStorageUtil.setLastServerTimestamp(context, nextTimestamp);
+					}
+
+					boolean isFinished = ((JsonObject) response).get("finished").asBoolean();
+					if ( !isFinished ){
+						AkiInternalStorageUtil.resetTimeout(context);
+					}
+					
+					JsonArray messages = ((JsonObject) response).get("messages").asArray();
+					for ( JsonValue message : messages ){
+						String sender = message.asObject().get("sender").asString();
+						String content = message.asObject().get("message").asString();
+						String timestamp = message.asObject().get("timestamp").asString();
+						AkiInternalStorageUtil.storePulledMessage(context, chatRoom, sender, content, timestamp);
+					}
+					if ( messages.size() > 0 ){
+						Log.wtf("PULL MAN!", "GOT RESULT!");
+
+						AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+						List<JsonObject> messagesList = AkiChatAdapter.toJsonObjectList(
+								AkiInternalStorageUtil.retrieveMessages(context, chatRoom)
+								);
+						
+						chatAdapter.clear();
+						if ( messagesList != null ){
+							chatAdapter.addAll(messagesList);
+						}
+						chatAdapter.notifyDataSetChanged();
+						
+						AkiChatFragment.getInstance().externalRefreshAll();
+						AkiInternalStorageUtil.resetTimeout(context);
+					}
+					
+					int timeout = AkiInternalStorageUtil.getNextTimeout(context);
+					Log.wtf("PULL MAN!", "getMessages runnable will run again in: " + timeout + " seconds!");
+					handler.postDelayed(self, timeout * 1000);
+				}
+
+				@Override
+				public void onFailure(Throwable failure) {
+
+					if ( tolerance >= 3 ){
+						Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
+						Log.e(AkiApplication.TAG, "GetMessages runnable canceled due to failing more than 3 consecutive times!");
+						AkiInternalStorageUtil.resetTimeout(context);
+						handler.removeCallbacks(self);
+						return;
+					}
+					
+					int timeout = AkiInternalStorageUtil.getNextTimeout(context);
+					Log.wtf("PULL MAN!", "getMessages runnable will run again in: " + timeout + " seconds!");
+					handler.postDelayed(self, timeout * 1000);
+					tolerance++;
+				}
+
+				@Override
+				public void onCancel() {
+					Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
+					Log.e(AkiApplication.TAG, "GetMessages runnable canceled!");
+					AkiInternalStorageUtil.resetTimeout(context);
+					handler.removeCallbacks(self);
+					return;
+				}
+			});
+		}
+	}
+	
+	public static GetMessages getMessages;
+	public static Handler handler;
+	
+	public static void getMessages(final Context context){
+
+		if ( handler == null ){
+			handler = new Handler();
+		}
+		if ( getMessages == null ){
+			getMessages = new GetMessages(context, handler);
+		}
+		else {
+			Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
+			AkiInternalStorageUtil.resetTimeout(context);
+			handler.removeCallbacks(getMessages);
+		}
+		Log.wtf("PULL MAN!", "Starting getMessages runnable!");
+		handler.post(getMessages);
+	}
+	
+	public static void stopGettingMessages(final Context context){
+		
+		if ( handler != null ){
+			Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
+			AkiInternalStorageUtil.resetTimeout(context);
+			handler.removeCallbacks(getMessages);
+		}
+	}
+	
+	public static void restartGettingMessages(final Context context){
+		stopGettingMessages(context);
+		getMessages(context);
 	}
 }

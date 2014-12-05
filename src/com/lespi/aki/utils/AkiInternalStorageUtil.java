@@ -99,16 +99,25 @@ public class AkiInternalStorageUtil {
 		return messages;
 	}
 
-	public static synchronized void storeNewMessage(Context context, String chatRoom, String from, String content, String timestamp) {
-		storeNewMessage(context, chatRoom, from, content, timestamp, false);
+	public static synchronized void storePulledMessage(Context context, String chatRoom, String from, String content, String timestamp) {
+		storeNewMessage(context, chatRoom, from, content, timestamp, false, false);
 	}
 	
 	public static synchronized JsonObject storeTemporaryMessage(Context context, String chatRoom, String from, String content, String timestamp) {
-		return storeNewMessage(context, chatRoom, from, content, timestamp, true);
+		return storeNewMessage(context, chatRoom, from, content, timestamp, true, false);
 	}
 	
-	public static synchronized JsonObject storeNewMessage(Context context, String chatRoom, String from,
-			String content, String timestamp, boolean temporary) {
+	public static synchronized void storePushedMessage(Context context, String chatRoom, String from, String content, String timestamp) {
+		storeNewMessage(context, chatRoom, from, content, timestamp, false, true);
+	}
+
+	public static synchronized void storeSystemMessage(Context context, String chatRoom, String content) {
+		String timestamp = getVeryNextTimestamp(getMostRecentTimestamp(context));
+		storeNewMessage(context, chatRoom, AkiApplication.SYSTEM_SENDER_ID, content, timestamp, false, false);
+	}
+	
+	private static synchronized JsonObject storeNewMessage(Context context, String chatRoom, String from,
+			String content, String timestamp, boolean temporary, boolean fromPush) {
 
 		try {
 
@@ -120,7 +129,7 @@ public class AkiInternalStorageUtil {
 			newMessage.add("timestamp", timestamp);
 			newMessage.add("is_temporary", Boolean.toString(temporary));
 			
-			if ( !temporary && compareTimestamps(timestamp, getMostRecentTimestamp(context)) == 1 ){
+			if ( !fromPush && !temporary && compareTimestamps(timestamp, getMostRecentTimestamp(context)) == 1 ){
 				setMostRecentTimestamp(context, timestamp);
 			}
 
@@ -138,12 +147,6 @@ public class AkiInternalStorageUtil {
 		}
 	}
 
-	public static synchronized void storeNewSystemMessage(Context context, String chatRoom, String content) {
-
-		String timestamp = getVeryNextTimestamp(getMostRecentTimestamp(context));
-		storeNewMessage(context, chatRoom, AkiApplication.SYSTEM_SENDER_ID, content, timestamp);
-	}
-	
 	public static synchronized void removeCachedMessages(Context context, String chatRoom) {
 
 		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_chat_messages)+chatRoom);
@@ -179,8 +182,22 @@ public class AkiInternalStorageUtil {
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_most_recent_timestamp), mostRecentTimestamp);
 		editor.commit();
-	}	
+	}
 
+	public static String getLastServerTimestamp(Context context){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_last_server_timestamp), BigInteger.ZERO.toString());
+	}
+	
+	public static synchronized void setLastServerTimestamp(Context context, String lastServerTimestamp) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_last_server_timestamp), lastServerTimestamp);
+		editor.commit();
+	}	
+	
 	public static int compareTimestamps(String lhsTimestamp, String rhsTimestamp){
 		BigInteger lhs = new BigInteger(lhsTimestamp);
 		BigInteger rhs = new BigInteger(rhsTimestamp);
@@ -545,6 +562,26 @@ public class AkiInternalStorageUtil {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_geofence_should_update), false);
+		editor.commit();
+	}
+	
+	public static int getNextTimeout(Context context) {
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		int timeout = sharedPref.getInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 1);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		int nextTimeout = timeout * 2;
+		if ( nextTimeout > 60 ){
+			nextTimeout = 60;
+		}
+		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout), nextTimeout);
+		editor.commit();
+		return timeout;
+	}
+	
+	public static synchronized void resetTimeout(Context context) {
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 1);
 		editor.commit();
 	}
 
