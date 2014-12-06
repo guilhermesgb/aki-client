@@ -414,7 +414,7 @@ public class AkiServerUtil {
 			
 			String lastServerTimestamp = AkiInternalStorageUtil.getLastServerTimestamp(context);
 			Log.wtf("PULL MAN!", "USING LAST SERVER TT WE HAVE: " + lastServerTimestamp + "!");
-			String targetEndpoint = "/message/10?next=" + lastServerTimestamp;
+			String targetEndpoint = "/message/2?next=" + lastServerTimestamp;
 			
 			final Runnable self = this;
 			AkiHttpUtil.doGETHttpRequest(context, targetEndpoint, new AsyncCallback() {
