@@ -14,6 +14,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -114,9 +115,16 @@ LocationClient.OnRemoveGeofencesResultListener {
 		slidingMenu.setShadowDrawable(R.drawable.shadow);
 		slidingMenu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		slidingMenu.setFadeDegree(0.15f);
-		slidingMenu.setMode(SlidingMenu.RIGHT);
+		slidingMenu.setMode(SlidingMenu.LEFT_RIGHT);
 		slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 		slidingMenu.setTouchModeBehind(SlidingMenu.TOUCHMODE_MARGIN);
+		slidingMenu.setMenu(R.layout.aki_mutual_interest_frame);
+		slidingMenu.setSecondaryMenu(R.layout.aki_menu_frame);
+		
+		getSupportFragmentManager()
+		.beginTransaction()
+		.replace(R.id.aki_mutual_interest_frame, new AkiMutualListFragment())
+		.commit();
 		slidingMenu.setOnOpenedListener(new OnOpenedListener() {
 			@Override
 			public void onOpened() {
@@ -138,7 +146,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 		ProgressBar loadingIcon = (ProgressBar) findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
 		loadingIcon.setVisibility(View.VISIBLE);
-		slidingMenu.showContent();
+		slidingMenu.showSecondaryMenu();
 		slidingMenu.setSlidingEnabled(false);
 	}
 

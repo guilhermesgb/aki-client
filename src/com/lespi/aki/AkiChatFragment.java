@@ -376,7 +376,7 @@ public class AkiChatFragment extends SherlockFragment {
 											activity.onResume();
 											return;
 										}
-										activity.getSlidingMenu().showMenu(true);
+										activity.getSlidingMenu().showSecondaryMenu(true);
 									}
 								});
 								activity.getSlidingMenu().setSlidingEnabled(true);
