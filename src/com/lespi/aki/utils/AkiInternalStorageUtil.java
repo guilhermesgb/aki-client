@@ -33,6 +33,11 @@ public class AkiInternalStorageUtil {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_current_chat_room), null);
 	}
+	public static synchronized void clearStorage(Context context) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		sharedPref.edit().clear().commit();
+	}
 
 	public static synchronized void setCurrentChatRoom(Context context, String newChatRoom) {
 

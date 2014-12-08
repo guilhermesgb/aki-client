@@ -198,7 +198,7 @@ public class AkiChatFragment extends SherlockFragment {
 
 										NotificationManager notificationManager = (NotificationManager) activity.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 										notificationManager.notify(AkiApplication.EXITED_ROOM_NOTIFICATION_ID, notifyBuilder.build());
-
+										
 										Intent intent = new Intent(Intent.ACTION_MAIN);
 										intent.addCategory(Intent.CATEGORY_HOME);
 										getActivity().startActivity(intent);
@@ -507,7 +507,7 @@ public class AkiChatFragment extends SherlockFragment {
 				@Override
 				public void onSuccess(Object response) {
 					AkiServerUtil.leaveChatRoom(context, currentUserId);
-
+					AkiInternalStorageUtil.clearStorage(context);
 					AkiInternalStorageUtil.wipeCachedUserLocation(context, new AsyncCallback() {
 
 						@Override

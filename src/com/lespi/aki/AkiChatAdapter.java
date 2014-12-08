@@ -635,9 +635,12 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		        public boolean onDoubleTap(MotionEvent e) {
 				 	float x = e.getX();
 		            float y = e.getY();
-		            viewHolder.likeIcon.setVisibility(View.VISIBLE);
-		            viewHolder.likeIcon.startAnimation(hyperspaceJumpAnimation);
-		            AkiInternalStorageUtil.cacheUserLiked(context, senderId, true);
+		            if(!currentUser.getId().equals(senderId) ){
+		            	viewHolder.likeIcon.setVisibility(View.VISIBLE);
+			            viewHolder.likeIcon.startAnimation(hyperspaceJumpAnimation);
+			            AkiInternalStorageUtil.cacheUserLiked(context, senderId, true);
+			            AkiChatFragment.getInstance().externalRefreshAll();	
+		            }
 		            Log.d("Double Tap", "Tapped at: (" + x + "," + y + ")");
 		            return true;
 		        }
