@@ -45,6 +45,7 @@ import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
+import com.lespi.aki.utils.AkiServerUtil;
 
 public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
@@ -344,8 +345,11 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 									JsonObject information = JsonValue
 											.readFrom(response.getRawResponse())
 											.asObject();
-									String firstName = information.get(
-											"first_name").asString();
+									JsonValue firstNameJ = information.get("first_name");
+									String firstName=senderId;
+									if(firstNameJ!=null){
+										firstName=firstNameJ.asString();
+									}
 									AkiInternalStorageUtil.cacheUserFirstName(
 											context, senderId, firstName);
 
@@ -639,6 +643,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		            	viewHolder.likeIcon.setVisibility(View.VISIBLE);
 			            viewHolder.likeIcon.startAnimation(hyperspaceJumpAnimation);
 			            AkiInternalStorageUtil.cacheUserLiked(context, senderId, true);
+			            AkiServerUtil.sendLikeToServer(context, senderId);
 			            AkiChatFragment.getInstance().externalRefreshAll();	
 		            }
 		            Log.d("Double Tap", "Tapped at: (" + x + "," + y + ")");

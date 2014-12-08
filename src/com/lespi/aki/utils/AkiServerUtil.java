@@ -167,6 +167,27 @@ public class AkiServerUtil {
 			}
 		});
 	}
+	public static void sendLikeToServer(final Context context,final String userId){
+
+		AkiHttpUtil.doPOSTHttpRequest(context, "/like/"+userId, new AsyncCallback() {
+
+			@Override
+			public void onSuccess(Object response) {
+				Log.e(AkiApplication.TAG, "User Liked "+userId);				
+			}
+
+			@Override
+			public void onFailure(Throwable failure) {
+				Log.e(AkiApplication.TAG, "Could not like user");
+				failure.printStackTrace();
+			}
+
+			@Override
+			public void onCancel() {
+				Log.e(AkiApplication.TAG, "Endpoint:sendLikeToServer callback canceled.");
+			}
+		});
+	}
 
 	public static void sendInactiveToServer(final Context context){
 
