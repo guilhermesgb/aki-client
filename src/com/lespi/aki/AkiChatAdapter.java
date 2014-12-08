@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Random;
 
 import android.annotation.SuppressLint;
@@ -40,13 +41,13 @@ import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.model.GraphUser;
-import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 
 public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
+
 
 	private final Context context;
 	private final List<JsonObject> messages;
@@ -67,14 +68,14 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	
 	private static AkiChatAdapter instance;
 
-	public static List<JsonObject> toJsonObjectList(JsonArray values) {
+	public static List<JsonObject> toJsonObjectList(PriorityQueue<JsonObject> values) {
 
 		if (values == null) {
 			return null;
 		}
 		List<JsonObject> toReturn = new ArrayList<JsonObject>();
-		for (JsonValue value : values) {
-			toReturn.add(value.asObject());
+		while ( !values.isEmpty() ) {
+			toReturn.add(values.poll());
 		}
 		return toReturn;
 	}
@@ -97,7 +98,6 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	public void setCurrentUser(GraphUser currentUser) {
 		this.currentUser = currentUser;
 		if ( userToColorMapping.get(currentUser.getId()) == null ) {
-			Log.wtf("COLOR ALG", "SET NEW COLOR FOR CURRENT USER {" + currentUser.getId() + "}!");
 			userToColorMapping.put(currentUser.getId(), new Random().nextInt(COLORS.length));
 		}
 	}
@@ -108,7 +108,6 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 	private void assignColor(String userId, String currentUserId) {
 		if ( userToColorMapping.get(userId) == null ) {
-			Log.wtf("COLOR ALG", "CURRENT USER {" + currentUserId + "} HAS NO COLOR, SO PROCEED!");
 			boolean couldFindUnusedColor = false;
 			int idx = -1;
 			for ( int i=0; i<7; i++ ){
@@ -122,11 +121,9 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				}
 			}
 			if ( couldFindUnusedColor ){
-				Log.wtf("COLOR ALG", "COULD FIND UNUSED COLOR FOR USER {" + userId + "}!");
 				userToColorMapping.put(userId, idx);
 			}
 			else{
-				Log.wtf("COLOR ALG", "COULD NOT FIND UNUSED COLOR FOR USER {" + userId + "}!");
 				idx = userToColorMapping.get(currentUserId);
 				userToColorMapping.clear();
 				userToColorMapping.put(currentUserId, idx);
@@ -285,6 +282,9 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		if (senderId.equals(currentUser.getId())) {
 			RelativeLayout rl = (RelativeLayout) rowView.findViewById(R.id.com_lespi_aki_message_me_layout);
 			rl.setBackgroundColor(rowView.getResources().getColor(color));
+			if ( newViewData.get("is_temporary").asString().equals("true") ){
+				rl.setAlpha(0.5f);
+			}
 		// if it is not the current user, and not the system, it is other user
 		} else if (!senderId.equals(AkiApplication.SYSTEM_SENDER_ID)) {
 			RelativeLayout rl = (RelativeLayout) rowView.findViewById(R.id.com_lespi_aki_message_you_layout);

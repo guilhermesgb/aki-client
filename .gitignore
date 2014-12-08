@@ -35,3 +35,5 @@ proguard-project.txt
 .settings
 .DS_Store
 lint.xml
+key
+.classpathBack

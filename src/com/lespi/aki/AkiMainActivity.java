@@ -205,6 +205,8 @@ LocationClient.OnRemoveGeofencesResultListener {
 		super.onStop();
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$onStop");
 
+		Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
+		AkiServerUtil.stopGettingMessages(getApplicationContext());
 		AkiApplication.isNowInBackground();
 
 		if ( AkiServerUtil.isActiveOnServer() ){
@@ -217,6 +219,9 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 		super.onPause();
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$onPause");
+
+		Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
+		AkiServerUtil.stopGettingMessages(getApplicationContext());
 		AkiApplication.isNowInBackground();
 	}
 
