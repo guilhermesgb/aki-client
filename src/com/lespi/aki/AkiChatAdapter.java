@@ -627,10 +627,15 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		}
 		else {
 			if(AkiInternalStorageUtil.cacheHasLikedUser(context, senderId)){
-				Log.wtf("LIKE MAN!", "SET ICON TO VISIBLE AGAIN");
-				viewHolder.senderLiked.setVisibility(View.VISIBLE);
-			}else{
-				viewHolder.senderLiked.setVisibility(View.INVISIBLE);
+				if ( viewHolder.senderLiked.getVisibility() != View.VISIBLE ){
+					Log.wtf("LIKE MAN!", "SET ICON TO VISIBLE AGAIN");
+					viewHolder.senderLiked.setVisibility(View.VISIBLE);
+				}
+			}
+			else{
+				if ( viewHolder.senderLiked.getVisibility() != View.INVISIBLE ){
+					viewHolder.senderLiked.setVisibility(View.INVISIBLE);
+				}
 			}
 			final Animation hyperspaceJumpAnimation = AnimationUtils.loadAnimation(context, R.anim.jump_like);
 
@@ -642,7 +647,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 						viewHolder.senderLiked.setVisibility(View.INVISIBLE);
 						AkiInternalStorageUtil.cacheDislikeUser(context, senderId);
 						AkiServerUtil.sendDislikeToServer(context, senderId);
-						AkiChatFragment.getInstance().externalRefreshAll();
+						AkiChatFragment.getInstance().externalRefreshAll(false);
 					}
 					else{
 						viewHolder.senderLiked.setVisibility(View.VISIBLE);
@@ -650,7 +655,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 						Log.wtf("LIKE MAN!", "PERFORMING ANIMATION!");
 						AkiInternalStorageUtil.cacheLikeUser(context, senderId);
 						AkiServerUtil.sendLikeToServer(context, senderId);
-						AkiChatFragment.getInstance().externalRefreshAll();
+						AkiChatFragment.getInstance().externalRefreshAll(false);
 					}
 //					Log.d("Double Tap", "Tapped at: (" + x + "," + y + ")");
 					return true;
