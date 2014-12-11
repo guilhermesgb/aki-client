@@ -424,11 +424,15 @@ public class AkiServerUtil {
 
 			@Override
 			public void onFailure(Throwable failure) {
+				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
+				AkiChatFragment.getInstance().externalRefreshAll();
 				callback.onFailure(failure);
 			}
 
 			@Override
 			public void onCancel() {
+				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
+				AkiChatFragment.getInstance().externalRefreshAll();
 				callback.onCancel();
 			}
 		});
