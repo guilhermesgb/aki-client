@@ -1,7 +1,7 @@
 package com.lespi.aki;
 
 
-import android.app.ListFragment;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 
 public class AkiMutualListFragment extends android.support.v4.app.ListFragment {
 
+	@SuppressLint("InflateParams")
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.aki_mutual_interests, null);
 	}

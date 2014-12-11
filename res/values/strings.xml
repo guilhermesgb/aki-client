@@ -22,6 +22,7 @@
     <string name="com_lespi_aki_message_sender_picture_hint">Pequena foto</string>
     <string name="com_lespi_aki_message_sender_distance_hint">Indicador de distância</string>
     <string name="com_lespi_aki_message_sender_gender_hint">Indicador de sexo</string>
+	<string name="com_lespi_aki_message_sender_like_hint">Indicador de interesse</string>
     <string name="com_lespi_aki_message_system_nickname_change_male">mudou o nickname dele para:</string>
     <string name="com_lespi_aki_message_system_nickname_change_female">mudou o nickname dela para:</string>
     <string name="com_lespi_aki_message_system_nickname_change_other">mudou seu nickname para:</string>
@@ -37,7 +38,8 @@
     <string name="com_lespi_aki_notif_exit_text">Você saiu de uma sala de bate-papo manualmente.</string>
     <string name="com_lespi_aki_notif_exit_text_abort">Você foi expulso da sua sala de bate-papo porque o app foi abortado.</string>
     <string name="com_lespi_aki_notif_exit_title_walking">Você foi expulso da sua sala de bate-papo porque você se distanciou demais.</string>
-    <string name="com_lespi_aki_preferences">com_lespi_aki_data_chat_file</string>
+    <string name="com_lespi_aki_persistent_preferences">com_lespi_aki_permanent_data</string>
+    <string name="com_lespi_aki_volatile_preferences">com_lespi_aki_temporary_data</string>
     <string name="com_lespi_aki_data_current_user">current-user</string>
     <string name="com_lespi_aki_data_current_chat_room">current-chat-room</string>
     <string name="com_lespi_aki_data_most_recent_timestamp">most-recent-timestamp</string>
@@ -48,6 +50,7 @@
     <string name="com_lespi_aki_data_user_picture">user-picture_</string>
     <string name="com_lespi_aki_data_user_coverphoto">user-cover_</string>
     <string name="com_lespi_aki_data_user_nickname">user-nickname_</string>
+    <string name="com_lespi_aki_data_current_likes">user-likes-all</string>
     <string name="com_lespi_aki_data_user_liked">user-liked_</string>
     <string name="com_lespi_aki_data_user_location">user-location_</string>
     <string name="com_lespi_aki_data_chat_messages">chat-room_</string>

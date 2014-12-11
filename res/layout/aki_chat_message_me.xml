@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/com_lespi_aki_message_me_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/com_lespi_aki_message_box_color"
-    android:id="@+id/com_lespi_aki_message_me_layout"
     android:padding="2dp" >
 
     <TextView
@@ -45,22 +45,17 @@
         android:paddingRight="10dp" />
 
     <ImageView
-        android:id="@+id/com_lespi_aki_message_like"
-        android:layout_width="@dimen/picture_layout_width_me"
-        android:layout_height="@dimen/picture_layout_height_me"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:alpha="0.8"
-        android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:src="@drawable/icon_like"/>
-
-    <ImageView
         android:id="@+id/com_lespi_aki_message_sender_gender"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/com_lespi_aki_message_sender_gender_hint"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/com_lespi_aki_message_sender_like"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/com_lespi_aki_message_sender_like_hint"
         android:visibility="gone" />
 
 </RelativeLayout>

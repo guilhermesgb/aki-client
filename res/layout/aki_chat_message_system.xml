@@ -36,13 +36,18 @@
         android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
         android:visibility="gone" />
 
-   
-
     <ImageView
         android:id="@+id/com_lespi_aki_message_sender_gender"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/com_lespi_aki_message_sender_gender_hint"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/com_lespi_aki_message_sender_like"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/com_lespi_aki_message_sender_like_hint"
         android:visibility="gone" />
 
 </RelativeLayout>

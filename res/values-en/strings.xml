@@ -22,6 +22,7 @@
     <string name="com_lespi_aki_message_sender_picture_hint">A small picture</string>
     <string name="com_lespi_aki_message_sender_distance_hint">A small distance indicator</string>
     <string name="com_lespi_aki_message_sender_gender_hint">A small gender indicator</string>
+	<string name="com_lespi_aki_message_sender_like_hint">A small interest indicator</string>
     <string name="com_lespi_aki_message_system_nickname_change_male">has changed his nickname to:</string>
     <string name="com_lespi_aki_message_system_nickname_change_female">has changed her nickname to:</string>
     <string name="com_lespi_aki_message_system_nickname_change_other">has changed the nickname to:</string>
@@ -37,7 +38,8 @@
     <string name="com_lespi_aki_notif_exit_text">You\'ve left a chat room manually.</string>
     <string name="com_lespi_aki_notif_exit_text_abort">You\'ve been kicked out of chat room due to application being aborted.</string>
     <string name="com_lespi_aki_notif_exit_title_walking">You\'ve been kicked out of chat room due to you walking away from it.</string>
-    <string name="com_lespi_aki_preferences">com_lespi_aki_data_chat_file</string>
+    <string name="com_lespi_aki_persistent_preferences">com_lespi_aki_permanent_data</string>
+    <string name="com_lespi_aki_volatile_preferences">com_lespi_aki_temporary_data</string>
     <string name="com_lespi_aki_data_current_user">current-user</string>
     <string name="com_lespi_aki_data_current_chat_room">current-chat-room</string>
     <string name="com_lespi_aki_data_most_recent_timestamp">most-recent-timestamp</string>
@@ -48,6 +50,8 @@
     <string name="com_lespi_aki_data_user_picture">user-picture_</string>
     <string name="com_lespi_aki_data_user_coverphoto">user-cover_</string>
     <string name="com_lespi_aki_data_user_nickname">user-nickname_</string>
+    <string name="com_lespi_aki_data_current_likes">user-likes-all</string>
+    <string name="com_lespi_aki_data_user_liked">user-liked_</string>
     <string name="com_lespi_aki_data_user_location">user-location_</string>
     <string name="com_lespi_aki_data_chat_messages">chat-room_</string>
     <string name="com_lespi_aki_data_chat_timestamps">chat-timestamps_</string>

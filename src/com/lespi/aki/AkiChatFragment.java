@@ -47,6 +47,7 @@ import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiHttpUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
+import com.parse.ParseInstallation;
 import com.parse.internal.AsyncCallback;
 
 public class AkiChatFragment extends SherlockFragment {
@@ -203,6 +204,9 @@ public class AkiChatFragment extends SherlockFragment {
 										intent.addCategory(Intent.CATEGORY_HOME);
 										getActivity().startActivity(intent);
 										AkiApplication.isNotLoggedIn();
+										ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+										installation.put("uid", null);
+										installation.saveInBackground();
 										getActivity().finish();
 									}
 
@@ -324,12 +328,6 @@ public class AkiChatFragment extends SherlockFragment {
 										@Override
 										public void onSuccess(Object response) {
 											Log.i(AkiApplication.TAG, "Message: " + message + " sent!");
-											/*final JsonObject msg = new JsonObject();
-											msg.add("message", message);
-											msg.add("sender", currentUser.getId());
-											AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
-											chatAdapter.add(msg);
-											chatAdapter.notifyDataSetChanged();*/
 										}
 
 										@Override
@@ -507,7 +505,7 @@ public class AkiChatFragment extends SherlockFragment {
 				@Override
 				public void onSuccess(Object response) {
 					AkiServerUtil.leaveChatRoom(context, currentUserId);
-					AkiInternalStorageUtil.clearStorage(context);
+					AkiInternalStorageUtil.clearVolatileStorage(context);
 					AkiInternalStorageUtil.wipeCachedUserLocation(context, new AsyncCallback() {
 
 						@Override
@@ -547,10 +545,18 @@ public class AkiChatFragment extends SherlockFragment {
 		}
 
 		AkiApplication.isNotLoggedIn();
+		ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+		installation.put("uid", "user_unlogged");
+		installation.saveInBackground();
 	}
 
 	private void switchToChatArea(AkiMainActivity activity, String currentUserId){
 		AkiApplication.isLoggedIn();
+		
+		ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+		installation.put("uid", currentUserId);
+		installation.saveInBackground();
+		
 		if ( activity.locationServicesConnected() ){
 			activity.startPeriodicLocationUpdates();
 		}
@@ -875,7 +881,7 @@ public class AkiChatFragment extends SherlockFragment {
 					ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_background_loading);
 					loadingIcon.setVisibility(View.GONE);
 					TextView backgroundWarningText = (TextView) activity.findViewById(R.id.com_lespi_aki_main_background_text);
-					backgroundWarningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_internet_needed_to_start_using));
+					backgroundWarningText.setText(activity.getResources().getString(R.string.com_lespi_aki_main_chat_warning_server_down));
 					backgroundWarningText.setVisibility(View.VISIBLE);
 
 					RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);

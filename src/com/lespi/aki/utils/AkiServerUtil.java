@@ -36,7 +36,7 @@ public class AkiServerUtil {
 		if ( active ){
 			ParseInstallation installation = ParseInstallation.getCurrentInstallation();
 			installation.put("inactive", false);
-			installation.saveInBackground();			
+			installation.saveInBackground();
 		}
 		else {
 			ParseInstallation installation = ParseInstallation.getCurrentInstallation();
@@ -167,7 +167,8 @@ public class AkiServerUtil {
 			}
 		});
 	}
-	public static void sendLikeToServer(final Context context,final String userId){
+	
+	public static void sendLikeToServer(final Context context, final String userId){
 
 		AkiHttpUtil.doPOSTHttpRequest(context, "/like/"+userId, new AsyncCallback() {
 
@@ -189,6 +190,28 @@ public class AkiServerUtil {
 		});
 	}
 
+	public static void sendDislikeToServer(Context context, final String userId) {
+
+		AkiHttpUtil.doPOSTHttpRequest(context, "/dislike/"+userId, new AsyncCallback() {
+
+			@Override
+			public void onSuccess(Object response) {
+				Log.e(AkiApplication.TAG, "User disliked "+userId);		
+			}
+
+			@Override
+			public void onFailure(Throwable failure) {
+				Log.e(AkiApplication.TAG, "Could not dislike user");
+				failure.printStackTrace();
+			}
+
+			@Override
+			public void onCancel() {
+				Log.e(AkiApplication.TAG, "Endpoint:sendDislikeToServer callback canceled.");
+			}
+		});
+	}
+	
 	public static void sendInactiveToServer(final Context context){
 
 		AkiHttpUtil.doPOSTHttpRequest(context, "/inactive", new AsyncCallback() {
@@ -291,6 +314,7 @@ public class AkiServerUtil {
 			CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_kicked_chat);
 			Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_LONG);
 			toast.show();
+			AkiInternalStorageUtil.clearUserLikes(context);
 		}
 
 		if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
@@ -393,6 +417,7 @@ public class AkiServerUtil {
 			@Override
 			public void onSuccess(Object response) {
 				AkiInternalStorageUtil.resetTimeout(context);
+				restartGettingMessages(context);
 				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
 				callback.onSuccess(response);
 			}
@@ -542,5 +567,9 @@ public class AkiServerUtil {
 			handler.removeCallbacks(getMessages);
 		}
 	}
-	
+
+	public static void restartGettingMessages(final Context context){
+		stopGettingMessages(context);
+		getMessages(context);
+	}
 }

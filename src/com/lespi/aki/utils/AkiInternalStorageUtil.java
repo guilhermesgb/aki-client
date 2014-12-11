@@ -30,18 +30,13 @@ public class AkiInternalStorageUtil {
 
 	public static String getCurrentChatRoom(Context context){
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_current_chat_room), null);
-	}
-	public static synchronized void clearStorage(Context context) {
-
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
-		sharedPref.edit().clear().commit();
 	}
 
 	public static synchronized void setCurrentChatRoom(Context context, String newChatRoom) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_current_chat_room), newChatRoom);
 		editor.commit();
@@ -49,13 +44,13 @@ public class AkiInternalStorageUtil {
 
 	public static String getCurrentUser(Context context){
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_current_user), null);
 	}
 	
 	public static synchronized void setCurrentUser(Context context, String currentUserId) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_current_user), currentUserId);
 		editor.commit();
@@ -214,13 +209,13 @@ public class AkiInternalStorageUtil {
 	
 	public static String getMostRecentTimestamp(Context context){
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_most_recent_timestamp), BigInteger.ZERO.toString());
 	}
 	
 	public static synchronized void setMostRecentTimestamp(Context context, String mostRecentTimestamp) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_most_recent_timestamp), mostRecentTimestamp);
 		editor.commit();
@@ -228,13 +223,13 @@ public class AkiInternalStorageUtil {
 
 	public static synchronized String getLastServerTimestamp(Context context){
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_last_server_timestamp), BigInteger.ZERO.toString());
 	}
 	
 	public static synchronized void setLastServerTimestamp(Context context, String lastServerTimestamp) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_last_server_timestamp), lastServerTimestamp);
 		editor.commit();
@@ -259,13 +254,13 @@ public class AkiInternalStorageUtil {
 
 	public static String getCachedUserNickname(Context context, String userId){
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_nickname)+userId, null);
 	}
 
 	public static synchronized void cacheUserNickname(Context context, String userId, String nickname) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_user_nickname)+userId, nickname);
 		editor.commit();
@@ -273,32 +268,38 @@ public class AkiInternalStorageUtil {
 
 	public static synchronized void unsetCachedUserNickname(Context context, String userId, String nickname) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_user_nickname)+userId, null);
 		editor.commit();
 	}
 	
-	public static boolean getCachedUserLiked(Context context, String userId){
+	public static boolean cacheHasLikedUser(Context context, String userId){
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_current_likes), Context.MODE_PRIVATE);
 		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_user_liked)+userId, false);
 	}
 
-	public static synchronized void cacheUserLiked(Context context, String userId, boolean liked) {
+	public static synchronized void cacheLikeUser(Context context, String userId) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_current_likes), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
-		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_user_liked)+userId, liked);
+		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_user_liked)+userId, true);
 		editor.commit();
 	}
 
-	public static synchronized void unsetCachedUserLiked(Context context, String userId, String nickname) {
+	public static synchronized void cacheDislikeUser(Context context, String userId) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_current_likes), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_user_liked)+userId, false);
 		editor.commit();
+	}
+	
+	public static synchronized void clearUserLikes(Context context) {
+		
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_data_current_likes), Context.MODE_PRIVATE);
+		sharedPref.edit().clear().commit();
 	}
 	
 	public static Bitmap getCachedUserPicture(Context context, String userId){
@@ -357,14 +358,14 @@ public class AkiInternalStorageUtil {
 
 	public static String getCachedUserFirstName(Context context, String userId) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		String firstName = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_firstname)+userId, null);
 		return firstName;
 	}
 
 	public static synchronized void cacheUserFirstName(Context context, String userId, String firstName) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_user_firstname)+userId, firstName);
 		editor.commit();
@@ -372,14 +373,14 @@ public class AkiInternalStorageUtil {
 
 	public static String getCachedUserFullName(Context context, String userId) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		String fullName = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_fullname)+userId, null);
 		return fullName;
 	}
 	
 	public static synchronized void cacheUserFullName(Context context, String userId, String fullName) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_user_fullname)+userId, fullName);
 		editor.commit();
@@ -387,14 +388,14 @@ public class AkiInternalStorageUtil {
 
 	public static String getCachedUserGender(Context context, String userId) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
 		String fullName = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_user_gender)+userId, "unknown");
 		return fullName;
 	}
 	
 	public static synchronized void cacheUserGender(Context context, String userId, String gender) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_user_gender)+userId, gender);
 		editor.commit();
@@ -455,13 +456,13 @@ public class AkiInternalStorageUtil {
 	
 	public static boolean isMandatorySettingMissing(Context context){
 		
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_mandatory_setting_missing), false);
 	}
 	
 	public static synchronized void aMandatorySettingIsMissing(Context context, boolean missing){
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_mandatory_setting_missing), missing);
 		editor.commit();
@@ -469,13 +470,13 @@ public class AkiInternalStorageUtil {
 
 	public static boolean getAnonymousSetting(Context context, String userId) {
 
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_anonymous_setting)+userId, true);
 	}
 	
 	public static synchronized void setAnonymousSetting(Context context, String userId, boolean checked) {
 		
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_anonymous_setting)+userId, checked);
 		editor.commit();
@@ -599,38 +600,38 @@ public class AkiInternalStorageUtil {
 	}
 
 	public static float getCachedGeofenceRadius(Context context) {
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getFloat(context.getString(R.string.com_lespi_aki_data_geofence_radius), -1);
 	}
 	
 	public static synchronized void cacheGeofenceRadius(Context context, float radius) {
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putFloat(context.getString(R.string.com_lespi_aki_data_geofence_radius), radius);
 		editor.commit();
 	}
 
 	public static boolean shouldUpdateGeofence(Context context) {
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_geofence_should_update), false);
 	}
 
 	public static synchronized void willUpdateGeofence(Context context) {
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_geofence_should_update), true);
 		editor.commit();
 	}
 	
 	public static synchronized void willNotUpdateGeofence(Context context) {
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_geofence_should_update), false);
 		editor.commit();
 	}
 	
 	public static int getNextTimeout(Context context) {
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		int timeout = sharedPref.getInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 1);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		int nextTimeout = timeout * 2;
@@ -643,10 +644,16 @@ public class AkiInternalStorageUtil {
 	}
 	
 	public static synchronized void resetTimeout(Context context) {
-		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_preferences), Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 1);
 		editor.commit();
 	}
 
+	public static synchronized void clearVolatileStorage(Context context) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		sharedPref.edit().clear().commit();
+	}
+	
 }
