@@ -738,8 +738,12 @@ public class AkiChatFragment extends SherlockFragment {
 			}
 		});
 	}
-
+	
 	public void externalRefreshAll(){
+		externalRefreshAll(true);
+	}
+
+	public void externalRefreshAll(boolean resetListViewCursor){
 		
 		AkiMainActivity activity = (AkiMainActivity) getActivity();
 		if ( activity == null ){
@@ -757,8 +761,10 @@ public class AkiChatFragment extends SherlockFragment {
 		
 		ListView listView = (ListView) activity.findViewById(R.id.com_lespi_aki_main_messages_list);
 		listView.setAdapter(chatAdapter);
-		listView.setSelection(chatAdapter.getCount() - 1);
-		listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
+		if ( resetListViewCursor ){
+			listView.setSelection(chatAdapter.getCount() - 1);
+			listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
+		}
 		listView.setWillNotCacheDrawing(true);
 
 		refreshMembersList(activity, currentUserId);
