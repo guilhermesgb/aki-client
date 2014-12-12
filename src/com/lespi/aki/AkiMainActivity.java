@@ -367,10 +367,6 @@ LocationClient.OnRemoveGeofencesResultListener {
 		Log.w(AkiApplication.TAG, "Current location updated to: " +
 				location.getLatitude() + ", " + location.getLongitude());
 
-		if ( chatFragment != null ){
-			chatFragment.externalRefreshAll();
-		}
-
 		if ( sendPresence ){
 			AkiServerUtil.sendPresenceToServer(context, currentUserId, new AsyncCallback() {
 

@@ -38,6 +38,8 @@
     <string name="com_lespi_aki_notif_exit_text">You\'ve left a chat room manually.</string>
     <string name="com_lespi_aki_notif_exit_text_abort">You\'ve been kicked out of chat room due to application being aborted.</string>
     <string name="com_lespi_aki_notif_exit_title_walking">You\'ve been kicked out of chat room due to you walking away from it.</string>
+	<string name="com_lespi_aki_notif_new_match_title">New match!</string>
+    <string name="com_lespi_aki_notif_new_match_text">is also interested in you!</string>
     <string name="com_lespi_aki_persistent_preferences">com_lespi_aki_permanent_data</string>
     <string name="com_lespi_aki_volatile_preferences">com_lespi_aki_temporary_data</string>
     <string name="com_lespi_aki_data_current_user">current-user</string>
@@ -55,6 +57,7 @@
     <string name="com_lespi_aki_data_user_location">user-location_</string>
     <string name="com_lespi_aki_data_chat_messages">chat-room_</string>
     <string name="com_lespi_aki_data_chat_timestamps">chat-timestamps_</string>
+    <string name="com_lespi_aki_data_matches">user-matches</string>
     <string name="com_lespi_aki_data_mandatory_setting_missing">mandatory-setting-missing</string>
     <string name="com_lespi_aki_data_anonymous_setting">anonymous-setting_</string>
     <string name="com_lespi_aki_data_geofence_should_update">geofence-should-update</string>

@@ -392,12 +392,6 @@ public class AkiChatFragment extends SherlockFragment {
 										JsonObject responseJSON = (JsonObject) response;
 										final JsonValue chatRoomId = responseJSON.get("chat_room");
 										if ( chatRoomId != null ){
-											JsonValue nT = responseJSON.get("timestamp");
-											if ( nT != null ){
-												String nextTimestamp = nT.asString();
-												AkiInternalStorageUtil.setLastServerTimestamp(activity.getApplicationContext(), nextTimestamp);
-												Log.wtf("PULL MAN!", "(just got into a room so) SETTING LAST SERVER TT TO: " + nextTimestamp + "!");
-											}
 											AkiServerUtil.enterChatRoom(activity, currentUser.getId(), chatRoomId.asString());
 											final CheckBox anonymousCheck = (CheckBox) activity.findViewById(R.id.com_lespi_aki_main_settings_anonymous);
 											anonymousCheck.setChecked(AkiInternalStorageUtil.getAnonymousSetting(activity.getApplicationContext(), currentUser.getId()));

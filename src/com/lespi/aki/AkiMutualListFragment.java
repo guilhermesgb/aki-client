@@ -1,6 +1,10 @@
 package com.lespi.aki;
 
 
+import java.util.Set;
+
+import com.lespi.aki.utils.AkiInternalStorageUtil;
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,20 +22,12 @@ public class AkiMutualListFragment extends android.support.v4.app.ListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
         
-        // Defined Array values to show in ListView
-        String[] values = new String[] { "Android List View", 
-                                         "Adapter implementation",
-                                         "Simple List View In Android",
-                                         "Create List View Android", 
-                                         "Android Example", 
-                                         "List View Source Code", 
-                                         "List View Array Adapter", 
-                                         "Android Example List View" 
-                                        };
+        String[] noValue = new String[] { "No matches as of yet" };
+        Set<String> values = AkiInternalStorageUtil.retrieveMatches(getActivity().getApplicationContext());
         
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(),
-          android.R.layout.simple_list_item_1, android.R.id.text1, values);
+          android.R.layout.simple_list_item_1, android.R.id.text1, values.size() > 0 ? values.toArray(new String[values.size()]) : noValue);
 		setListAdapter(adapter);
 	}
-
+	
 }
