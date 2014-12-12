@@ -626,31 +626,26 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			viewHolder.senderLiked.setVisibility(View.GONE);
 		}
 		else {
-			if(AkiInternalStorageUtil.cacheHasLikedUser(context, senderId)){
-				Log.wtf("LIKE MAN!", "SET ICON TO VISIBLE AGAIN");
-				viewHolder.senderLiked.setVisibility(View.VISIBLE);
-			}else{
-				viewHolder.senderLiked.setVisibility(View.INVISIBLE);
-			}
-			final Animation hyperspaceJumpAnimation = AnimationUtils.loadAnimation(context, R.anim.jump_like);
-
+			viewHolder.senderLiked.setVisibility(View.VISIBLE);
+			final Animation fadeInAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_in);
+			final Animation fadeOutAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_out);
+			
 			final GestureDetector mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
 					Log.wtf("LIKE MAN!", "About to like/dislike!!");
 					if ( AkiInternalStorageUtil.cacheHasLikedUser(context, senderId) ){
-						viewHolder.senderLiked.setVisibility(View.INVISIBLE);
+						viewHolder.senderLiked.startAnimation(fadeOutAnimation);
 						AkiInternalStorageUtil.cacheDislikeUser(context, senderId);
 						AkiServerUtil.sendDislikeToServer(context, senderId);
 						AkiChatFragment.getInstance().externalRefreshAll();
 					}
 					else{
-						viewHolder.senderLiked.setVisibility(View.VISIBLE);
-						viewHolder.senderLiked.startAnimation(hyperspaceJumpAnimation);
+						Animation jumpAnimation = AnimationUtils.loadAnimation(context, R.anim.jump);
+						viewHolder.senderLiked.startAnimation(jumpAnimation);
 						Log.wtf("LIKE MAN!", "PERFORMING ANIMATION!");
 						AkiInternalStorageUtil.cacheLikeUser(context, senderId);
 						AkiServerUtil.sendLikeToServer(context, senderId);
-						AkiChatFragment.getInstance().externalRefreshAll();
 					}
 //					Log.d("Double Tap", "Tapped at: (" + x + "," + y + ")");
 					return true;
@@ -669,6 +664,13 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				}
 
 			});
+			
+			if(AkiInternalStorageUtil.cacheHasLikedUser(context, senderId)){
+				Log.wtf("LIKE MAN!", "SET ICON TO VISIBLE AGAIN");
+				viewHolder.senderLiked.startAnimation(fadeInAnimation);
+			}else{
+				viewHolder.senderLiked.startAnimation(fadeOutAnimation);
+			}
 		}
 		return rowView;
 	}
