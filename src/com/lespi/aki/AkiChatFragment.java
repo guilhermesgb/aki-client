@@ -738,7 +738,7 @@ public class AkiChatFragment extends SherlockFragment {
 			}
 		});
 	}
-
+	
 	public void externalRefreshAll(){
 		
 		AkiMainActivity activity = (AkiMainActivity) getActivity();

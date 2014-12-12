@@ -59,6 +59,7 @@
         android:paddingStart="0dp"
         android:paddingEnd="65dp"
         android:paddingTop="65dp"
-        android:src="@drawable/icon_like" />
+        android:src="@drawable/icon_like"
+        android:visibility="gone" />
 
 </RelativeLayout>

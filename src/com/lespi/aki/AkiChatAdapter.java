@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -187,7 +188,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 	@SuppressLint("CutPasteId")
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(int position, View convertView, final ViewGroup parent) {
 
 		final JsonObject newViewData = messages.get(position);
 
@@ -622,32 +623,26 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			}
 		}
 
-		if ( currentUser.getId().equals(senderId) ){
+		if ( currentUser.getId().equals(senderId) || senderId.equals(AkiApplication.SYSTEM_SENDER_ID) ){
 			viewHolder.senderLiked.setVisibility(View.GONE);
 		}
 		else {
-			viewHolder.senderLiked.setVisibility(View.VISIBLE);
-			final Animation fadeInAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_in);
-			final Animation fadeOutAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_out);
-			
+
 			final GestureDetector mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
-					Log.wtf("LIKE MAN!", "About to like/dislike!!");
 					if ( AkiInternalStorageUtil.cacheHasLikedUser(context, senderId) ){
-						viewHolder.senderLiked.startAnimation(fadeOutAnimation);
 						AkiInternalStorageUtil.cacheDislikeUser(context, senderId);
 						AkiServerUtil.sendDislikeToServer(context, senderId);
-						AkiChatFragment.getInstance().externalRefreshAll();
+						AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+						chatAdapter.notifyDataSetChanged();
 					}
 					else{
-						Animation jumpAnimation = AnimationUtils.loadAnimation(context, R.anim.jump);
-						viewHolder.senderLiked.startAnimation(jumpAnimation);
-						Log.wtf("LIKE MAN!", "PERFORMING ANIMATION!");
 						AkiInternalStorageUtil.cacheLikeUser(context, senderId);
 						AkiServerUtil.sendLikeToServer(context, senderId);
+						AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+						chatAdapter.notifyDataSetChanged();
 					}
-//					Log.d("Double Tap", "Tapped at: (" + x + "," + y + ")");
 					return true;
 				}
 				@Override
@@ -666,10 +661,41 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			});
 			
 			if(AkiInternalStorageUtil.cacheHasLikedUser(context, senderId)){
-				Log.wtf("LIKE MAN!", "SET ICON TO VISIBLE AGAIN");
-				viewHolder.senderLiked.startAnimation(fadeInAnimation);
+				if ( viewHolder.senderLiked.getVisibility() != View.VISIBLE ){
+					Animation jumpAnimation = AnimationUtils.loadAnimation(context, R.anim.jump_in);
+					jumpAnimation.setAnimationListener(new AnimationListener() {
+						
+						@Override
+						public void onAnimationStart(Animation animation) {}
+						
+						@Override
+						public void onAnimationRepeat(Animation animation) {}
+						
+						@Override
+						public void onAnimationEnd(Animation animation) {}
+					});
+					viewHolder.senderLiked.setVisibility(View.VISIBLE);
+					viewHolder.senderLiked.startAnimation(jumpAnimation);
+				}
 			}else{
-				viewHolder.senderLiked.startAnimation(fadeOutAnimation);
+				if ( viewHolder.senderLiked.getVisibility() != View.INVISIBLE ){
+					Animation fadeOutAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_out);
+					fadeOutAnimation.setAnimationListener(new AnimationListener() {
+						
+						@Override
+						public void onAnimationStart(Animation animation) {}
+						
+						@Override
+						public void onAnimationRepeat(Animation animation) {}
+						
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							viewHolder.senderLiked.setVisibility(View.INVISIBLE);
+						}
+					});
+					viewHolder.senderLiked.setVisibility(View.VISIBLE);
+					viewHolder.senderLiked.startAnimation(fadeOutAnimation);
+				}
 			}
 		}
 		return rowView;
