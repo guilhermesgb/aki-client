@@ -379,6 +379,8 @@ public class AkiChatFragment extends SherlockFragment {
 								});
 								activity.getSlidingMenu().setSlidingEnabled(true);
 
+								AkiServerUtil.getMutualInterests(activity.getApplicationContext());
+								
 								AkiServerUtil.sendPresenceToServer(activity.getApplicationContext(), currentUser.getId(), new AsyncCallback() {
 
 									@Override
