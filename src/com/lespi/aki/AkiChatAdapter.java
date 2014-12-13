@@ -628,6 +628,12 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		}
 		else {
 
+			if (AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
+					|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId())){
+				viewHolder.senderLiked.setVisibility(View.GONE);
+				return rowView;
+			}
+
 			final GestureDetector mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
@@ -659,18 +665,18 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				}
 
 			});
-			
+
 			if(AkiInternalStorageUtil.cacheHasLikedUser(context, senderId)){
 				if ( viewHolder.senderLiked.getVisibility() != View.VISIBLE ){
 					Animation jumpAnimation = AnimationUtils.loadAnimation(context, R.anim.jump_in);
 					jumpAnimation.setAnimationListener(new AnimationListener() {
-						
+
 						@Override
 						public void onAnimationStart(Animation animation) {}
-						
+
 						@Override
 						public void onAnimationRepeat(Animation animation) {}
-						
+
 						@Override
 						public void onAnimationEnd(Animation animation) {}
 					});
@@ -681,13 +687,13 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				if ( viewHolder.senderLiked.getVisibility() != View.INVISIBLE ){
 					Animation fadeOutAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_out);
 					fadeOutAnimation.setAnimationListener(new AnimationListener() {
-						
+
 						@Override
 						public void onAnimationStart(Animation animation) {}
-						
+
 						@Override
 						public void onAnimationRepeat(Animation animation) {}
-						
+
 						@Override
 						public void onAnimationEnd(Animation animation) {
 							viewHolder.senderLiked.setVisibility(View.INVISIBLE);

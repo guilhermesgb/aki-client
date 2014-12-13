@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import android.content.Context;
 import android.os.Handler;
@@ -325,7 +326,6 @@ public class AkiServerUtil {
 			CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_kicked_chat);
 			Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_LONG);
 			toast.show();
-			AkiInternalStorageUtil.clearUserLikes(context);
 		}
 
 		if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
@@ -339,7 +339,8 @@ public class AkiServerUtil {
 		AkiInternalStorageUtil.wipeCachedGeofenceCenter(context);
 		AkiInternalStorageUtil.cacheGeofenceRadius(context, -1);
 		AkiInternalStorageUtil.willUpdateGeofence(context);
-
+		AkiInternalStorageUtil.clearUserLikes(context);
+		AkiInternalStorageUtil.cacheLikeMutualInterests(context);
 		AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
 				context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room));
 	}
@@ -398,10 +399,15 @@ public class AkiServerUtil {
 
 			@Override
 			public void onSuccess(Object response) {
+				Set<String> oldMutualInterests = AkiInternalStorageUtil.retrieveMatches(context);
+				AkiInternalStorageUtil.wipeMatches(context);
 				JsonArray mutualInterests = ((JsonObject) response).get("mutuals").asArray();
 				for ( JsonValue interest : mutualInterests ){
 					String userId = interest.asObject().get("uid").asString();
-					AkiInternalStorageUtil.storeNewMatch(context, userId);
+					AkiInternalStorageUtil.storeNewMatch(context, userId, !oldMutualInterests.contains(userId));
+				}
+				for ( String userId : oldMutualInterests ){
+					AkiInternalStorageUtil.cacheDislikeUser(context, userId);
 				}
 			}
 

@@ -30,10 +30,10 @@ public class AkiIncomingUserMatchReceiver extends BroadcastReceiver {
 			String userId1 = userId1JSON.asString();
 			String userId2 = userId2JSON.asString();
 			if ( userId1.equals(currentUserId) ) {
-				AkiInternalStorageUtil.storeNewMatch(context, userId2);
+				AkiInternalStorageUtil.storeNewMatch(context, userId2, true);
 			}
 			else if ( userId2.equals(currentUserId) ) {
-				AkiInternalStorageUtil.storeNewMatch(context, userId1);
+				AkiInternalStorageUtil.storeNewMatch(context, userId1, true);
 			}
 		}
 	}

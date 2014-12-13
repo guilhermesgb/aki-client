@@ -306,6 +306,14 @@ public class AkiInternalStorageUtil {
 		sharedPref.edit().clear().commit();
 	}
 	
+	public static void cacheLikeMutualInterests(Context context) {
+		
+		Set<String> matches = retrieveMatches(context);
+		for ( String userId : matches ){
+			cacheLikeUser(context, userId);
+		}
+	}
+	
 	public static Bitmap getCachedUserPicture(Context context, String userId){
 
 		Bitmap picture = null;
@@ -676,7 +684,7 @@ public class AkiInternalStorageUtil {
 		return matches;
 	}
 	
-	public static synchronized void storeNewMatch(Context context, String userId) {
+	public static synchronized void storeNewMatch(Context context, String userId, boolean notify) {
 
 		try {
 
@@ -691,27 +699,29 @@ public class AkiInternalStorageUtil {
 			oos.writeObject(matches);
 			oos.close();
 			
-			Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+			if ( notify ){
+				Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-			String contentTitle = context.getString(R.string.com_lespi_aki_notif_new_match_title);
-			String identifier = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
-			if ( identifier == null ){
-				identifier = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
-				if ( identifier == null){
-					identifier = userId;
+				String contentTitle = context.getString(R.string.com_lespi_aki_notif_new_match_title);
+				String identifier = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
+				if ( identifier == null ){
+					identifier = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
+					if ( identifier == null){
+						identifier = userId;
+					}
 				}
+				String contentText = identifier + " " + context.getString(R.string.com_lespi_aki_notif_new_match_text);
+
+				Notification.Builder notifyBuilder = new Notification.Builder(context)
+					.setSmallIcon(R.drawable.notification_icon)
+					.setContentTitle(contentTitle)
+					.setContentText(contentText)
+					.setSound(alarmSound)
+					.setAutoCancel(true);
+
+				NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+				notificationManager.notify(AkiApplication.NEW_MATCH_NOTIFICATION_ID, notifyBuilder.build());
 			}
-			String contentText = identifier + " " + context.getString(R.string.com_lespi_aki_notif_new_match_text);
-
-			Notification.Builder notifyBuilder = new Notification.Builder(context)
-				.setSmallIcon(R.drawable.notification_icon)
-				.setContentTitle(contentTitle)
-				.setContentText(contentText)
-				.setSound(alarmSound)
-				.setAutoCancel(true);
-
-			NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-			notificationManager.notify(AkiApplication.NEW_MATCH_NOTIFICATION_ID, notifyBuilder.build());
 			
 		} catch (IOException e) {
 			Log.e(AkiApplication.TAG, "Could not store new match with user: " + userId + ".");
@@ -719,10 +729,16 @@ public class AkiInternalStorageUtil {
 		}
 	}
 	
+	public static synchronized void wipeMatches(Context context) {
+		
+		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_matches));
+		file.delete();
+	}
+	
 	public static synchronized void clearVolatileStorage(Context context) {
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		sharedPref.edit().clear().commit();
 	}
-	
+
 }
