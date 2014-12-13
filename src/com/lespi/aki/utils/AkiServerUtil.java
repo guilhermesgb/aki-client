@@ -404,11 +404,16 @@ public class AkiServerUtil {
 				JsonArray mutualInterests = ((JsonObject) response).get("mutuals").asArray();
 				for ( JsonValue interest : mutualInterests ){
 					String userId = interest.asObject().get("uid").asString();
-					AkiInternalStorageUtil.storeNewMatch(context, userId, !oldMutualInterests.contains(userId));
+					boolean notify = !oldMutualInterests.contains(userId);
+					if ( !notify ){
+						oldMutualInterests.remove(userId);
+					}
+					AkiInternalStorageUtil.storeNewMatch(context, userId, notify);
 				}
 				for ( String userId : oldMutualInterests ){
 					AkiInternalStorageUtil.cacheDislikeUser(context, userId);
 				}
+				AkiInternalStorageUtil.cacheLikeMutualInterests(context);
 			}
 
 			@Override
