@@ -8,5 +8,4 @@
     android:divider="@android:color/transparent"
     android:dividerHeight="7dp"
     android:padding="7dp"
-    android:scrollbars="horizontal" >
-</ListView>
+    android:scrollbars="horizontal" />

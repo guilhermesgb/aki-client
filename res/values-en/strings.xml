@@ -19,6 +19,7 @@
     <string name="com_lespi_aki_main_settings_nickname_change_hint">Hit to update nickname</string>
     <string name="com_lespi_aki_main_settings_privacy_text">Chat anonymously?</string>
     <string name="com_lespi_aki_main_settings_nonickname_text">You must pick a nickname!</string>
+    <string name="com_lespi_aki_main_mutual_info_text">Your mutual interests</string>
     <string name="com_lespi_aki_message_sender_picture_hint">A small picture</string>
     <string name="com_lespi_aki_message_sender_distance_hint">A small distance indicator</string>
     <string name="com_lespi_aki_message_sender_gender_hint">A small gender indicator</string>
