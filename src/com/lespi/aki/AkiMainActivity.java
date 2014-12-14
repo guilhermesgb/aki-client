@@ -55,6 +55,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 	private PendingIntent geofencePendingIntent;
 	private AkiChatFragment chatFragment;
 	private AkiSettingsFragment settingsFragment;
+	private AkiMutualFragment mutualsFragment;
 	private SlidingMenu slidingMenu;
 
 	@Override
@@ -103,12 +104,17 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 		settingsFragment = new AkiSettingsFragment();
 		setBehindContentView(R.layout.aki_menu_frame);
-
 		getSupportFragmentManager()
 		.beginTransaction()
 		.replace(R.id.aki_menu_frame, settingsFragment)
 		.commit();
 
+		mutualsFragment = new AkiMutualFragment();
+		getSupportFragmentManager()
+		.beginTransaction()
+		.replace(R.id.aki_mutual_interest_frame, mutualsFragment)
+		.commit();
+		
 		slidingMenu = super.getSlidingMenu();
 		slidingMenu.setShadowWidthRes(R.dimen.shadow_width);
 		slidingMenu.setShadowDrawable(R.drawable.shadow);
@@ -120,10 +126,6 @@ LocationClient.OnRemoveGeofencesResultListener {
 		slidingMenu.setMenu(R.layout.aki_mutual_interest_frame);
 		slidingMenu.setSecondaryMenu(R.layout.aki_menu_frame);
 		
-		getSupportFragmentManager()
-		.beginTransaction()
-		.replace(R.id.aki_mutual_interest_frame, new AkiMutualListFragment())
-		.commit();
 		slidingMenu.setOnOpenedListener(new OnOpenedListener() {
 			@Override
 			public void onOpened() {

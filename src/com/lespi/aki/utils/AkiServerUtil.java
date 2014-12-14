@@ -15,6 +15,7 @@ import com.lespi.aki.AkiApplication;
 import com.lespi.aki.AkiChatAdapter;
 import com.lespi.aki.AkiChatFragment;
 import com.lespi.aki.AkiMainActivity;
+import com.lespi.aki.AkiMutualAdapter;
 import com.lespi.aki.R;
 import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
@@ -414,6 +415,13 @@ public class AkiServerUtil {
 					AkiInternalStorageUtil.cacheDislikeUser(context, userId);
 				}
 				AkiInternalStorageUtil.cacheLikeMutualInterests(context);
+				
+				AkiMutualAdapter mutualAdapter = AkiMutualAdapter.getInstance(context);
+				mutualAdapter = AkiMutualAdapter.getInstance(context);
+				mutualAdapter.clear();
+				Set<String> values = AkiInternalStorageUtil.retrieveMatches(context);
+				mutualAdapter.addAll(values);
+				mutualAdapter.notifyDataSetChanged();
 			}
 
 			@Override

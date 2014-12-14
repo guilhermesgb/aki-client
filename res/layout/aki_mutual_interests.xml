@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/list"
+    android:id="@+id/com_lespi_aki_main_mutual_list"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-
-</ListView>
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    android:alwaysDrawnWithCache="false"
+    android:divider="@android:color/transparent"
+    android:dividerHeight="7dp"
+    android:padding="7dp"
+    android:scrollbars="horizontal" >
+</ListView>
