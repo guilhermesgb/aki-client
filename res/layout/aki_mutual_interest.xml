@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/com_lespi_aki_message_you_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#956134"
+    android:padding="2dp" >
+
+    <TextView
+        android:id="@+id/com_lespi_aki_mutual_interest_user_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/com_lespi_aki_mutual_interest_user_picture"
+        android:layout_width="@dimen/picture_layout_width_settings"
+        android:layout_height="@dimen/picture_layout_height_settings"
+        android:src="@drawable/no_picture_unknown_gender"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="73dp"
+        android:contentDescription="@string/com_lespi_aki_mutual_interest_user_picture_hint" />
+
+    <TextView
+        android:id="@+id/com_lespi_aki_mutual_interest_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/com_lespi_aki_mutual_interest_user_picture"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/com_lespi_aki_message_text_color"
+        android:textSize="@dimen/settings_fullname_size"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/com_lespi_aki_mutual_interest_user_gender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/com_lespi_aki_mutual_interest_user_name"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:contentDescription="@string/com_lespi_aki_mutual_interest_user_gender_hint"
+        android:textColor="@color/com_lespi_aki_message_text_color" />
+
+</RelativeLayout>

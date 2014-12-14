@@ -38,7 +38,7 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 	}
 
 	public AkiMutualAdapter(Context context, List<String> interests) {
-		super(context, R.layout.aki_chat_message_you, interests);
+		super(context, R.layout.aki_mutual_interest, interests);
 		this.context = context;
 		this.interests = interests;
 	}
@@ -65,11 +65,10 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 	}
 
 	static class ViewHolder {
-		public TextView senderId;
-		public TextView senderName;
-		public ImageView senderPicture;
-		public TextView message;
-		public ImageView senderGender;
+		public TextView userId;
+		public TextView userName;
+		public ImageView userPicture;
+		public ImageView userGender;
 	}
 
 	@SuppressLint("CutPasteId")
@@ -81,12 +80,12 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 		View rowView = convertView;
 		boolean canReuse = false;
 
-		int rowLayout = R.layout.aki_chat_message_you;
+		int rowLayout = R.layout.aki_mutual_interest;
 
 		if (rowView != null) {
 
 			TextView senderIdView = (TextView) rowView
-					.findViewById(R.id.com_lespi_aki_message_sender_id);
+					.findViewById(R.id.com_lespi_aki_mutual_interest_user_id);
 
 			if (senderIdView.getText() != null
 					&& senderIdView.getText().equals(senderId)) {
@@ -101,29 +100,25 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 			rowView = inflater.inflate(rowLayout, parent, false);
 
 			ViewHolder viewHolder = new ViewHolder();
-			viewHolder.senderId = (TextView) rowView
-					.findViewById(R.id.com_lespi_aki_message_sender_id);
-			viewHolder.senderName = (TextView) rowView
-					.findViewById(R.id.com_lespi_aki_message_sender_name);
-			viewHolder.senderName.setAlpha(1);
-			viewHolder.senderPicture = (ImageView) rowView
-					.findViewById(R.id.com_lespi_aki_message_sender_picture);
-			viewHolder.message = (TextView) rowView
-					.findViewById(R.id.com_lespi_aki_message_text_message);
-			viewHolder.message.setAlpha(1);
-			viewHolder.senderGender = (ImageView) rowView
-					.findViewById(R.id.com_lespi_aki_message_sender_gender);
-			viewHolder.senderGender.setImageAlpha(255);
+			viewHolder.userId = (TextView) rowView
+					.findViewById(R.id.com_lespi_aki_mutual_interest_user_id);
+			viewHolder.userName = (TextView) rowView
+					.findViewById(R.id.com_lespi_aki_mutual_interest_user_name);
+			viewHolder.userName.setAlpha(1);
+			viewHolder.userPicture = (ImageView) rowView
+					.findViewById(R.id.com_lespi_aki_mutual_interest_user_picture);
+			viewHolder.userGender = (ImageView) rowView
+					.findViewById(R.id.com_lespi_aki_mutual_interest_user_gender);
+			viewHolder.userGender.setImageAlpha(255);
 			rowView.setTag(viewHolder);
 		}
 
 		final ViewHolder viewHolder = (ViewHolder) rowView.getTag();
 
-		viewHolder.senderId.setText(senderId);
-		viewHolder.message.setText("This user has interest in you!");
+		viewHolder.userId.setText(senderId);
 
 		String firstName = AkiInternalStorageUtil.getCachedUserFirstName(context, senderId);
-		viewHolder.senderName.setText(firstName);
+		viewHolder.userName.setText(firstName);
 
 		String gender = AkiInternalStorageUtil.getCachedUserGender(context, senderId);
 		Bitmap genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_unknown_gender);
@@ -137,12 +132,12 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 						context.getResources(), R.drawable.icon_female);
 			}
 		}
-		viewHolder.senderGender.setImageBitmap(genderPlaceholder);
-		viewHolder.senderGender.setImageAlpha(255);
+		viewHolder.userGender.setImageBitmap(genderPlaceholder);
+		viewHolder.userGender.setImageAlpha(255);
 
 		Bitmap picture = AkiInternalStorageUtil.getCachedUserPicture(context, senderId);
-		viewHolder.senderPicture.setImageBitmap(picture);
-		viewHolder.senderPicture.setImageAlpha(255);
+		viewHolder.userPicture.setImageBitmap(picture);
+		viewHolder.userPicture.setImageAlpha(255);
 		return rowView;
 	}
 }

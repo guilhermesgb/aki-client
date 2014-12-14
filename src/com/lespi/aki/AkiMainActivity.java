@@ -112,7 +112,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		mutualsFragment = new AkiMutualFragment();
 		getSupportFragmentManager()
 		.beginTransaction()
-		.replace(R.id.aki_mutual_interest_frame, mutualsFragment)
+		.replace(R.id.aki_mutual_interests, mutualsFragment)
 		.commit();
 		
 		slidingMenu = super.getSlidingMenu();
@@ -123,7 +123,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		slidingMenu.setMode(SlidingMenu.LEFT_RIGHT);
 		slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 		slidingMenu.setTouchModeBehind(SlidingMenu.TOUCHMODE_MARGIN);
-		slidingMenu.setMenu(R.layout.aki_mutual_interest_frame);
+		slidingMenu.setMenu(R.layout.aki_mutual_interests);
 		slidingMenu.setSecondaryMenu(R.layout.aki_menu_frame);
 		
 		slidingMenu.setOnOpenedListener(new OnOpenedListener() {
