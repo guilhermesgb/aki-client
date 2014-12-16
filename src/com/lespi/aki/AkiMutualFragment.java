@@ -23,7 +23,8 @@ public class AkiMutualFragment extends SherlockFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
         
-		final AkiMutualAdapter mutualAdapter = AkiMutualAdapter.getInstance(getActivity().getApplicationContext());
+		final AkiMutualAdapter mutualAdapter = AkiMutualAdapter.getInstance(getActivity());
+		mutualAdapter.clear();
 		Set<String> values = AkiInternalStorageUtil.retrieveMatches(getActivity().getApplicationContext());
 		mutualAdapter.addAll(values);
 		

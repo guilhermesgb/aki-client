@@ -49,7 +49,7 @@ public class AkiServerUtil {
 
 	public static void isServerUp(final Context context, final AsyncCallback callback){
 
-		AkiHttpUtil.doGETHttpRequest(context, "/", new AsyncCallback() { //AndWait taken out
+		AkiHttpUtil.doGETHttpRequest(context, "/", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -412,16 +412,19 @@ public class AkiServerUtil {
 					AkiInternalStorageUtil.storeNewMatch(context, userId, notify);
 				}
 				for ( String userId : oldMutualInterests ){
+					AkiServerUtil.sendDislikeToServer(context, userId);
 					AkiInternalStorageUtil.cacheDislikeUser(context, userId);
 				}
 				AkiInternalStorageUtil.cacheLikeMutualInterests(context);
 				
 				AkiMutualAdapter mutualAdapter = AkiMutualAdapter.getInstance(context);
-				mutualAdapter = AkiMutualAdapter.getInstance(context);
 				mutualAdapter.clear();
 				Set<String> values = AkiInternalStorageUtil.retrieveMatches(context);
 				mutualAdapter.addAll(values);
 				mutualAdapter.notifyDataSetChanged();
+				
+				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+				chatAdapter.notifyDataSetChanged();
 			}
 
 			@Override
@@ -433,6 +436,39 @@ public class AkiServerUtil {
 			@Override
 			public void onCancel() {
 				Log.e(AkiApplication.TAG, "Endpoint:getMutualInterests canceled.");
+			}
+		});
+	}
+	
+	public static synchronized void removeMutualInterest(final Context context, final String userId) {
+
+		AkiHttpUtil.doDELETEHttpRequest(context, "/mutual/" + userId, new AsyncCallback() {
+
+			@Override
+			public void onSuccess(Object response) {
+				AkiInternalStorageUtil.removeMatch(context, userId);
+				AkiServerUtil.sendDislikeToServer(context, userId);
+				AkiInternalStorageUtil.cacheDislikeUser(context, userId);
+				
+				AkiMutualAdapter mutualAdapter = AkiMutualAdapter.getInstance(context);
+				mutualAdapter.clear();
+				Set<String> values = AkiInternalStorageUtil.retrieveMatches(context);
+				mutualAdapter.addAll(values);
+				mutualAdapter.notifyDataSetChanged();
+				
+				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+				chatAdapter.notifyDataSetChanged();
+			}
+
+			@Override
+			public void onFailure(Throwable failure) {
+				Log.e(AkiApplication.TAG, "Could not remove mutual interest with " + userId + "!");
+				failure.printStackTrace();
+			}
+
+			@Override
+			public void onCancel() {
+				Log.e(AkiApplication.TAG, "Endpoint:removeMutualInterest canceled.");
 			}
 		});
 	}

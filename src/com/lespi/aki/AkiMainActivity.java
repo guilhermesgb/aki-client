@@ -112,19 +112,20 @@ LocationClient.OnRemoveGeofencesResultListener {
 		mutualsFragment = new AkiMutualFragment();
 		getSupportFragmentManager()
 		.beginTransaction()
-		.replace(R.id.aki_mutual_interests, mutualsFragment)
+		.replace(R.id.aki_mutual_interest_frame, mutualsFragment)
 		.commit();
 		
 		slidingMenu = super.getSlidingMenu();
 		slidingMenu.setShadowWidthRes(R.dimen.shadow_width);
-		slidingMenu.setShadowDrawable(R.drawable.shadow);
+		slidingMenu.setShadowDrawable(R.drawable.shadow_left);
+		slidingMenu.setSecondaryShadowDrawable(R.drawable.shadow_right);
 		slidingMenu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		slidingMenu.setFadeDegree(0.15f);
 		slidingMenu.setMode(SlidingMenu.LEFT_RIGHT);
 		slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 		slidingMenu.setTouchModeBehind(SlidingMenu.TOUCHMODE_MARGIN);
-		slidingMenu.setMenu(R.layout.aki_mutual_interests);
-		slidingMenu.setSecondaryMenu(R.layout.aki_menu_frame);
+		slidingMenu.setMenu(R.layout.aki_menu_frame);
+		slidingMenu.setSecondaryMenu(R.layout.aki_mutual_interest_frame);
 		
 		slidingMenu.setOnOpenedListener(new OnOpenedListener() {
 			@Override
@@ -147,7 +148,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 		ProgressBar loadingIcon = (ProgressBar) findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
 		loadingIcon.setVisibility(View.VISIBLE);
-		slidingMenu.showSecondaryMenu();
+		slidingMenu.showMenu();
 		slidingMenu.setSlidingEnabled(false);
 	}
 
@@ -176,6 +177,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 					.setSmallIcon(R.drawable.notification_icon)
 					.setContentTitle(contentTitle)
 					.setContentText(contentText)
+					.setContentIntent(PendingIntent.getActivity(AkiMainActivity.this, 0, new Intent(), 0))
 					.setAutoCancel(true);
 
 					NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

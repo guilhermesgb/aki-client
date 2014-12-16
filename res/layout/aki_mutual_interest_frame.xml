@@ -7,25 +7,4 @@
     android:background="#333f4f"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingTop="@dimen/activity_vertical_margin" >
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="@dimen/button_height"
-        android:background="#956134"
-        android:orientation="horizontal" >
-
-        <TextView
-            android:id="@+id/com_lespi_aki_main_settings_logout_btn"
-            style="@style/AkiButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layoutDirection="ltr"
-            android:gravity="center"
-            android:textSize="18sp"
-            android:text="@string/com_lespi_aki_main_mutual_info_text"
-            android:textColor="#ffffff" />
-    </LinearLayout>
-
-</FrameLayout>
+    android:paddingTop="@dimen/activity_vertical_margin" />

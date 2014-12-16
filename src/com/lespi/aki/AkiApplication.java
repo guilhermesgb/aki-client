@@ -29,6 +29,7 @@ public class AkiApplication extends Application {
 	public static final int NEW_MATCH_NOTIFICATION_ID = 1013;
 	
 	public static final String SYSTEM_SENDER_ID = "System";
+	public static final String SYSTEM_EMPTY_ID = "Empty";
 	
 	public static final float MIN_RADIUS = 0.03f; // In kilometers
 	

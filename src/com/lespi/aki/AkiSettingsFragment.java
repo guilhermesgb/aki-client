@@ -76,7 +76,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				anonymousCheck.setChecked(true);
 				anonymousCheck.setEnabled(false);
 				SlidingMenu slidingMenu = activity.getSlidingMenu();
-				slidingMenu.showSecondaryMenu();
+				slidingMenu.showMenu();
 				slidingMenu.setSlidingEnabled(false);
 				slidingMenu.setEnabled(false);
 				CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_nickname_required);

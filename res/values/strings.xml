@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">Aki</string>
     <string name="fb_app_id">1515152225364929</string>
     <string name="project_name">Aki</string>
@@ -9,10 +10,15 @@
     <string name="com_lespi_aki_main_chat_settings_hint">Configurações</string>
     <string name="com_lespi_aki_main_chat_exit_text">Sair</string>
     <string name="com_lespi_aki_main_chat_skip_text">Pular</string>
+    <string name="com_lespi_aki_main_chat_exit_confirm_title">Sair desse chat</string>
+    <string name="com_lespi_aki_main_chat_exit_confirm_text">Tem certeza que deseja sair? Você vai minimizar o aplicativo.</string>
+    <string name="com_lespi_aki_main_chat_skip_confirm_title">Pular para outro chat</string>
+    <string name="com_lespi_aki_main_chat_skip_confirm_text">Tem certeza que deseja sair desse chat e ir para outro?</string>
     <string name="com_lespi_aki_main_chat_warning_no_internet_connection_available">Não há conexão com a Internet!</string>
     <string name="com_lespi_aki_main_chat_warning_internet_needed_to_start_using">Você precisa de Internet pra conversar!</string>
     <string name="com_lespi_aki_main_chat_warning_gps_needed_to_start_using">Você precisa de GPS pra conversar!</string>
     <string name="com_lespi_aki_main_chat_warning_server_down">O servidor está indisponível!</string>
+    <string name="com_lespi_aki_main_settings_info_text">Seu perfil</string>
     <string name="com_lespi_aki_main_settings_logout_text">Deslogar do Aki</string>
     <string name="com_lespi_aki_main_settings_cover_hint">Uma foto de cover</string>
     <string name="com_lespi_aki_main_settings_nickname_text">Seu nickname:</string>
@@ -23,7 +29,16 @@
     <string name="com_lespi_aki_message_sender_picture_hint">Pequena foto</string>
     <string name="com_lespi_aki_message_sender_distance_hint">Indicador de distância</string>
     <string name="com_lespi_aki_message_sender_gender_hint">Indicador de sexo</string>
-	<string name="com_lespi_aki_message_sender_like_hint">Indicador de interesse</string>
+    <string name="com_lespi_aki_message_sender_like_hint">Indicador de interesse</string>
+    <string name="com_lespi_aki_mutual_interest_user_picture_hint">Pequena foto</string>
+    <string name="com_lespi_aki_mutual_interest_user_gender_hint">Indicador de sexo</string>
+    <string name="com_lespi_aki_mutual_interest_delete_match_hint">Remover match</string>
+    <string name="com_lespi_aki_mutual_interest_delete_match_confirm_title">Remover match?</string>
+    <string name="com_lespi_aki_mutual_interest_delete_match_confirm_text">Tem certeza que você quer remover match com </string>
+    <string name="com_lespi_aki_mutual_interest_delete_match_confirm_text_unknown_user">este usuário</string>
+    <string name="com_lespi_aki_mutual_interest_no_matches_info">Você ainda não tem matches!</string>
+    <string name="com_lespi_aki_confirm_yes">Sim!</string>
+    <string name="com_lespi_aki_confirm_no">Não!</string>
     <string name="com_lespi_aki_message_system_nickname_change_male">mudou o nickname dele para:</string>
     <string name="com_lespi_aki_message_system_nickname_change_female">mudou o nickname dela para:</string>
     <string name="com_lespi_aki_message_system_nickname_change_other">mudou seu nickname para:</string>
@@ -39,14 +54,14 @@
     <string name="com_lespi_aki_notif_exit_text">Você saiu de uma sala de bate-papo manualmente.</string>
     <string name="com_lespi_aki_notif_exit_text_abort">Você foi expulso da sua sala de bate-papo porque o app foi abortado.</string>
     <string name="com_lespi_aki_notif_exit_title_walking">Você foi expulso da sua sala de bate-papo porque você se distanciou demais.</string>
-	<string name="com_lespi_aki_notif_new_match_title">Novo match!</string>
+    <string name="com_lespi_aki_notif_new_match_title">Novo match!</string>
     <string name="com_lespi_aki_notif_new_match_text">também demonstrou interesse em você!</string>
     <string name="com_lespi_aki_persistent_preferences">com_lespi_aki_permanent_data</string>
     <string name="com_lespi_aki_volatile_preferences">com_lespi_aki_temporary_data</string>
     <string name="com_lespi_aki_data_current_user">current-user</string>
     <string name="com_lespi_aki_data_current_chat_room">current-chat-room</string>
     <string name="com_lespi_aki_data_most_recent_timestamp">most-recent-timestamp</string>
-	<string name="com_lespi_aki_data_last_server_timestamp">last-server-timestamp</string>
+    <string name="com_lespi_aki_data_last_server_timestamp">last-server-timestamp</string>
     <string name="com_lespi_aki_data_user_firstname">user-firstname_</string>
     <string name="com_lespi_aki_data_user_fullname">user-fullname_</string>
     <string name="com_lespi_aki_data_user_gender">user-gender_</string>
@@ -66,17 +81,18 @@
     <string name="com_lespi_aki_data_geofence_radius">geofence-radius</string>
     <string name="com_lespi_aki_data_last_timeout">last-timeout</string>
     <string name="com_lespi_aki_toast_no_internet_connection">Não há conexão com a Internet!</string>
-	<string name="com_lespi_aki_toast_cannot_determine_location">Não é possível determinar sua localização atual!</string>
-	<string name="com_lespi_aki_toast_please_enable_gps">Por favor, habilite o sensor de GPS!</string>
-	<string name="com_lespi_aki_toast_server_down">O servidor está indisponível!</string>
-	<string name="com_lespi_aki_toast_skipped_chat">Você pulou de sala de bate-papo!</string>
+    <string name="com_lespi_aki_toast_cannot_determine_location">Não é possível determinar sua localização atual!</string>
+    <string name="com_lespi_aki_toast_please_enable_gps">Por favor, habilite o sensor de GPS!</string>
+    <string name="com_lespi_aki_toast_server_down">O servidor está indisponível!</string>
+    <string name="com_lespi_aki_toast_skipped_chat">Você pulou de sala de bate-papo!</string>
     <string name="com_lespi_aki_toast_message_not_sent">Mensagem não enviada!</string>
-	<string name="com_lespi_aki_toast_exited_chat">Você saiu da sala de bate-papo!</string>
-	<string name="com_lespi_aki_toast_kicked_chat">Indo para outra sala de bate-papo&#8230;</string>
-	<string name="com_lespi_aki_toast_exited_chat_walking">Você caminhou pra muito longe da sua sala de bate-papo!</string>
-	<string name="com_lespi_aki_toast_nickname_required">You precisa escolher um nickname!</string>
-	<string name="com_lespi_aki_toast_nickname_cannot_be_blank">O nickname não pode ser vazio!</string>
-	<string name="com_lespi_aki_toast_nickname_set">Obrigado por escolher um nickname!</string>
-	<string name="com_lespi_aki_toast_nickname_updated">Seu nickname foi atualizado para </string>
-	<string name="com_lespi_aki_toast_anonymous_cannot_be_set">Você não pode mais ficar anônimo nessa sala de bate-papo!</string>
+    <string name="com_lespi_aki_toast_exited_chat">Você saiu da sala de bate-papo!</string>
+    <string name="com_lespi_aki_toast_kicked_chat">Indo para outra sala de bate-papo&#8230;</string>
+    <string name="com_lespi_aki_toast_exited_chat_walking">Você caminhou pra muito longe da sua sala de bate-papo!</string>
+    <string name="com_lespi_aki_toast_nickname_required">You precisa escolher um nickname!</string>
+    <string name="com_lespi_aki_toast_nickname_cannot_be_blank">O nickname não pode ser vazio!</string>
+    <string name="com_lespi_aki_toast_nickname_set">Obrigado por escolher um nickname!</string>
+    <string name="com_lespi_aki_toast_nickname_updated">Seu nickname foi atualizado para </string>
+    <string name="com_lespi_aki_toast_anonymous_cannot_be_set">Você não pode mais ficar anônimo nessa sala de bate-papo!</string>
+
 </resources>

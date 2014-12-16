@@ -11,7 +11,9 @@ import java.util.PriorityQueue;
 import java.util.Random;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -22,6 +24,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -55,7 +58,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	private final List<JsonObject> messages;
 	private GraphUser currentUser = null;
 	private Session currentSession = null;
-
+	private FragmentActivity activity = null;
 
 	private final int[] COLORS = new int[] {
 			R.color.com_lespi_aki_message_text_color_0,
@@ -106,6 +109,10 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 	public void setCurrentSession(Session currentSession) {
 		this.currentSession = currentSession;
+	}
+
+	public void setActivity(FragmentActivity activity) {
+		this.activity = activity;
 	}
 
 	private void assignColor(String userId, String currentUserId) {
@@ -638,10 +645,47 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
 					if ( AkiInternalStorageUtil.cacheHasLikedUser(context, senderId) ){
-						AkiInternalStorageUtil.cacheDislikeUser(context, senderId);
-						AkiServerUtil.sendDislikeToServer(context, senderId);
-						AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
-						chatAdapter.notifyDataSetChanged();
+						if ( !AkiInternalStorageUtil.hasMatch(context, senderId) ){
+							AkiInternalStorageUtil.cacheDislikeUser(context, senderId);
+							AkiServerUtil.sendDislikeToServer(context, senderId);
+							AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+							chatAdapter.notifyDataSetChanged();							
+						}
+						else{
+							final StringBuilder message = new StringBuilder()
+							.append(context.getString(R.string.com_lespi_aki_mutual_interest_delete_match_confirm_text));
+							String fullName = AkiInternalStorageUtil.getCachedUserFullName(context, senderId);
+							if ( fullName != null ){
+								message.append(" " + fullName + "?");
+							}
+							else{
+								String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, senderId);
+								if ( nickname != null ){
+									message.append(" " + nickname + "?");
+								}
+								else{
+									message.append(" " + context.getString(R.string.com_lespi_aki_mutual_interest_delete_match_confirm_text_unknown_user) + "?");
+								}
+							}
+							
+							if ( activity != null ){
+								new AlertDialog.Builder(activity)
+								.setIcon(R.drawable.icon_remove)
+								.setTitle(R.string.com_lespi_aki_mutual_interest_delete_match_confirm_title)
+								.setMessage(message.toString())
+								.setPositiveButton(R.string.com_lespi_aki_confirm_yes, new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										AkiServerUtil.removeMutualInterest(context, senderId);
+									}
+								})
+								.setNegativeButton(R.string.com_lespi_aki_confirm_no, new DialogInterface.OnClickListener(){
+									@Override
+									public void onClick(DialogInterface dialog, int which) {}
+								})
+								.show();
+							}
+						}
 					}
 					else{
 						AkiInternalStorageUtil.cacheLikeUser(context, senderId);

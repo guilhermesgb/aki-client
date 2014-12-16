@@ -60,13 +60,17 @@ public abstract class AkiHttpUtil {
 						}
 					}
 
-					if ( method.toUpperCase().equals("POST") ){
-						urlConn.setRequestMethod("POST");
+					urlConn.setRequestMethod(method.toUpperCase());
+					
+					if ( method.toUpperCase().equals("POST") || method.toUpperCase().equals("PUT") ){
 						if ( payload != null ){
 							urlConn.setDoOutput(true);
 							OutputStream out = new BufferedOutputStream(urlConn.getOutputStream(), payload.length());
 							out.write(payload.getBytes());
 						}
+					}
+					else if ( method.toUpperCase().equals("DELETE") ){
+						urlConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 					}
 
 					urlConn.connect();
@@ -185,6 +189,11 @@ public abstract class AkiHttpUtil {
 		doHttpRequest(context, "POST", url, getBasicHeaders(), payload, callback);
 	}
 
+	public static void doDELETEHttpRequest(Context context, String url, AsyncCallback callback){
+		Log.i(AkiApplication.TAG, "DELETE " + url);
+		doHttpRequest(context, "DELETE", url, getBasicHeaders(), null, callback);
+	}
+	
 	private static JsonObject doHttpRequestAndWait(Context context, String method, String url, JsonObject headers, JsonObject payload, AsyncCallback callback){
 
 		if ( !isConnectedToTheInternet(context) ){
