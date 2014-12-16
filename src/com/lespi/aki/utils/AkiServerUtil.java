@@ -378,7 +378,35 @@ public class AkiServerUtil {
 				List<String> memberIds = new ArrayList<String>();
 				for ( String memberId : members.names() ){
 					memberIds.add(memberId);
+					
+					JsonObject memberInfo = members.get(memberId).asObject();
+					if ( memberInfo.get("full_name") != null && !memberInfo.get("full_name").isNull() ){
+						AkiInternalStorageUtil.cacheUserFullName(context, memberId,
+								memberInfo.get("full_name").asString());
+					}
+					if ( memberInfo.get("first_name") != null && !memberInfo.get("first_name").isNull() ){
+						AkiInternalStorageUtil.cacheUserFirstName(context, memberId,
+								memberInfo.get("first_name").asString());
+					}
+					if ( memberInfo.get("nickname") != null && !memberInfo.get("nickname").isNull() ){
+						AkiInternalStorageUtil.cacheUserNickname(context, memberId,
+								memberInfo.get("nickname").asString());
+					}
+					if ( memberInfo.get("gender") != null && !memberInfo.get("gender").isNull() ){
+						AkiInternalStorageUtil.cacheUserGender(context, memberId,
+								memberInfo.get("gender").asString());
+					}
+					if ( memberInfo.get("anonymous") != null && !memberInfo.get("anonymous").isNull() ){
+						AkiInternalStorageUtil.setAnonymousSetting(context, memberId,
+								memberInfo.get("anonymous").asBoolean());
+					}
 				}
+				
+				AkiMutualAdapter mutualAdapter = AkiMutualAdapter.getInstance(context);
+				mutualAdapter.notifyDataSetChanged();
+				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+				chatAdapter.notifyDataSetChanged();
+				
 				callback.onSuccess(memberIds);
 			}
 
