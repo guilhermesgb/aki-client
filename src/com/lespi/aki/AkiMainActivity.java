@@ -247,6 +247,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(AkiApplication.INCOMING_MESSAGE_NOTIFICATION_ID);
 		notificationManager.cancel(AkiApplication.EXITED_ROOM_NOTIFICATION_ID);
+		notificationManager.cancel(AkiApplication.NEW_MATCH_NOTIFICATION_ID);
 
 		if ( AkiServerUtil.isActiveOnServer() ){
 			chatFragment.onResume();
