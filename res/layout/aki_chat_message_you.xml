@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/com_lespi_aki_message_you_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/com_lespi_aki_message_box_color"
-    android:id="@+id/com_lespi_aki_message_you_layout"
     android:padding="2dp" >
 
     <TextView
@@ -42,15 +42,24 @@
         android:textColor="@color/com_lespi_aki_message_text_color"
         android:textSize="@dimen/message_size_you" />
 
-
-
     <ImageView
         android:id="@+id/com_lespi_aki_message_sender_gender"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/com_lespi_aki_message_sender_gender_hint"
-        android:paddingStart="65dp"
         android:paddingEnd="0dp"
+        android:paddingStart="65dp"
         android:paddingTop="65dp" />
+
+    <ImageView
+        android:id="@+id/com_lespi_aki_message_sender_like"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/com_lespi_aki_message_sender_like_hint"
+        android:paddingStart="0dp"
+        android:paddingEnd="65dp"
+        android:paddingTop="65dp"
+        android:src="@drawable/icon_like"
+        android:visibility="gone" />
 
 </RelativeLayout>

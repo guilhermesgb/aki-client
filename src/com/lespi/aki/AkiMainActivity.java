@@ -55,6 +55,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 	private PendingIntent geofencePendingIntent;
 	private AkiChatFragment chatFragment;
 	private AkiSettingsFragment settingsFragment;
+	private AkiMutualFragment mutualsFragment;
 	private SlidingMenu slidingMenu;
 
 	@Override
@@ -103,20 +104,29 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 		settingsFragment = new AkiSettingsFragment();
 		setBehindContentView(R.layout.aki_menu_frame);
-
 		getSupportFragmentManager()
 		.beginTransaction()
 		.replace(R.id.aki_menu_frame, settingsFragment)
 		.commit();
 
+		mutualsFragment = new AkiMutualFragment();
+		getSupportFragmentManager()
+		.beginTransaction()
+		.replace(R.id.aki_mutual_interest_frame, mutualsFragment)
+		.commit();
+		
 		slidingMenu = super.getSlidingMenu();
 		slidingMenu.setShadowWidthRes(R.dimen.shadow_width);
-		slidingMenu.setShadowDrawable(R.drawable.shadow);
+		slidingMenu.setShadowDrawable(R.drawable.shadow_left);
+		slidingMenu.setSecondaryShadowDrawable(R.drawable.shadow_right);
 		slidingMenu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		slidingMenu.setFadeDegree(0.15f);
-		slidingMenu.setMode(SlidingMenu.RIGHT);
+		slidingMenu.setMode(SlidingMenu.LEFT_RIGHT);
 		slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 		slidingMenu.setTouchModeBehind(SlidingMenu.TOUCHMODE_MARGIN);
+		slidingMenu.setMenu(R.layout.aki_menu_frame);
+		slidingMenu.setSecondaryMenu(R.layout.aki_mutual_interest_frame);
+		
 		slidingMenu.setOnOpenedListener(new OnOpenedListener() {
 			@Override
 			public void onOpened() {
@@ -138,7 +148,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 		ProgressBar loadingIcon = (ProgressBar) findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
 		loadingIcon.setVisibility(View.VISIBLE);
-		slidingMenu.showContent();
+		slidingMenu.showMenu();
 		slidingMenu.setSlidingEnabled(false);
 	}
 
@@ -167,6 +177,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 					.setSmallIcon(R.drawable.notification_icon)
 					.setContentTitle(contentTitle)
 					.setContentText(contentText)
+					.setContentIntent(PendingIntent.getActivity(AkiMainActivity.this, 0, new Intent(), 0))
 					.setAutoCancel(true);
 
 					NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -236,6 +247,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(AkiApplication.INCOMING_MESSAGE_NOTIFICATION_ID);
 		notificationManager.cancel(AkiApplication.EXITED_ROOM_NOTIFICATION_ID);
+		notificationManager.cancel(AkiApplication.NEW_MATCH_NOTIFICATION_ID);
 
 		if ( AkiServerUtil.isActiveOnServer() ){
 			chatFragment.onResume();
@@ -359,10 +371,6 @@ LocationClient.OnRemoveGeofencesResultListener {
 		AkiInternalStorageUtil.cacheUserLocation(context, currentUserId, location);
 		Log.w(AkiApplication.TAG, "Current location updated to: " +
 				location.getLatitude() + ", " + location.getLongitude());
-
-		if ( chatFragment != null ){
-			chatFragment.externalRefreshAll();
-		}
 
 		if ( sendPresence ){
 			AkiServerUtil.sendPresenceToServer(context, currentUserId, new AsyncCallback() {

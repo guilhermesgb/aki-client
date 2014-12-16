@@ -11,7 +11,9 @@ import java.util.PriorityQueue;
 import java.util.Random;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -22,10 +24,17 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -40,6 +49,7 @@ import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
+import com.lespi.aki.utils.AkiServerUtil;
 
 public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
@@ -48,7 +58,8 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 	private final List<JsonObject> messages;
 	private GraphUser currentUser = null;
 	private Session currentSession = null;
-	
+	private FragmentActivity activity = null;
+
 	private final int[] COLORS = new int[] {
 			R.color.com_lespi_aki_message_text_color_0,
 			R.color.com_lespi_aki_message_text_color_1,
@@ -59,7 +70,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			R.color.com_lespi_aki_message_text_color_6
 	};
 	private final Map<String, Integer> userToColorMapping;
-	
+
 	private static AkiChatAdapter instance;
 
 	public static List<JsonObject> toJsonObjectList(PriorityQueue<JsonObject> values) {
@@ -88,7 +99,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		this.messages = messages;
 		userToColorMapping = new HashMap<String, Integer>();
 	}
-	
+
 	public void setCurrentUser(GraphUser currentUser) {
 		this.currentUser = currentUser;
 		if ( userToColorMapping.get(currentUser.getId()) == null ) {
@@ -98,6 +109,10 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 	public void setCurrentSession(Session currentSession) {
 		this.currentSession = currentSession;
+	}
+
+	public void setActivity(FragmentActivity activity) {
+		this.activity = activity;
 	}
 
 	private void assignColor(String userId, String currentUserId) {
@@ -125,11 +140,11 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			}
 		}
 	}
-	
+
 	public Integer findColor(String userId) {
 		return userToColorMapping.get(userId);
 	}
-	
+
 	public static Bitmap getRoundedBitmap(Bitmap bitmap) {
 		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
 				bitmap.getHeight(), Bitmap.Config.ARGB_8888);
@@ -173,13 +188,14 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		public TextView senderName;
 		public ImageView senderPicture;
 		public TextView message;
-//		public ImageView senderDistance;
+		//		public ImageView senderDistance;
 		public ImageView senderGender;
+		public ImageView senderLiked;
 	}
 
 	@SuppressLint("CutPasteId")
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(int position, View convertView, final ViewGroup parent) {
 
 		final JsonObject newViewData = messages.get(position);
 
@@ -188,14 +204,14 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 		final String senderId = newViewData.get("sender").asString();
 		assignColor(senderId, currentUser.getId());
-		
+
 		int rowLayout = R.layout.aki_chat_message_you;
 		if (senderId.equals(currentUser.getId())) {
 			rowLayout = R.layout.aki_chat_message_me;
 		} else if (senderId.equals(AkiApplication.SYSTEM_SENDER_ID)) {
 			rowLayout = R.layout.aki_chat_message_system;
 		}
-			
+
 		if (rowView != null) {
 
 			TextView senderIdView = (TextView) rowView
@@ -240,12 +256,14 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			viewHolder.message = (TextView) rowView
 					.findViewById(R.id.com_lespi_aki_message_text_message);
 			viewHolder.message.setAlpha(1);
-//			viewHolder.senderDistance = (ImageView) rowView
-//					.findViewById(R.id.com_lespi_aki_message_sender_distance);
-//			viewHolder.senderDistance.setImageAlpha(255);
+			//			viewHolder.senderDistance = (ImageView) rowView
+			//					.findViewById(R.id.com_lespi_aki_message_sender_distance);
+			//			viewHolder.senderDistance.setImageAlpha(255);
 			viewHolder.senderGender = (ImageView) rowView
 					.findViewById(R.id.com_lespi_aki_message_sender_gender);
 			viewHolder.senderGender.setImageAlpha(255);
+			viewHolder.senderLiked = (ImageView) rowView.
+					findViewById(R.id.com_lespi_aki_message_sender_like);
 			rowView.setTag(viewHolder);
 		}
 
@@ -266,12 +284,12 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			if ( newViewData.get("is_temporary").asString().equals("true") ){
 				rl.setAlpha(0.5f);
 			}
-		// if it is not the current user, and not the system, it is other user
+			// if it is not the current user, and not the system, it is other user
 		} else if (!senderId.equals(AkiApplication.SYSTEM_SENDER_ID)) {
 			RelativeLayout rl = (RelativeLayout) rowView.findViewById(R.id.com_lespi_aki_message_you_layout);
 			rl.setBackgroundColor(rowView.getResources().getColor(color));
 		}
-		
+
 		if (senderId.equals(currentUser.getId())) {
 
 			if (AkiInternalStorageUtil.getAnonymousSetting(context, senderId)) {
@@ -319,137 +337,140 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 				new Request(currentSession, "/" + senderId, null,
 						HttpMethod.GET, new Request.Callback() {
-							public void onCompleted(Response response) {
-								if (response.getError() == null) {
+					public void onCompleted(Response response) {
+						if (response.getError() == null) {
 
-									JsonObject information = JsonValue
-											.readFrom(response.getRawResponse())
-											.asObject();
-									String firstName = information.get(
-											"first_name").asString();
-									AkiInternalStorageUtil.cacheUserFirstName(
-											context, senderId, firstName);
-
-									if (AkiInternalStorageUtil
-											.getAnonymousSetting(context,
-													senderId)
-											|| AkiInternalStorageUtil
-													.getAnonymousSetting(
-															context,
-															currentUser.getId())) {
-
-										String nickname = AkiInternalStorageUtil
-												.getCachedUserNickname(context,
-														senderId);
-										if (nickname != null) {
-											viewHolder.senderName
-													.setText(nickname);
-										} else {
-											Log.e(AkiApplication.TAG,
-													"Privacy setting for user "
-															+ senderId
-															+ " is anonymous but he has no nickname set.");
-											viewHolder.senderName
-													.setText(senderId);
-										}
-									} else {
-										viewHolder.senderName
-												.setText(firstName);
-									}
-
-									String fullName = information.get("name")
-											.asString();
-									AkiInternalStorageUtil.cacheUserFullName(
-											context, senderId, fullName);
-								} else {
-									if (AkiInternalStorageUtil
-											.getAnonymousSetting(context,
-													senderId)
-											|| AkiInternalStorageUtil
-													.getAnonymousSetting(
-															context,
-															currentUser.getId())) {
-
-										String nickname = AkiInternalStorageUtil
-												.getCachedUserNickname(context,
-														senderId);
-										if (nickname != null) {
-											viewHolder.senderName
-													.setText(nickname);
-										} else {
-											Log.e(AkiApplication.TAG,
-													"Privacy setting for user "
-															+ senderId
-															+ " is anonymous but he has no nickname set.");
-											viewHolder.senderName
-													.setText(senderId);
-										}
-									} else {
-										Log.e(AkiApplication.TAG,
-												"A problem happened while trying to query user Name from Facebook.");
-										viewHolder.senderName.setText(senderId);
-									}
-								}
+							JsonObject information = JsonValue
+									.readFrom(response.getRawResponse())
+									.asObject();
+							JsonValue firstNameJ = information.get("first_name");
+							String firstName=senderId;
+							if(firstNameJ!=null){
+								firstName=firstNameJ.asString();
 							}
-						}).executeAsync();
+							AkiInternalStorageUtil.cacheUserFirstName(
+									context, senderId, firstName);
+
+							if (AkiInternalStorageUtil
+									.getAnonymousSetting(context,
+											senderId)
+											|| AkiInternalStorageUtil
+											.getAnonymousSetting(
+													context,
+													currentUser.getId())) {
+
+								String nickname = AkiInternalStorageUtil
+										.getCachedUserNickname(context,
+												senderId);
+								if (nickname != null) {
+									viewHolder.senderName
+									.setText(nickname);
+								} else {
+									Log.e(AkiApplication.TAG,
+											"Privacy setting for user "
+													+ senderId
+													+ " is anonymous but he has no nickname set.");
+									viewHolder.senderName
+									.setText(senderId);
+								}
+							} else {
+								viewHolder.senderName
+								.setText(firstName);
+							}
+
+							String fullName = information.get("name")
+									.asString();
+							AkiInternalStorageUtil.cacheUserFullName(
+									context, senderId, fullName);
+						} else {
+							if (AkiInternalStorageUtil
+									.getAnonymousSetting(context,
+											senderId)
+											|| AkiInternalStorageUtil
+											.getAnonymousSetting(
+													context,
+													currentUser.getId())) {
+
+								String nickname = AkiInternalStorageUtil
+										.getCachedUserNickname(context,
+												senderId);
+								if (nickname != null) {
+									viewHolder.senderName
+									.setText(nickname);
+								} else {
+									Log.e(AkiApplication.TAG,
+											"Privacy setting for user "
+													+ senderId
+													+ " is anonymous but he has no nickname set.");
+									viewHolder.senderName
+									.setText(senderId);
+								}
+							} else {
+								Log.e(AkiApplication.TAG,
+										"A problem happened while trying to query user Name from Facebook.");
+								viewHolder.senderName.setText(senderId);
+							}
+						}
+					}
+				}).executeAsync();
 			}
 
-//			AkiLocation senderLocation = AkiInternalStorageUtil
-//					.getCachedUserLocation(context, senderId);
-//			if (senderLocation == null) {
-//				Log.d(AkiApplication.TAG, "Cannot calculate distance to "
-//						+ senderId + " because its location isn't available.");
-//				viewHolder.senderDistance
-//						.setImageResource(R.drawable.indicator_far);
-//				viewHolder.senderDistance.setImageAlpha(0);
-//			} else {
-//
-//				AkiLocation currentLocation = AkiInternalStorageUtil
-//						.getCachedUserLocation(context, currentUser.getId());
-//				if (currentLocation == null) {
-//					Log.d(AkiApplication.TAG, "Cannot calculate distance to "
-//							+ senderId
-//							+ " because current location isn't available.");
-//					viewHolder.senderDistance
-//							.setImageResource(R.drawable.indicator_far);
-//					viewHolder.senderDistance.setImageAlpha(0);
-//				} else {
-//					double distance = calculateDistance(currentLocation,
-//							senderLocation);
-//
-//					Log.d(AkiApplication.TAG,
-//							"Distance to "
-//									+ AkiInternalStorageUtil
-//											.getCachedUserNickname(context,
-//													senderId) + ": " + distance);
-//
-//					double proportion = (distance / (AkiApplication.MIN_RADIUS * 2));
-//
-//					if (proportion >= 1) {
-//						viewHolder.senderDistance
-//								.setImageResource(R.drawable.indicator_far);
-//						viewHolder.senderDistance.setImageAlpha(255);
-//					} else if (proportion >= 0.65) {
-//						viewHolder.senderDistance
-//								.setImageResource(R.drawable.indicator_far);
-//						viewHolder.senderDistance
-//								.setImageAlpha((int) (255 * (proportion % 0.65 + (proportion % 0.65) * 1.8)));
-//					} else if (proportion >= 0.35) {
-//						viewHolder.senderDistance
-//								.setImageResource(R.drawable.indicator_close);
-//						viewHolder.senderDistance
-//								.setImageAlpha((int) (255 * (1 - (proportion % 0.35 + (proportion % 0.35) * 1.8))));
-//					} else {
-//						viewHolder.senderDistance
-//								.setImageResource(R.drawable.indicator_very_close);
-//						int opacity = (int) (255 * (1 - (proportion % 0.35 + (proportion % 0.35) * 1.8)));
-//						if (opacity < 128) {
-//							opacity = 128;
-//						}
-//						viewHolder.senderDistance.setImageAlpha(opacity);
-//					}
-//				}
-//			}
+			//			AkiLocation senderLocation = AkiInternalStorageUtil
+			//					.getCachedUserLocation(context, senderId);
+			//			if (senderLocation == null) {
+			//				Log.d(AkiApplication.TAG, "Cannot calculate distance to "
+			//						+ senderId + " because its location isn't available.");
+			//				viewHolder.senderDistance
+			//						.setImageResource(R.drawable.indicator_far);
+			//				viewHolder.senderDistance.setImageAlpha(0);
+			//			} else {
+			//
+			//				AkiLocation currentLocation = AkiInternalStorageUtil
+			//						.getCachedUserLocation(context, currentUser.getId());
+			//				if (currentLocation == null) {
+			//					Log.d(AkiApplication.TAG, "Cannot calculate distance to "
+			//							+ senderId
+			//							+ " because current location isn't available.");
+			//					viewHolder.senderDistance
+			//							.setImageResource(R.drawable.indicator_far);
+			//					viewHolder.senderDistance.setImageAlpha(0);
+			//				} else {
+			//					double distance = calculateDistance(currentLocation,
+			//							senderLocation);
+			//
+			//					Log.d(AkiApplication.TAG,
+			//							"Distance to "
+			//									+ AkiInternalStorageUtil
+			//											.getCachedUserNickname(context,
+			//													senderId) + ": " + distance);
+			//
+			//					double proportion = (distance / (AkiApplication.MIN_RADIUS * 2));
+			//
+			//					if (proportion >= 1) {
+			//						viewHolder.senderDistance
+			//								.setImageResource(R.drawable.indicator_far);
+			//						viewHolder.senderDistance.setImageAlpha(255);
+			//					} else if (proportion >= 0.65) {
+			//						viewHolder.senderDistance
+			//								.setImageResource(R.drawable.indicator_far);
+			//						viewHolder.senderDistance
+			//								.setImageAlpha((int) (255 * (proportion % 0.65 + (proportion % 0.65) * 1.8)));
+			//					} else if (proportion >= 0.35) {
+			//						viewHolder.senderDistance
+			//								.setImageResource(R.drawable.indicator_close);
+			//						viewHolder.senderDistance
+			//								.setImageAlpha((int) (255 * (1 - (proportion % 0.35 + (proportion % 0.35) * 1.8))));
+			//					} else {
+			//						viewHolder.senderDistance
+			//								.setImageResource(R.drawable.indicator_very_close);
+			//						int opacity = (int) (255 * (1 - (proportion % 0.35 + (proportion % 0.35) * 1.8)));
+			//						if (opacity < 128) {
+			//							opacity = 128;
+			//						}
+			//						viewHolder.senderDistance.setImageAlpha(opacity);
+			//					}
+			//				}
+			//			}
 		}
 
 		String gender = AkiInternalStorageUtil.getCachedUserGender(context,
@@ -457,28 +478,28 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		if (gender == null) {
 			new Request(currentSession, "/" + senderId, null, HttpMethod.GET,
 					new Request.Callback() {
-						public void onCompleted(Response response) {
-							if (response.getError() == null) {
+				public void onCompleted(Response response) {
+					if (response.getError() == null) {
 
-								JsonObject information = JsonValue.readFrom(
-										response.getRawResponse()).asObject();
-								JsonValue gender = information.get("gender");
-								if (gender != null) {
-									AkiInternalStorageUtil.cacheUserGender(
-											context, senderId,
-											gender.asString());
-								} else {
-									AkiInternalStorageUtil.cacheUserGender(
-											context, senderId, "unknown");
-								}
-							} else {
-								System.out.println(response.getError());
-								Log.e(AkiApplication.TAG,
-										"A problem happened while trying to query user "
-												+ "gender from Facebook.");
-							}
+						JsonObject information = JsonValue.readFrom(
+								response.getRawResponse()).asObject();
+						JsonValue gender = information.get("gender");
+						if (gender != null) {
+							AkiInternalStorageUtil.cacheUserGender(
+									context, senderId,
+									gender.asString());
+						} else {
+							AkiInternalStorageUtil.cacheUserGender(
+									context, senderId, "unknown");
 						}
-					}).executeAsync();
+					} else {
+						System.out.println(response.getError());
+						Log.e(AkiApplication.TAG,
+								"A problem happened while trying to query user "
+										+ "gender from Facebook.");
+					}
+				}
+			}).executeAsync();
 			gender = AkiInternalStorageUtil.getCachedUserGender(context,
 					senderId);
 		}
@@ -501,7 +522,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			}
 		}
 		viewHolder.senderPicture
-				.setImageBitmap(getRoundedBitmap(picturePlaceholder));
+		.setImageBitmap(getRoundedBitmap(picturePlaceholder));
 		viewHolder.senderGender.setImageBitmap(genderPlaceholder);
 		if (AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
 				|| AkiInternalStorageUtil.getAnonymousSetting(context,
@@ -528,84 +549,203 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				params.putString("height", "143");
 				new Request(currentSession, "/" + senderId + "/picture",
 						params, HttpMethod.GET, new Request.Callback() {
-							public void onCompleted(Response response) {
-								if (response.getError() != null
-										|| JsonValue
-												.readFrom(
-														response.getRawResponse())
-												.asObject().get("data") == null) {
+					public void onCompleted(Response response) {
+						if (response.getError() != null
+								|| JsonValue
+								.readFrom(
+										response.getRawResponse())
+										.asObject().get("data") == null) {
 
+							Log.e(AkiApplication.TAG,
+									"A problem happened while trying to query user "
+											+ "picture from Facebook.");
+							return;
+						}
+						JsonObject information = JsonValue
+								.readFrom(response.getRawResponse())
+								.asObject().get("data").asObject();
+
+						if (information.get("is_silhouette")
+								.asBoolean()) {
+							Log.i(AkiApplication.TAG,
+									"User does not have a picture from Facebook.");
+							return;
+						}
+
+						new AsyncTask<String, Void, Bitmap>() {
+
+							@Override
+							protected Bitmap doInBackground(
+									String... params) {
+
+								try {
+									URL picture_address = new URL(
+											params[0]);
+									Bitmap picture = getRoundedBitmap(BitmapFactory
+											.decodeStream(picture_address
+													.openConnection()
+													.getInputStream()));
+
+									AkiInternalStorageUtil
+									.cacheUserPicture(context,
+											senderId, picture);
+									return picture;
+
+								} catch (MalformedURLException e) {
+									Log.e(AkiApplication.TAG,
+											"A problem happened while trying to query"
+													+ " user picture from Facebook.");
+									e.printStackTrace();
+									return null;
+								} catch (IOException e) {
+									Log.e(AkiApplication.TAG,
+											"A problem happened while trying to query"
+													+ " user picture from Facebook.");
+									e.printStackTrace();
+									return null;
+								}
+							}
+
+							@Override
+							protected void onPostExecute(Bitmap picture) {
+								if (picture != null) {
+									viewHolder.senderPicture
+									.setImageBitmap(picture);
+								} else {
 									Log.e(AkiApplication.TAG,
 											"A problem happened while trying to query user "
 													+ "picture from Facebook.");
-									return;
 								}
-								JsonObject information = JsonValue
-										.readFrom(response.getRawResponse())
-										.asObject().get("data").asObject();
-
-								if (information.get("is_silhouette")
-										.asBoolean()) {
-									Log.i(AkiApplication.TAG,
-											"User does not have a picture from Facebook.");
-									return;
-								}
-
-								new AsyncTask<String, Void, Bitmap>() {
-
-									@Override
-									protected Bitmap doInBackground(
-											String... params) {
-
-										try {
-											URL picture_address = new URL(
-													params[0]);
-											Bitmap picture = getRoundedBitmap(BitmapFactory
-													.decodeStream(picture_address
-															.openConnection()
-															.getInputStream()));
-
-											AkiInternalStorageUtil
-													.cacheUserPicture(context,
-															senderId, picture);
-											return picture;
-
-										} catch (MalformedURLException e) {
-											Log.e(AkiApplication.TAG,
-													"A problem happened while trying to query"
-															+ " user picture from Facebook.");
-											e.printStackTrace();
-											return null;
-										} catch (IOException e) {
-											Log.e(AkiApplication.TAG,
-													"A problem happened while trying to query"
-															+ " user picture from Facebook.");
-											e.printStackTrace();
-											return null;
-										}
-									}
-
-									@Override
-									protected void onPostExecute(Bitmap picture) {
-										if (picture != null) {
-											viewHolder.senderPicture
-													.setImageBitmap(picture);
-										} else {
-											Log.e(AkiApplication.TAG,
-													"A problem happened while trying to query user "
-															+ "picture from Facebook.");
-										}
-									}
-
-								}.execute(information.get("url").asString());
 							}
-						}).executeAsync();
+
+						}.execute(information.get("url").asString());
+					}
+				}).executeAsync();
 			}
 			if (AkiInternalStorageUtil.getAnonymousSetting(context,
 					currentUser.getId())) {
 				viewHolder.senderPicture.setImageAlpha(128);
 			} else {
 				viewHolder.senderPicture.setImageAlpha(255);
+			}
+		}
+
+		if ( currentUser.getId().equals(senderId) || senderId.equals(AkiApplication.SYSTEM_SENDER_ID) ){
+			viewHolder.senderLiked.setVisibility(View.GONE);
+		}
+		else {
+
+			if (AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
+					|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId())){
+				viewHolder.senderLiked.setVisibility(View.GONE);
+				return rowView;
+			}
+
+			final GestureDetector mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+				@Override
+				public boolean onDoubleTap(MotionEvent e) {
+					if ( AkiInternalStorageUtil.cacheHasLikedUser(context, senderId) ){
+						if ( !AkiInternalStorageUtil.hasMatch(context, senderId) ){
+							AkiInternalStorageUtil.cacheDislikeUser(context, senderId);
+							AkiServerUtil.sendDislikeToServer(context, senderId);
+							AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+							chatAdapter.notifyDataSetChanged();							
+						}
+						else{
+							final StringBuilder message = new StringBuilder()
+							.append(context.getString(R.string.com_lespi_aki_mutual_interest_delete_match_confirm_text));
+							String fullName = AkiInternalStorageUtil.getCachedUserFullName(context, senderId);
+							if ( fullName != null ){
+								message.append(" " + fullName + "?");
+							}
+							else{
+								String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, senderId);
+								if ( nickname != null ){
+									message.append(" " + nickname + "?");
+								}
+								else{
+									message.append(" " + context.getString(R.string.com_lespi_aki_mutual_interest_delete_match_confirm_text_unknown_user) + "?");
+								}
+							}
+							
+							if ( activity != null ){
+								new AlertDialog.Builder(activity)
+								.setIcon(R.drawable.icon_remove)
+								.setTitle(R.string.com_lespi_aki_mutual_interest_delete_match_confirm_title)
+								.setMessage(message.toString())
+								.setPositiveButton(R.string.com_lespi_aki_confirm_yes, new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										AkiServerUtil.removeMutualInterest(context, senderId);
+									}
+								})
+								.setNegativeButton(R.string.com_lespi_aki_confirm_no, new DialogInterface.OnClickListener(){
+									@Override
+									public void onClick(DialogInterface dialog, int which) {}
+								})
+								.show();
+							}
+						}
+					}
+					else{
+						AkiInternalStorageUtil.cacheLikeUser(context, senderId);
+						AkiServerUtil.sendLikeToServer(context, senderId);
+						AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+						chatAdapter.notifyDataSetChanged();
+					}
+					return true;
+				}
+				@Override
+				public boolean onDown(MotionEvent e) {
+					return true;
+				}
+			});
+			viewHolder.senderPicture.setOnTouchListener(new OnTouchListener() {
+
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					v.performClick();
+					return mGestureDetector.onTouchEvent(event);
+				}
+
+			});
+
+			if(AkiInternalStorageUtil.cacheHasLikedUser(context, senderId)){
+				if ( viewHolder.senderLiked.getVisibility() != View.VISIBLE ){
+					Animation jumpAnimation = AnimationUtils.loadAnimation(context, R.anim.jump_in);
+					jumpAnimation.setAnimationListener(new AnimationListener() {
+
+						@Override
+						public void onAnimationStart(Animation animation) {}
+
+						@Override
+						public void onAnimationRepeat(Animation animation) {}
+
+						@Override
+						public void onAnimationEnd(Animation animation) {}
+					});
+					viewHolder.senderLiked.setVisibility(View.VISIBLE);
+					viewHolder.senderLiked.startAnimation(jumpAnimation);
+				}
+			}else{
+				if ( viewHolder.senderLiked.getVisibility() != View.INVISIBLE ){
+					Animation fadeOutAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_out);
+					fadeOutAnimation.setAnimationListener(new AnimationListener() {
+
+						@Override
+						public void onAnimationStart(Animation animation) {}
+
+						@Override
+						public void onAnimationRepeat(Animation animation) {}
+
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							viewHolder.senderLiked.setVisibility(View.INVISIBLE);
+						}
+					});
+					viewHolder.senderLiked.setVisibility(View.VISIBLE);
+					viewHolder.senderLiked.startAnimation(fadeOutAnimation);
+				}
 			}
 		}
 		return rowView;

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/com_lespi_aki_message_you_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:padding="2dp" >
+
+    <TextView
+        android:id="@+id/com_lespi_aki_mutual_interest_user_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/com_lespi_aki_mutual_interest_user_picture"
+        android:layout_width="@dimen/picture_layout_width_settings"
+        android:layout_height="@dimen/picture_layout_height_settings"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:contentDescription="@string/com_lespi_aki_mutual_interest_user_picture_hint" />
+
+    <TextView
+        android:id="@+id/com_lespi_aki_mutual_interest_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/com_lespi_aki_mutual_interest_user_picture"
+        android:layout_centerHorizontal="true"
+        android:textColor="#ffffff"
+        android:textSize="@dimen/settings_fullname_size"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/com_lespi_aki_mutual_interest_user_nick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/com_lespi_aki_mutual_interest_user_name"
+        android:layout_centerHorizontal="true"
+        android:textColor="#ffffff"
+        android:textSize="@dimen/mutual_panel_nick_size"
+        android:textStyle="italic" />
+
+    <ImageView
+        android:id="@+id/com_lespi_aki_mutual_interest_user_gender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/com_lespi_aki_mutual_interest_user_picture"
+        android:layout_marginStart="5dp"
+        android:layout_toEndOf="@+id/com_lespi_aki_mutual_interest_user_picture"
+        android:contentDescription="@string/com_lespi_aki_mutual_interest_user_gender_hint"
+        android:textColor="@color/com_lespi_aki_message_text_color" />
+
+    <ImageButton
+        android:id="@+id/com_lespi_aki_mutual_interest_delete_match_btn"
+        style="@style/AkiButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:contentDescription="@string/com_lespi_aki_mutual_interest_delete_match_hint"
+        android:padding="10dp"
+        android:src="@drawable/icon_remove"
+        android:textColor="#FFF3E7"
+        android:textSize="@dimen/settings_entry_size" />
+
+</RelativeLayout>
