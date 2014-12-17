@@ -129,11 +129,6 @@ public class AkiChatFragment extends SherlockFragment {
 			return;
 		}
 
-		final ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
-		loadingIcon.setVisibility(View.VISIBLE);
-		final RelativeLayout membersList = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
-		membersList.setVisibility(View.GONE);
-		
 		if ( !AkiHttpUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
 			CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_no_internet_connection);
 			Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
@@ -194,8 +189,10 @@ public class AkiChatFragment extends SherlockFragment {
 
 												AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 												chatAdapter.clear();
-												loadingIcon.setVisibility(View.VISIBLE);
-												membersList.setVisibility(View.GONE);
+												
+												ImageView currentUserMemberIcon = (ImageView) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list_first);
+												currentUserMemberIcon.setVisibility(View.GONE);
+												//TODO SOMETHING HERE
 
 												String contentTitle = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_title);
 												String contentText = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_text);
@@ -283,8 +280,10 @@ public class AkiChatFragment extends SherlockFragment {
 
 												AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 												chatAdapter.clear();
-												loadingIcon.setVisibility(View.VISIBLE);
-												membersList.setVisibility(View.GONE);
+												
+												ImageView currentUserMemberIcon = (ImageView) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list_first);
+												currentUserMemberIcon.setVisibility(View.GONE);
+												//TODO SOMETHING HERE
 
 												CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_skipped_chat);
 												Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
@@ -510,7 +509,7 @@ public class AkiChatFragment extends SherlockFragment {
 			webView.loadUrl("javascript:show_login_screen();");
 		}
 
-		final RelativeLayout membersList = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+		final LinearLayout membersList = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
 		membersList.setVisibility(View.GONE);
 		
 		RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
@@ -527,8 +526,6 @@ public class AkiChatFragment extends SherlockFragment {
 
 		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 		chatAdapter.clear();
-		ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
-		loadingIcon.setVisibility(View.VISIBLE);
 
 		if ( activity.locationServicesConnected() ){
 			activity.stopPeriodicLocationUpdates();
@@ -603,10 +600,10 @@ public class AkiChatFragment extends SherlockFragment {
 			activity.startPeriodicLocationUpdates();
 		}
 
-		final RelativeLayout membersList = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
-		membersList.setVisibility(View.GONE);
-		
 		AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), currentUserId);
+		
+		final LinearLayout membersList = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+		membersList.setVisibility(View.VISIBLE);
 
 		RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
 		background.setVisibility(View.GONE);
@@ -751,12 +748,6 @@ public class AkiChatFragment extends SherlockFragment {
 					memberPicture.setImageBitmap(AkiChatAdapter.getRoundedBitmap(picture));
 
 				}
-				
-				final ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
-				loadingIcon.setVisibility(View.GONE);
-
-				final RelativeLayout membersList = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
-				membersList.setVisibility(View.VISIBLE);
 			}
 
 			@Override

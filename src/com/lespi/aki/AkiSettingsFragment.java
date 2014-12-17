@@ -70,8 +70,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 			final CheckBox anonymousCheck = (CheckBox) activity.findViewById(R.id.com_lespi_aki_main_settings_anonymous);
 			anonymousCheck.setChecked(AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()));
 
-			if ( nickname == null || nickname.trim().isEmpty() ){
-				nicknameBox.setText("");
+			if ( ( nickname == null || nickname.trim().isEmpty() ) ){
 				AkiInternalStorageUtil.aMandatorySettingIsMissing(context, true);
 				anonymousCheck.setChecked(true);
 				anonymousCheck.setEnabled(false);
