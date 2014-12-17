@@ -544,6 +544,11 @@ public class AkiChatFragment extends SherlockFragment {
 				@Override
 				public void onSuccess(Object response) {
 					AkiServerUtil.leaveChatRoom(context, currentUserId);
+					AkiInternalStorageUtil.wipeMatches(context);
+					String chatId = AkiInternalStorageUtil.getCurrentChatRoom(context);
+					if ( chatId != null ){
+						AkiInternalStorageUtil.removeCachedMessages(context, chatId);
+					}
 					AkiInternalStorageUtil.clearVolatileStorage(context);
 					AkiInternalStorageUtil.wipeCachedUserLocation(context, new AsyncCallback() {
 
