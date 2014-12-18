@@ -210,6 +210,12 @@ public class AkiInternalStorageUtil {
 		}
 		return timestamps;
 	}
+	
+	public static synchronized void clearTimestamps(Context context, String chatRoom) {
+		
+		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_chat_timestamps)+chatRoom);
+		file.delete();
+	}
 
 	public static String getMostRecentTimestamp(Context context){
 
@@ -778,10 +784,15 @@ public class AkiInternalStorageUtil {
 	public static synchronized Set<String> getCurrentChatMembers(Context context) {
 
 		Set<String> memberIds = new HashSet<String>();
+		String currentChat = getCurrentChatRoom(context);
+		if ( currentChat == null ){
+			return memberIds;
+		}
+
 		try {
 
 			ObjectInputStream ois = new ObjectInputStream(context.openFileInput(
-					context.getString(R.string.com_lespi_aki_data_chat_members)));
+					context.getString(R.string.com_lespi_aki_data_chat_members) + currentChat));
 			memberIds = (Set<String>) ois.readObject();
 			ois.close();
 		} catch (FileNotFoundException e) {
@@ -798,12 +809,17 @@ public class AkiInternalStorageUtil {
 
 	public static void chatMemberHasJoined(Context context, String userId, boolean logMemberArrival) {
 
+		String currentChat = getCurrentChatRoom(context);
+		if ( currentChat == null ){
+			return;
+		}
+		
 		try {
 			Set<String> memberIds = getCurrentChatMembers(context);
 			memberIds.add(userId);
 
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
-					context.getString(R.string.com_lespi_aki_data_chat_members), Context.MODE_PRIVATE));
+					context.getString(R.string.com_lespi_aki_data_chat_members) + currentChat, Context.MODE_PRIVATE));
 			oos.writeObject(memberIds);
 			oos.close();
 
@@ -830,6 +846,11 @@ public class AkiInternalStorageUtil {
 
 	public static synchronized void chatMemberHasLeft(Context context, String userId) {
 
+		String currentChat = getCurrentChatRoom(context);
+		if ( currentChat == null ){
+			return;
+		}
+		
 		try {
 			Set<String> memberIds = getCurrentChatMembers(context);
 			if ( memberIds.contains(userId) ){
@@ -837,7 +858,7 @@ public class AkiInternalStorageUtil {
 			}
 
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
-					context.getString(R.string.com_lespi_aki_data_chat_members), Context.MODE_PRIVATE));
+					context.getString(R.string.com_lespi_aki_data_chat_members) + currentChat, Context.MODE_PRIVATE));
 			oos.writeObject(memberIds);
 			oos.close();
 
@@ -862,7 +883,12 @@ public class AkiInternalStorageUtil {
 
 	public static synchronized void wipeCurrentChatMembers(Context context) {
 
-		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_chat_members));
+		String currentChat = getCurrentChatRoom(context);
+		if ( currentChat == null ){
+			return;
+		}
+		
+		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_chat_members) + currentChat);
 		file.delete();
 	}
 }

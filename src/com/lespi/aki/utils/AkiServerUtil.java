@@ -308,6 +308,8 @@ public class AkiServerUtil {
 
 	public static void enterChatRoom(Context context, String currentUserId, String newChatRoom) {
 
+		Log.w(AkiApplication.TAG, "GOT INTO ENTER CHAT");
+		
 		boolean redirectedToNewChat = false;
 		String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
 		if ( currentChatRoom == null ){
@@ -344,16 +346,27 @@ public class AkiServerUtil {
 		AkiInternalStorageUtil.willUpdateGeofence(context);
 		AkiInternalStorageUtil.clearUserLikes(context);
 		AkiInternalStorageUtil.cacheLikeMutualInterests(context);
-		getMembersList(context, null, true);
+		getMembersList(context, null);
 		
 		if ( redirectedToNewChat ){
+			Log.w(AkiApplication.TAG, "Just gave a 'you've been redirected' message");
 			AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
 					context.getResources().getString(R.string.com_lespi_aki_message_system_redirected_to_new_chat_room));
 		}
 		else{
+			Log.w(AkiApplication.TAG, "Just gave a 'you've joined chat' message");
 			AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
 					context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room));
 		}
+
+		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+			List<JsonObject> messages = AkiChatAdapter
+					.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, newChatRoom));
+			chatAdapter.clear();
+			if ( messages != null ){
+				chatAdapter.addAll(messages);
+			}
+		chatAdapter.notifyDataSetChanged();
 	}
 
 	public static void leaveChatRoom(Context context, String currentUserId) {
@@ -367,6 +380,8 @@ public class AkiServerUtil {
 			Log.i(AkiApplication.TAG, "No need to unsubscribe as no current chat room address is set.");
 		}
 		else{
+			AkiInternalStorageUtil.wipeCurrentChatMembers(context);
+			AkiInternalStorageUtil.clearTimestamps(context, currentChatRoom);
 			PushService.unsubscribe(context, currentChatRoom);
 			AkiInternalStorageUtil.setCurrentChatRoom(context, null);
 			Log.i(AkiApplication.TAG, "Unsubscribed from chat room address {" + currentChatRoom + "}.");
@@ -380,11 +395,10 @@ public class AkiServerUtil {
 
 	public static void getMembersList(final Context context, final AsyncCallback callback) {
 		
-		getMembersList(context, callback, false);
-	}
-	
-	private static void getMembersList(final Context context, final AsyncCallback callback, final boolean resetCachedMembersList) {
-
+		if ( AkiInternalStorageUtil.getCurrentChatRoom(context) == null ){
+			return;
+		}
+		
 		AkiHttpUtil.doGETHttpRequest(context, "/members", new AsyncCallback() {
 
 			@Override
@@ -392,13 +406,13 @@ public class AkiServerUtil {
 				
 				JsonObject members = ((JsonObject) response).get("members").asObject();
 
-				boolean shouldRefreshMessages = false;
+				boolean shouldRefreshMessages = true;
+				boolean thereAreNewMessages = false;
 				
-				if ( resetCachedMembersList ){
-					AkiInternalStorageUtil.wipeCurrentChatMembers(context);
-				}
-
 				Set<String> currentMembers = AkiInternalStorageUtil.getCurrentChatMembers(context);
+				if ( currentMembers.size() == 0 ){
+					shouldRefreshMessages = false;
+				}
 				
 				List<String> memberIds = new ArrayList<String>();
 				for ( String memberId : members.names() ){
@@ -430,22 +444,20 @@ public class AkiServerUtil {
 						currentMembers.remove(memberId);
 					}
 					else{
-						AkiInternalStorageUtil.chatMemberHasJoined(context, memberId, !resetCachedMembersList);
-						if ( !resetCachedMembersList ){
-							shouldRefreshMessages = true;
-						}
+						AkiInternalStorageUtil.chatMemberHasJoined(context, memberId, shouldRefreshMessages);
+						thereAreNewMessages = true;
 					}
 				}
 				
 				for ( String oldMemberId : currentMembers ){
 					AkiInternalStorageUtil.chatMemberHasLeft(context, oldMemberId);
-					shouldRefreshMessages = true;
+					thereAreNewMessages = true;
 				}
 				
 				AkiMutualAdapter mutualAdapter = AkiMutualAdapter.getInstance(context);
 				mutualAdapter.notifyDataSetChanged();
 				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
-				if ( shouldRefreshMessages ){
+				if ( shouldRefreshMessages && thereAreNewMessages ){
 					String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
 					List<JsonObject> messages = AkiChatAdapter
 							.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, currentChatRoom));

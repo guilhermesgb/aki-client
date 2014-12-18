@@ -573,6 +573,7 @@ public class AkiChatFragment extends SherlockFragment {
 					CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_exited_chat);
 					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 					toast.show();
+					AkiApplication.isNotLoggedIn();
 				}
 
 				@Override
@@ -588,7 +589,6 @@ public class AkiChatFragment extends SherlockFragment {
 			});
 		}
 
-		AkiApplication.isNotLoggedIn();
 		ParseInstallation installation = ParseInstallation.getCurrentInstallation();
 		installation.put("uid", "not_logged");
 		installation.saveInBackground();

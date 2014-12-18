@@ -1,6 +1,7 @@
 package com.lespi.aki.receivers;
 
 import java.util.List;
+import java.util.Set;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -37,6 +38,8 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 
 			String userId = userIdJSON.asString();
 			
+			Set<String> currentMemberIds = AkiInternalStorageUtil.getCurrentChatMembers(context);
+			
 			JsonValue firstName = incomingData.get("first_name");
 			if ( firstName != null ){
 				AkiInternalStorageUtil.cacheUserFirstName(context, userId, firstName.asString());
@@ -66,7 +69,8 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 				
 				String oldNickname = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
 				if ( oldNickname != null && !oldNickname.equals(nickname.asString())
-						&& currentUserId != null && !currentUserId.equals(userId) ){
+						&& currentUserId != null && !currentUserId.equals(userId)
+						&& currentMemberIds.contains(userId) ){
 
 					int formatId = R.string.com_lespi_aki_message_system_nickname_change_other;
 					if ( knownGender.equals("male") ){
@@ -94,7 +98,8 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 			boolean previouslyAnonymous = AkiInternalStorageUtil.getAnonymousSetting(context, userId);
 			if ( !anonymous && previouslyAnonymous ){
 				if ( fullName != null
-						&& currentUserId != null && !currentUserId.equals(userId) ){
+						&& currentUserId != null && !currentUserId.equals(userId)
+						&& currentMemberIds.contains(userId) ){
 
 					int formatId = R.string.com_lespi_aki_message_system_realname_reveal_other;
 					if ( knownGender.equals("male") ){
@@ -132,9 +137,8 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 			
 			AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 			if ( shouldRefreshMessages ){
-				String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
 				List<JsonObject> messages = AkiChatAdapter
-						.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, currentChatRoom));
+						.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, chatRoom));
 				chatAdapter.clear();
 				if ( messages != null ){
 					chatAdapter.addAll(messages);
