@@ -138,18 +138,6 @@
                 android:src="@drawable/icon_mutual" />
         </RelativeLayout>
 
-<!--         <ProgressBar -->
-<!--             android:id="@+id/com_lespi_aki_main_chat_progress_bar" -->
-<!--             android:layout_width="@dimen/progress_bar_layout_width_members" -->
-<!--             android:layout_height="@dimen/progress_bar_layout_height_members" -->
-<!--             android:layout_gravity="center" -->
-<!--             android:layout_marginTop="15dp" -->
-<!--             android:maxHeight="@dimen/progress_bar_layout_height_members" -->
-<!--             android:maxWidth="@dimen/progress_bar_layout_width_members" -->
-<!--             android:minHeight="@dimen/progress_bar_layout_height_members" -->
-<!--             android:minWidth="@dimen/progress_bar_layout_width_members" -->
-<!--             android:visibility="visible" /> -->
-        
         <LinearLayout
             android:id="@+id/com_lespi_aki_main_chat_members_list"
             android:layout_width="match_parent"

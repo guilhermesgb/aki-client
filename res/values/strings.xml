@@ -46,6 +46,10 @@
     <string name="com_lespi_aki_message_system_realname_reveal_female">revelou que ela se chama:</string>
     <string name="com_lespi_aki_message_system_realname_reveal_other">revelou que seu nome é:</string>
     <string name="com_lespi_aki_message_system_joined_new_chat_room">Você entrou numa sala de bate-papo</string>
+    <string name="com_lespi_aki_message_system_skipped_into_new_chat_room">Você pulou de outra sala de bate-papo para esta aqui</string>
+    <string name="com_lespi_aki_message_system_redirected_to_new_chat_room">Você foi redirecionado para esta sala de bate-papo</string>
+    <string name="com_lespi_aki_message_system_user_arrived_to_chat_room">entrou na sala de bate-papo</string>
+	<string name="com_lespi_aki_message_system_user_left_chat_room">saiu da sala de bate-papo</string>
     <string name="com_lespi_aki_notif_new_message_title">"Chegou mensagem nova no bate-papo"</string>
     <string name="com_lespi_aki_notif_new_message_text">"Você recebeu uma nova mensagem."</string>
     <string name="com_lespi_aki_notif_new_messages_title">"Chegaram %d mensagens novas no bate-papo"</string>
@@ -73,6 +77,7 @@
     <string name="com_lespi_aki_data_user_location">user-location_</string>
     <string name="com_lespi_aki_data_chat_messages">chat-room_</string>
     <string name="com_lespi_aki_data_chat_timestamps">chat-timestamps_</string>
+    <string name="com_lespi_aki_data_chat_members">chat-members</string>
     <string name="com_lespi_aki_data_matches">user-matches</string>
     <string name="com_lespi_aki_data_mandatory_setting_missing">mandatory-setting-missing</string>
     <string name="com_lespi_aki_data_anonymous_setting">anonymous-setting_</string>

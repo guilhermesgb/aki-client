@@ -190,8 +190,8 @@ public class AkiChatFragment extends SherlockFragment {
 												AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 												chatAdapter.clear();
 												
-												ImageView currentUserMemberIcon = (ImageView) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list_first);
-												currentUserMemberIcon.setVisibility(View.GONE);
+												LinearLayout currentMemberIcons = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+												currentMemberIcons.setVisibility(View.INVISIBLE);
 												//TODO SOMETHING HERE
 
 												String contentTitle = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_title);
@@ -281,8 +281,8 @@ public class AkiChatFragment extends SherlockFragment {
 												AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 												chatAdapter.clear();
 												
-												ImageView currentUserMemberIcon = (ImageView) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list_first);
-												currentUserMemberIcon.setVisibility(View.GONE);
+												LinearLayout currentMemberIcons = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+												currentMemberIcons.setVisibility(View.INVISIBLE);
 												//TODO SOMETHING HERE
 
 												CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_skipped_chat);
@@ -607,8 +607,9 @@ public class AkiChatFragment extends SherlockFragment {
 
 		AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), currentUserId);
 		
-		final LinearLayout membersList = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
-		membersList.setVisibility(View.VISIBLE);
+//		final LinearLayout membersList = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+//		membersList.setVisibility(View.VISIBLE);
+		//TODO THIS IS RELATED AS WELL, GUESS CAN TAKE THIS OUT
 
 		RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
 		background.setVisibility(View.GONE);
@@ -664,6 +665,7 @@ public class AkiChatFragment extends SherlockFragment {
 				listView.setWillNotCacheDrawing(true);
 
 				refreshMembersList(activity, currentUser.getId());
+				//TODO APPARENTLY HAVE TO REMOVE THE OTHER ONE TO AVOID RACE CONDITION
 			}
 		}.execute();
 	}
@@ -753,6 +755,10 @@ public class AkiChatFragment extends SherlockFragment {
 					memberPicture.setImageBitmap(AkiChatAdapter.getRoundedBitmap(picture));
 
 				}
+				
+				LinearLayout currentMemberIcons = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+				currentMemberIcons.setVisibility(View.VISIBLE);
+				//TODO THIS IS RELATED TO THE OTHER TOODS
 			}
 
 			@Override
@@ -801,6 +807,7 @@ public class AkiChatFragment extends SherlockFragment {
 		listView.setWillNotCacheDrawing(true);
 
 		refreshMembersList(activity, currentUserId);
+		//TODO APPARENTLY HAVE TO REMOVE TO AVOID RACE CONDITION
 	}
 	
 	@Override
@@ -969,5 +976,4 @@ public class AkiChatFragment extends SherlockFragment {
 		uiHelper.onSaveInstanceState(outState);
 	}
 
-	
 }

@@ -1,5 +1,7 @@
 package com.lespi.aki.receivers;
 
+import java.util.List;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +27,8 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 
 		Log.d(AkiApplication.TAG, "Received event [" + event + "] on chat room [" + chatRoom + "].");
 
+		boolean shouldRefreshMessages = false;
+		
 		JsonValue userIdJSON = incomingData.get("from");
 		
 		String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
@@ -74,6 +78,7 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 					String format = "%s " + context.getResources().getString(formatId) + " %s";
 					AkiInternalStorageUtil.storeSystemMessage(context, chatRoom,
 							String.format(format, oldNickname, nickname.asString()));
+					shouldRefreshMessages = true;
 				}
 				AkiInternalStorageUtil.cacheUserNickname(context, userId, nickname.asString());
 			}
@@ -101,6 +106,7 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 					String format = "%s " + context.getResources().getString(formatId) + " %s";
 					AkiInternalStorageUtil.storeSystemMessage(context, chatRoom,
 							String.format(format, nickname.asString(), fullName.asString()));
+					shouldRefreshMessages = true;
 				}
 			}
 			AkiInternalStorageUtil.setAnonymousSetting(context, userId, anonymous);
@@ -125,6 +131,15 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 			}
 			
 			AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+			if ( shouldRefreshMessages ){
+				String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
+				List<JsonObject> messages = AkiChatAdapter
+						.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, currentChatRoom));
+				chatAdapter.clear();
+				if ( messages != null ){
+					chatAdapter.addAll(messages);
+				}
+			}
 			chatAdapter.notifyDataSetChanged();
 			
 			AkiChatFragment.getInstance().externalRefreshAll();

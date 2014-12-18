@@ -309,9 +309,12 @@ public class AkiInternalStorageUtil {
 	public static void cacheLikeMutualInterests(Context context) {
 
 		Set<String> matches = retrieveMatches(context);
+		Set<String> currentChatMembers = getCurrentChatMembers(context);
 		for ( String userId : matches ){
-			AkiServerUtil.sendLikeToServer(context, userId);
-			cacheLikeUser(context, userId);
+			if ( currentChatMembers.contains(userId) ){
+				AkiServerUtil.sendLikeToServer(context, userId);
+				cacheLikeUser(context, userId);
+			}
 		}
 	}
 
@@ -771,4 +774,95 @@ public class AkiInternalStorageUtil {
 		sharedPref.edit().clear().commit();
 	}
 
+	@SuppressWarnings("unchecked")
+	public static synchronized Set<String> getCurrentChatMembers(Context context) {
+
+		Set<String> memberIds = new HashSet<String>();
+		try {
+
+			ObjectInputStream ois = new ObjectInputStream(context.openFileInput(
+					context.getString(R.string.com_lespi_aki_data_chat_members)));
+			memberIds = (Set<String>) ois.readObject();
+			ois.close();
+		} catch (FileNotFoundException e) {
+			Log.i(AkiApplication.TAG, "There are no saved chat memberIds.");
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "Could not retrieve saved chat memberIds.");
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			Log.e(AkiApplication.TAG, "Could not retrieve saved chat memberIds.");
+			e.printStackTrace();			
+		}
+		return memberIds;
+	}
+
+	public static void chatMemberHasJoined(Context context, String userId, boolean logMemberArrival) {
+
+		try {
+			Set<String> memberIds = getCurrentChatMembers(context);
+			memberIds.add(userId);
+
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+					context.getString(R.string.com_lespi_aki_data_chat_members), Context.MODE_PRIVATE));
+			oos.writeObject(memberIds);
+			oos.close();
+
+			if ( logMemberArrival ){
+				String currentUserId = getCurrentUser(context);
+				String identifier = getCachedUserFullName(context, userId);
+				if ( getAnonymousSetting(context, currentUserId) || getAnonymousSetting(context, userId) || identifier == null ){
+					identifier = getCachedUserNickname(context, userId);
+					if ( identifier == null ){
+						identifier = userId;
+					}
+				}
+				
+				String currentChatRoom = getCurrentChatRoom(context);
+				storeSystemMessage(context, currentChatRoom,
+						identifier + " " + context.getString(R.string.com_lespi_aki_message_system_user_arrived_to_chat_room));
+			}
+
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "Could not add chat member of id: " + userId + ".");
+			e.printStackTrace();
+		}
+	}
+
+	public static synchronized void chatMemberHasLeft(Context context, String userId) {
+
+		try {
+			Set<String> memberIds = getCurrentChatMembers(context);
+			if ( memberIds.contains(userId) ){
+				memberIds.remove(userId);
+			}
+
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+					context.getString(R.string.com_lespi_aki_data_chat_members), Context.MODE_PRIVATE));
+			oos.writeObject(memberIds);
+			oos.close();
+
+			String currentUserId = getCurrentUser(context);
+			String identifier = getCachedUserFullName(context, userId);
+			if ( getAnonymousSetting(context, currentUserId) || getAnonymousSetting(context, userId) || identifier == null ){
+				identifier = getCachedUserNickname(context, userId);
+				if ( identifier == null ){
+					identifier = userId;
+				}
+			}
+			
+			String currentChatRoom = getCurrentChatRoom(context);
+			storeSystemMessage(context, currentChatRoom,
+					identifier + " " + context.getString(R.string.com_lespi_aki_message_system_user_left_chat_room));
+
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "Could not remove chat member of id: " + userId + ".");
+			e.printStackTrace();
+		}
+	}
+
+	public static synchronized void wipeCurrentChatMembers(Context context) {
+
+		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_chat_members));
+		file.delete();
+	}
 }

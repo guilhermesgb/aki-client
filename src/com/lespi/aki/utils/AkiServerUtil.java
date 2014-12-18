@@ -308,6 +308,7 @@ public class AkiServerUtil {
 
 	public static void enterChatRoom(Context context, String currentUserId, String newChatRoom) {
 
+		boolean redirectedToNewChat = false;
 		String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
 		if ( currentChatRoom == null ){
 			Log.i(AkiApplication.TAG, "No current chat room address set.");
@@ -321,6 +322,7 @@ public class AkiServerUtil {
 		}
 		else{
 			leaveChatRoom(context, currentUserId);
+			redirectedToNewChat = true;
 			Log.i(AkiApplication.TAG, "Had to leave current chat room address {" +
 					currentChatRoom + "} because will be assigned to new chat room " +
 					"address {" + newChatRoom + "}.");
@@ -342,8 +344,16 @@ public class AkiServerUtil {
 		AkiInternalStorageUtil.willUpdateGeofence(context);
 		AkiInternalStorageUtil.clearUserLikes(context);
 		AkiInternalStorageUtil.cacheLikeMutualInterests(context);
-		AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
-				context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room));
+		getMembersList(context, null, true);
+		
+		if ( redirectedToNewChat ){
+			AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
+					context.getResources().getString(R.string.com_lespi_aki_message_system_redirected_to_new_chat_room));
+		}
+		else{
+			AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
+					context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room));
+		}
 	}
 
 	public static void leaveChatRoom(Context context, String currentUserId) {
@@ -369,12 +379,27 @@ public class AkiServerUtil {
 	}
 
 	public static void getMembersList(final Context context, final AsyncCallback callback) {
+		
+		getMembersList(context, callback, false);
+	}
+	
+	private static void getMembersList(final Context context, final AsyncCallback callback, final boolean resetCachedMembersList) {
 
 		AkiHttpUtil.doGETHttpRequest(context, "/members", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
+				
 				JsonObject members = ((JsonObject) response).get("members").asObject();
+
+				boolean shouldRefreshMessages = false;
+				
+				if ( resetCachedMembersList ){
+					AkiInternalStorageUtil.wipeCurrentChatMembers(context);
+				}
+
+				Set<String> currentMembers = AkiInternalStorageUtil.getCurrentChatMembers(context);
+				
 				List<String> memberIds = new ArrayList<String>();
 				for ( String memberId : members.names() ){
 					memberIds.add(memberId);
@@ -400,24 +425,54 @@ public class AkiServerUtil {
 						AkiInternalStorageUtil.setAnonymousSetting(context, memberId,
 								memberInfo.get("anonymous").asBoolean());
 					}
+					
+					if ( currentMembers.contains(memberId) ){
+						currentMembers.remove(memberId);
+					}
+					else{
+						AkiInternalStorageUtil.chatMemberHasJoined(context, memberId, !resetCachedMembersList);
+						if ( !resetCachedMembersList ){
+							shouldRefreshMessages = true;
+						}
+					}
+				}
+				
+				for ( String oldMemberId : currentMembers ){
+					AkiInternalStorageUtil.chatMemberHasLeft(context, oldMemberId);
+					shouldRefreshMessages = true;
 				}
 				
 				AkiMutualAdapter mutualAdapter = AkiMutualAdapter.getInstance(context);
 				mutualAdapter.notifyDataSetChanged();
 				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+				if ( shouldRefreshMessages ){
+					String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
+					List<JsonObject> messages = AkiChatAdapter
+							.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, currentChatRoom));
+					chatAdapter.clear();
+					if ( messages != null ){
+						chatAdapter.addAll(messages);
+					}
+				}
 				chatAdapter.notifyDataSetChanged();
 				
-				callback.onSuccess(memberIds);
+				if ( callback != null ){
+					callback.onSuccess(memberIds);
+				}
 			}
 
 			@Override
 			public void onFailure(Throwable failure) {
-				callback.onFailure(failure);
+				if ( callback != null ){
+					callback.onFailure(failure);
+				}
 			}
 
 			@Override
 			public void onCancel() {
-				callback.onCancel();
+				if ( callback != null ){
+					callback.onCancel();
+				}
 			}
 		});
 	}
@@ -618,7 +673,7 @@ public class AkiServerUtil {
 						AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 						List<JsonObject> messagesList = AkiChatAdapter.toJsonObjectList(
 								AkiInternalStorageUtil.retrieveMessages(context, chatRoom)
-								);
+						);
 
 						chatAdapter.clear();
 						if ( messagesList != null ){

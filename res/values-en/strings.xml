@@ -46,6 +46,10 @@
     <string name="com_lespi_aki_message_system_realname_reveal_female">has revealed she\'s called:</string>
     <string name="com_lespi_aki_message_system_realname_reveal_other">has revealed that is called:</string>
     <string name="com_lespi_aki_message_system_joined_new_chat_room">You have joined a chat room</string>
+    <string name="com_lespi_aki_message_system_skipped_into_new_chat_room">You have skipped from another chat room into this one</string>
+    <string name="com_lespi_aki_message_system_redirected_to_new_chat_room">You have been redirected to this chat room</string>
+    <string name="com_lespi_aki_message_system_user_arrived_to_chat_room">has joined this chat room</string>
+	<string name="com_lespi_aki_message_system_user_left_chat_room">left this chat room</string>
     <string name="com_lespi_aki_notif_new_message_title">"New message have arrived"</string>
     <string name="com_lespi_aki_notif_new_message_text">"You've received a new message."</string>
     <string name="com_lespi_aki_notif_new_messages_title">"%d new messages from Aki"</string>
@@ -73,6 +77,7 @@
     <string name="com_lespi_aki_data_user_location">user-location_</string>
     <string name="com_lespi_aki_data_chat_messages">chat-room_</string>
     <string name="com_lespi_aki_data_chat_timestamps">chat-timestamps_</string>
+    <string name="com_lespi_aki_data_chat_members">chat-members</string>
     <string name="com_lespi_aki_data_matches">user-matches</string>
     <string name="com_lespi_aki_data_mandatory_setting_missing">mandatory-setting-missing</string>
     <string name="com_lespi_aki_data_anonymous_setting">anonymous-setting_</string>
