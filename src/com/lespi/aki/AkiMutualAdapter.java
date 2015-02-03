@@ -12,6 +12,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -340,6 +341,15 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 						public void onClick(DialogInterface dialog, int which) {}
 					})
 					.show();
+				}
+			});
+			
+			rowView.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					Intent intent = new Intent(activity, AkiMatchProfileActivity.class);
+					intent.putExtra(AkiMatchProfileActivity.KEY_USER_ID, userId);
+					activity.startActivity(intent);
 				}
 			});
 		}

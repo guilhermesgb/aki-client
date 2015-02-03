@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:facebook="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:alpha="0.9"
+    android:background="#333f4f"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingTop="@dimen/activity_vertical_margin" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/button_height"
+        android:background="#956134"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/com_lespi_aki_match_profile_header"
+            style="@style/AkiButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layoutDirection="ltr"
+            android:textColor="#ffffff"
+            android:textSize="19sp" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="80dp" >
+
+        <ImageView
+            android:id="@+id/com_lespi_aki_match_profile_cover"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/profile_cover_photo_height"
+            android:layout_alignParentTop="true"
+            android:contentDescription="@string/com_lespi_aki_main_settings_cover_hint"
+            android:orientation="horizontal" />
+
+        <ImageView
+            android:id="@+id/com_lespi_aki_match_profile_picture"
+            android:layout_width="@dimen/picture_layout_width_profile"
+            android:layout_height="@dimen/picture_layout_height_profile"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="146dp"
+            android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint" />
+
+        <ImageView
+            android:id="@+id/com_lespi_aki_match_profile_gender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/com_lespi_aki_match_profile_picture"
+            android:layout_marginStart="5dp"
+            android:layout_toEndOf="@+id/com_lespi_aki_match_profile_picture"
+            android:contentDescription="@string/com_lespi_aki_mutual_interest_user_gender_hint"
+            android:textColor="@color/com_lespi_aki_message_text_color" />
+
+        <TextView
+            android:id="@+id/com_lespi_aki_match_profile_fullname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/com_lespi_aki_match_profile_cover"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:textColor="#FFF3E7"
+            android:textSize="@dimen/settings_fullname_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/com_lespi_aki_match_profile_nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/com_lespi_aki_match_profile_fullname"
+            android:layout_centerHorizontal="true"
+            android:textColor="#ffffff"
+            android:textSize="@dimen/mutual_panel_nick_size"
+            android:textStyle="italic" />
+    </RelativeLayout>
+
+</FrameLayout>

@@ -35,7 +35,7 @@
         <ImageView
             android:id="@+id/com_lespi_aki_main_settings_cover"
             android:layout_width="fill_parent"
-            android:layout_height="@dimen/cover_photo_height"
+            android:layout_height="@dimen/settings_cover_photo_height"
             android:layout_alignParentTop="true"
             android:contentDescription="@string/com_lespi_aki_main_settings_cover_hint"
             android:orientation="horizontal" />

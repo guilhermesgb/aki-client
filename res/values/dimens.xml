@@ -14,6 +14,8 @@
     <dimen name="picture_layout_height_settings">71dp</dimen>
     <dimen name="picture_layout_width_members">54dp</dimen>
     <dimen name="picture_layout_height_members">54dp</dimen>
+    <dimen name="picture_layout_width_profile">117dp</dimen>
+    <dimen name="picture_layout_height_profile">117dp</dimen>
     <dimen name="progress_bar_layout_width_members">32dp</dimen>
     <dimen name="progress_bar_layout_height_members">32dp</dimen>
     <dimen name="sender_name_size_me">12sp</dimen>
@@ -21,9 +23,10 @@
     <dimen name="sender_name_size_you">14sp</dimen>
     <dimen name="message_size_you">16sp</dimen>
     <dimen name="message_size_system">12sp</dimen>
-    <dimen name="cover_photo_height">120dp</dimen>
+    <dimen name="settings_cover_photo_height">120dp</dimen>
     <dimen name="settings_fullname_size">20dp</dimen>
-    <dimen name="mutual_panel_nick_size">17dp</dimen>
     <dimen name="settings_entry_size">16sp</dimen>
+    <dimen name="mutual_panel_nick_size">17dp</dimen>
+    <dimen name="profile_cover_photo_height">240dp</dimen>    
     
 </resources>

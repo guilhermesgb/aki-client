@@ -37,6 +37,7 @@
     <string name="com_lespi_aki_mutual_interest_delete_match_confirm_text">Are you sure you want to remove match with </string>
     <string name="com_lespi_aki_mutual_interest_delete_match_confirm_text_unknown_user">this user</string>
     <string name="com_lespi_aki_mutual_interest_no_matches_info">You\'ve got no matches so far!</string>
+    <string name="com_lespi_aki_match_profile_header_pattern">"%s's profile"</string>
     <string name="com_lespi_aki_confirm_yes">Yes!</string>
     <string name="com_lespi_aki_confirm_no">No!</string>
     <string name="com_lespi_aki_message_system_nickname_change_male">has changed his nickname to:</string>
