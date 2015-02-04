@@ -127,7 +127,37 @@ public class AkiSettingsFragment extends SherlockFragment {
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
 					}
-					AkiServerUtil.sendPresenceToServer(context, currentUser.getId());
+					AkiServerUtil.sendPresenceToServer(context, currentUser.getId(), new AsyncCallback() {
+						@Override
+						public void onSuccess(Object response) {
+							AkiServerUtil.uploadCoverPhoto(context, currentUser.getId(), new AsyncCallback() {
+								@Override
+								public void onSuccess(Object response) {
+									Log.i(AkiApplication.TAG, "Cover photo of user {" + currentUser.getId() + "} uploaded to server!");
+								}
+								
+								@Override
+								public void onFailure(Throwable error) {
+									Log.e(AkiApplication.TAG, "Error while trying to upload cover photo of user {" + currentUser.getId() + "} to server.");
+								}
+								
+								@Override
+								public void onCancel() {
+									Log.e(AkiApplication.TAG, "Could not upload cover photo of user {" + currentUser.getId() + "} to server.");
+								}
+							});							
+						}
+						
+						@Override
+						public void onFailure(Throwable failure) {
+							Log.e(AkiApplication.TAG, "Error while trying user {" + currentUser.getId() + "} trying to send presence to server.");
+						}
+						
+						@Override
+						public void onCancel() {
+							Log.e(AkiApplication.TAG, "User {" + currentUser.getId() + "} could not send presence to server.");
+						}
+					});
 				}
 			});
 
@@ -137,7 +167,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				public void onClick(View view) {
 					if ( anonymousCheck.isChecked() != true && !AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
 						AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), anonymousCheck.isChecked());
-						AkiServerUtil.sendPresenceToServer(context, currentUser.getId());
+						AkiServerUtil.sendPresenceToServer(context, currentUser.getId(), null);
 					}
 					else{
 						anonymousCheck.setChecked(false);

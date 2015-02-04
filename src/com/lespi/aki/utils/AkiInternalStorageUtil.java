@@ -469,24 +469,6 @@ public class AkiInternalStorageUtil {
 			oos.writeObject(bitmapDataObject);
 
 			oos.close();
-			
-			AkiServerUtil.uploadCoverPhoto(context, userId, new AsyncCallback() {
-				@Override
-				public void onSuccess(Object response) {
-					Log.i(AkiApplication.TAG, "Cover photo of user {" + userId + "} uploaded to server!");
-				}
-				
-				@Override
-				public void onFailure(Throwable error) {
-					Log.e(AkiApplication.TAG, "Error while trying to upload cover photo of user {" + userId + "} to server.");
-				}
-				
-				@Override
-				public void onCancel() {
-					Log.e(AkiApplication.TAG, "Could not upload cover photo of user {" + userId + "} to server.");
-				}
-			});
-			
 		} catch (IOException e) {
 			Log.e(AkiApplication.TAG, "A problem happened while trying to cache" +
 					" a cover photo for this user "+userId+".");

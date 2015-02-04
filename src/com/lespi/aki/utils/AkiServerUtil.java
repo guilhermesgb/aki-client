@@ -105,10 +105,6 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static synchronized void sendPresenceToServer(final Context context, final String userId){
-		sendPresenceToServer(context, userId, null);
-	}
-
 	public static synchronized void sendPresenceToServer(final Context context, final String userId, final AsyncCallback callback){
 
 		JsonObject payload = new JsonObject();
