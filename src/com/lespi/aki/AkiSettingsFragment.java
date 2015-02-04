@@ -166,6 +166,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 			Bitmap cachedPicture = AkiInternalStorageUtil.getCachedUserPicture(context, currentUser.getId());
 			if ( cachedPicture != null ){
 				settingsPicture.setImageBitmap(cachedPicture);
+				AkiServerUtil.makeSureCoverPhotoIsUploaded(context, currentUser.getId());
 			}
 			else{
 

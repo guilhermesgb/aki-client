@@ -23,7 +23,7 @@ import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.parse.internal.AsyncCallback;
 
-public abstract class AkiHttpUtil {
+public abstract class AkiHttpRequestUtil {
 
 	private static final String API_LOCATION = "lespi-server.herokuapp.com";
 
@@ -67,6 +67,7 @@ public abstract class AkiHttpUtil {
 							urlConn.setDoOutput(true);
 							OutputStream out = new BufferedOutputStream(urlConn.getOutputStream(), payload.length());
 							out.write(payload.getBytes());
+							out.close();
 						}
 					}
 					else if ( method.toUpperCase().equals("DELETE") ){
@@ -78,25 +79,29 @@ public abstract class AkiHttpUtil {
 					int responseCode = urlConn.getResponseCode();
 					String responseBody = "";
 
-					try {
-						BufferedReader in = new BufferedReader(
-								new InputStreamReader(urlConn.getInputStream()));
-						String inputLine;
-						StringBuffer response = new StringBuffer();
+					if ( !method.toUpperCase().equals("HEAD") ){
+						try {
+							BufferedReader in = new BufferedReader(
+									new InputStreamReader(urlConn.getInputStream()));
+							String inputLine;
+							StringBuffer response = new StringBuffer();
 
-						while ((inputLine = in.readLine()) != null) {
-							response.append(inputLine);
-						}
-						in.close();
-						responseBody = response.toString();
-					} catch(IOException e){
-						e.printStackTrace();
+							while ((inputLine = in.readLine()) != null) {
+								response.append(inputLine);
+							}
+							in.close();
+							responseBody = response.toString();
+						} catch(IOException e){
+							e.printStackTrace();
+						}						
 					}
 
 					JsonObject response = new JsonObject();
 					response.add("code", responseCode);
 					if ( responseCode == 200 ){
-						response.add("content", JsonValue.readFrom(responseBody));
+						response.add("content", (!method.toUpperCase().equals("HEAD")
+								? JsonValue.readFrom(responseBody)
+								: JsonValue.readFrom("{\"code\":\"ok\", \"server\":\"Empty response\"}")));
 					}
 					else{
 						response.add("content", responseBody);
@@ -179,6 +184,11 @@ public abstract class AkiHttpUtil {
 		doHttpRequest(context, "GET", url, getBasicHeaders(), null, callback);
 	}
 
+	public static void doHEADHttpRequest(Context context, String url, AsyncCallback callback){
+		Log.i(AkiApplication.TAG, "HEAD " + url);
+		doHttpRequest(context, "HEAD", url, getBasicHeaders(), null, callback);
+	}
+	
 	public static void doPOSTHttpRequest(Context context, String url, AsyncCallback callback){
 		Log.i(AkiApplication.TAG, "POST " + url);
 		doHttpRequest(context, "POST", url, getBasicHeaders(), null, callback);

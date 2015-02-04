@@ -46,7 +46,7 @@ import com.facebook.widget.LoginButton;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
-import com.lespi.aki.utils.AkiHttpUtil;
+import com.lespi.aki.utils.AkiHttpRequestUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
 import com.parse.ParseInstallation;
@@ -129,7 +129,7 @@ public class AkiChatFragment extends SherlockFragment {
 			return;
 		}
 
-		if ( !AkiHttpUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
+		if ( !AkiHttpRequestUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
 			CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_no_internet_connection);
 			Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 			toast.show();
@@ -829,7 +829,7 @@ public class AkiChatFragment extends SherlockFragment {
 			return;
 		}
 
-		if ( !AkiHttpUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
+		if ( !AkiHttpRequestUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
 
 			LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
 			RelativeLayout loginArea = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
