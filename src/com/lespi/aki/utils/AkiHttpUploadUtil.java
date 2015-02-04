@@ -204,7 +204,6 @@ public abstract class AkiHttpUploadUtil {
 				finally{
 					urlConn.disconnect();
 				}
-
 			} catch (MalformedURLException e) {
 				Log.e(AkiApplication.TAG, "HTTP Upload Request fail.");
 				e.printStackTrace();

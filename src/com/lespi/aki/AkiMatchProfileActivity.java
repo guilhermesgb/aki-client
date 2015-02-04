@@ -1,9 +1,15 @@
 package com.lespi.aki;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -15,6 +21,7 @@ import com.lespi.aki.utils.AkiInternalStorageUtil;
 public class AkiMatchProfileActivity extends SherlockActivity {
 
 	public static final String KEY_USER_ID = "user-id";
+	public static final String API_LOCATION = "https://lespi-server.herokuapp.com/upload/";
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,17 +35,23 @@ public class AkiMatchProfileActivity extends SherlockActivity {
         if ( extras == null ){
         	return;
         }
-        String userId = extras.getString(KEY_USER_ID);
+        final String userId = extras.getString(KEY_USER_ID);
         if ( userId == null ){
         	return;
         }
-        Context context = getApplicationContext();
+        final Context context = getApplicationContext();
 
         String userFullName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
         TextView headerView = (TextView) findViewById(R.id.com_lespi_aki_match_profile_header);
-        headerView.setText(String.format(context.getString(R.string.com_lespi_aki_match_profile_header_pattern), userFullName.split(" ")[0]));
         TextView userFullNameView = (TextView) findViewById(R.id.com_lespi_aki_match_profile_fullname);
-        userFullNameView.setText(userFullName);
+        if ( userFullName != null ){
+        	headerView.setText(String.format(context.getString(R.string.com_lespi_aki_match_profile_header_pattern), userFullName.split(" ")[0]));
+        	userFullNameView.setText(userFullName);
+        }
+        else{
+        	headerView.setText(String.format(context.getString(R.string.com_lespi_aki_match_profile_header_pattern), "Match"));
+        	userFullNameView.setVisibility(View.GONE);
+        }
 
 		String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
 		TextView userNickView = (TextView) findViewById(R.id.com_lespi_aki_match_profile_nickname);
@@ -49,14 +62,48 @@ public class AkiMatchProfileActivity extends SherlockActivity {
 			userNickView.setVisibility(View.GONE);
 		}
         
-		ImageView userCoverView = (ImageView) findViewById(R.id.com_lespi_aki_match_profile_cover);
+		final ImageView userCoverView = (ImageView) findViewById(R.id.com_lespi_aki_match_profile_cover);
 		userCoverView.setAdjustViewBounds(false);
 		userCoverView.setMinimumWidth(851);
 		userCoverView.setMinimumHeight(315);
 		userCoverView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 		Bitmap coverPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_cover);
 		userCoverView.setImageBitmap(coverPlaceholder);
-        
+		Bitmap cachedCoverPhoto = AkiInternalStorageUtil.getCachedUserCoverPhoto(context, userId);
+		if ( cachedCoverPhoto != null ){
+			userCoverView.setImageBitmap(cachedCoverPhoto);
+		}
+		else {
+			new AsyncTask<Void, Void, Bitmap>() {
+				@Override
+				protected Bitmap doInBackground(Void... params) {
+					try {
+						URL picture_address = new URL(API_LOCATION + context.getString(R.string.com_lespi_aki_data_user_coverphoto) + userId + ".png");
+						Bitmap picture = BitmapFactory.decodeStream(picture_address.openConnection().getInputStream());
+						AkiInternalStorageUtil.cacheUserCoverPhoto(context, userId, picture);
+						return picture;
+					} catch (MalformedURLException e) {
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query a user cover photo from our server.");
+						e.printStackTrace();
+						return null;
+					} catch (IOException e) {
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query user cover photo from our server.");
+						e.printStackTrace();
+						return null;
+					}
+				}
+				@Override
+				protected void onPostExecute(Bitmap picture) {
+					if ( picture != null ){
+						userCoverView.setImageBitmap(picture);
+					}
+					else{
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query user cover photo from our server.");
+					}
+				}
+			}.execute();			
+		}
+		
 		String gender = AkiInternalStorageUtil.getCachedUserGender(context, userId);
 		Bitmap genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_unknown_gender);
 		ImageView userGenderView = (ImageView) findViewById(R.id.com_lespi_aki_match_profile_gender);
