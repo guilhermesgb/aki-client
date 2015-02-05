@@ -5,13 +5,17 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -101,10 +105,10 @@ public class AkiMatchProfileActivity extends SherlockActivity {
 						Log.e(AkiApplication.TAG, "A problem happened while trying to query user cover photo from our server.");
 					}
 				}
-			}.execute();			
+			}.execute();
 		}
 		
-		String gender = AkiInternalStorageUtil.getCachedUserGender(context, userId);
+		final String gender = AkiInternalStorageUtil.getCachedUserGender(context, userId);
 		Bitmap genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_unknown_gender);
 		ImageView userGenderView = (ImageView) findViewById(R.id.com_lespi_aki_match_profile_gender);
 		userGenderView.setImageBitmap(genderPlaceholder);
@@ -117,22 +121,61 @@ public class AkiMatchProfileActivity extends SherlockActivity {
 		}
 		userGenderView.setImageAlpha(255);
 		
-		ImageView userPictureView = (ImageView) findViewById(R.id.com_lespi_aki_match_profile_picture);
-        Bitmap userPicture = AkiInternalStorageUtil.getCachedUserPicture(context, userId);
+		final ImageView userPictureView = (ImageView) findViewById(R.id.com_lespi_aki_match_profile_picture);
+    	Bitmap picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown_gender);
+		userPictureView.setImageBitmap(AkiChatAdapter.getRoundedBitmap(picturePlaceholder));
+		if (gender.equals("male")) {
+			picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_male);
+			userPictureView.setImageBitmap(AkiChatAdapter.getRoundedBitmap(picturePlaceholder));
+		} else if (gender.equals("female")) {
+			picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_female);
+			userPictureView.setImageBitmap(AkiChatAdapter.getRoundedBitmap(picturePlaceholder));
+		}
+		
+		Bitmap userPicture = AkiInternalStorageUtil.getCachedUserPicture(context, userId);
         if ( userPicture != null ){
         	userPictureView.setImageBitmap(userPicture);
         }
         else {
-			Bitmap picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown_gender);
-			userPictureView.setImageBitmap(AkiChatAdapter.getRoundedBitmap(picturePlaceholder));
-			if (gender.equals("male")) {
-				picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_male);
-				userPictureView.setImageBitmap(AkiChatAdapter.getRoundedBitmap(picturePlaceholder));
-			} else if (gender.equals("female")) {
-				picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_female);
-				userPictureView.setImageBitmap(AkiChatAdapter.getRoundedBitmap(picturePlaceholder));
-			}        	
+			new AsyncTask<Void, Void, Bitmap>() {
+				@Override
+				protected Bitmap doInBackground(Void... params) {
+					try {
+						URL picture_address = new URL(API_LOCATION + context.getString(R.string.com_lespi_aki_data_user_picture) + userId + ".png");
+						Bitmap picture = BitmapFactory.decodeStream(picture_address.openConnection().getInputStream());
+						AkiInternalStorageUtil.cacheUserPicture(context, userId, picture);
+						return picture;
+					} catch (MalformedURLException e) {
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query a user picture from our server.");
+						e.printStackTrace();
+						return null;
+					} catch (IOException e) {
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from our server.");
+						e.printStackTrace();
+						return null;
+					}
+				}
+				@Override
+				protected void onPostExecute(Bitmap picture) {
+					if ( picture != null ){
+						userPictureView.setImageBitmap(picture);
+					}
+					else{
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from our server.");
+					}
+				}
+			}.execute();
         }
+        
+        Button talkThroughMessengerBtn = (Button) findViewById(R.id.com_lespi_aki_match_profile_talk_through_messenger_btn);
+        talkThroughMessengerBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Log.wtf("FACEBOOK", "Trying to start Facebook Messenger chat with user " + userId + "!");
+//				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("fb://messaging/{#" +  userId + "}")));
+				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("fb://messaging/" +  userId)));
+			}
+		});
     }
      
 }

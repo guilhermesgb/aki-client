@@ -145,7 +145,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 								public void onCancel() {
 									Log.e(AkiApplication.TAG, "Could not upload cover photo of user {" + currentUser.getId() + "} to server.");
 								}
-							});							
+							});
 						}
 						
 						@Override
@@ -156,6 +156,22 @@ public class AkiSettingsFragment extends SherlockFragment {
 						@Override
 						public void onCancel() {
 							Log.e(AkiApplication.TAG, "User {" + currentUser.getId() + "} could not send presence to server.");
+						}
+					});
+					AkiServerUtil.uploadUserPicture(context, currentUser.getId(), new AsyncCallback() {
+						@Override
+						public void onSuccess(Object response) {
+							Log.i(AkiApplication.TAG, "Picture of user {" + currentUser.getId() + "} uploaded to server!");
+						}
+						
+						@Override
+						public void onFailure(Throwable error) {
+							Log.e(AkiApplication.TAG, "Error while trying to upload picture of user {" + currentUser.getId() + "} to server.");
+						}
+						
+						@Override
+						public void onCancel() {
+							Log.e(AkiApplication.TAG, "Could not upload picture of user {" + currentUser.getId() + "} to server.");
 						}
 					});
 				}
@@ -196,6 +212,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 			Bitmap cachedPicture = AkiInternalStorageUtil.getCachedUserPicture(context, currentUser.getId());
 			if ( cachedPicture != null ){
 				settingsPicture.setImageBitmap(cachedPicture);
+				AkiServerUtil.makeSureUserPictureIsUploaded(context, currentUser.getId());
 			}
 			else{
 

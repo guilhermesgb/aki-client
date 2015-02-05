@@ -496,10 +496,27 @@ public class AkiServerUtil {
 				AkiInternalStorageUtil.wipeMatches(context);
 				JsonArray mutualInterests = ((JsonObject) response).get("mutuals").asArray();
 				for ( JsonValue interest : mutualInterests ){
-					String userId = interest.asObject().get("uid").asString();
+					JsonObject interestJSON = interest.asObject();
+					String userId = interestJSON.get("uid").asString();
 					boolean notify = !oldMutualInterests.contains(userId);
 					if ( !notify ){
 						oldMutualInterests.remove(userId);
+					}
+					if ( interestJSON.get("nickname") != null && !interestJSON.get("nickname").isNull() ){
+						String nickname = interestJSON.get("nickname").asString();
+						AkiInternalStorageUtil.cacheUserNickname(context, userId, nickname);
+					}
+					if ( interestJSON.get("gender") != null && !interestJSON.get("gender").isNull() ){
+						String gender = interestJSON.get("gender").asString();
+						AkiInternalStorageUtil.cacheUserGender(context, userId, gender);
+					}
+					if ( interestJSON.get("first_name") != null && !interestJSON.get("first_name").isNull() ){
+						String firstName = interestJSON.get("first_name").asString();
+						AkiInternalStorageUtil.cacheUserFirstName(context, userId, firstName);
+					}
+					if ( interestJSON.get("full_name") != null && !interestJSON.get("full_name").isNull() ){
+						String fullName = interestJSON.get("full_name").asString();
+						AkiInternalStorageUtil.cacheUserFullName(context, userId, fullName);
 					}
 					AkiInternalStorageUtil.storeNewMatch(context, userId, notify);
 				}
@@ -816,6 +833,61 @@ public class AkiServerUtil {
 					@Override
 					public void onCancel() {
 						Log.e(AkiApplication.TAG, "Could not upload cover photo of user {" + userId + "} to server.");
+					}
+				});
+			}
+		});
+	}
+
+	public static synchronized void uploadUserPicture(final Context context, final String userId, AsyncCallback callback){
+		Bitmap imageBitmap = AkiInternalStorageUtil.getCachedUserPicture(context, userId);
+		AkiHttpUploadUtil.doHttpUpload(context, context.getString(R.string.com_lespi_aki_data_user_picture)+userId, imageBitmap, callback);
+	}
+	
+	public static synchronized void makeSureUserPictureIsUploaded(final Context context, final String userId){
+		String url = "/upload/" + context.getString(R.string.com_lespi_aki_data_user_picture) + userId + ".png";
+		AkiHttpRequestUtil.doHEADHttpRequest(context, url, new AsyncCallback() {
+			@Override
+			public void onSuccess(Object response) {
+				Log.i(AkiApplication.TAG, "Picture of user {" + userId + "} is already uploaded to server!");
+			}
+			
+			@Override
+			public void onFailure(Throwable error) {
+				AkiServerUtil.uploadUserPicture(context, userId, new AsyncCallback() {
+					@Override
+					public void onSuccess(Object response) {
+						Log.i(AkiApplication.TAG, "Picture of user {" + userId + "} uploaded to server!");
+					}
+					
+					@Override
+					public void onFailure(Throwable error) {
+						Log.e(AkiApplication.TAG, "Error while trying to upload picture of user {" + userId + "} to server.");
+					}
+					
+					@Override
+					public void onCancel() {
+						Log.e(AkiApplication.TAG, "Could not upload picture of user {" + userId + "} to server.");
+					}
+				});
+			}
+			
+			@Override
+			public void onCancel() {
+				AkiServerUtil.uploadUserPicture(context, userId, new AsyncCallback() {
+					@Override
+					public void onSuccess(Object response) {
+						Log.i(AkiApplication.TAG, "Picture of user {" + userId + "} uploaded to server!");
+					}
+					
+					@Override
+					public void onFailure(Throwable error) {
+						Log.e(AkiApplication.TAG, "Error while trying to upload picture of user {" + userId + "} to server.");
+					}
+					
+					@Override
+					public void onCancel() {
+						Log.e(AkiApplication.TAG, "Could not upload picture of user {" + userId + "} to server.");
 					}
 				});
 			}

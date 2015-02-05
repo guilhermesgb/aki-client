@@ -81,4 +81,22 @@
             android:textStyle="italic" />
     </RelativeLayout>
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/button_height"
+        android:layout_gravity="bottom"
+        android:alpha="0.6"
+        android:background="#343f4f"
+        android:gravity="bottom"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/com_lespi_aki_match_profile_talk_through_messenger_btn"
+            style="@style/AkiButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/com_lespi_aki_match_profile_talk_through_messenger"
+            android:textStyle="bold" />
+    </LinearLayout>
+
 </FrameLayout>
