@@ -302,7 +302,8 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static synchronized void enterChatRoom(Context context, String currentUserId, String newChatRoom) {
+	public static synchronized void enterChatRoom(Context context, String currentUserId,
+			String newChatRoom, boolean shouldBeAnonymous) {
 
 		Log.w(AkiApplication.TAG, "GOT INTO ENTER CHAT");
 		
@@ -336,7 +337,12 @@ public class AkiServerUtil {
 		AkiInternalStorageUtil.setCurrentChatRoom(context, newChatRoom);
 		Log.i(AkiApplication.TAG, "Current chat room set to chat room address {" + newChatRoom + "}.");
 
-		AkiInternalStorageUtil.setAnonymousSetting(context, currentUserId, true);
+		if ( shouldBeAnonymous ){
+			AkiInternalStorageUtil.setAnonymousSetting(context, currentUserId, true);
+		}
+		else {
+			AkiInternalStorageUtil.setAnonymousSetting(context, currentUserId, false);
+		}
 		AkiInternalStorageUtil.wipeCachedGeofenceCenter(context);
 		AkiInternalStorageUtil.cacheGeofenceRadius(context, -1);
 		AkiInternalStorageUtil.willUpdateGeofence(context);
@@ -656,8 +662,6 @@ public class AkiServerUtil {
 		@Override
 		public void run() {
 
-			Log.wtf("PULL MAN!", "getMessages runnable just started!");
-
 			final String chatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
 			final String currentUser = AkiInternalStorageUtil.getCurrentUser(context);
 
@@ -667,7 +671,6 @@ public class AkiServerUtil {
 			}
 
 			String lastServerTimestamp = AkiInternalStorageUtil.getLastServerTimestamp(context);
-			Log.wtf("PULL MAN!", "USING LAST SERVER TT WE HAVE: " + lastServerTimestamp + "!");
 			String targetEndpoint = "/message/2?next=" + lastServerTimestamp;
 
 			final Runnable self = this;
@@ -681,7 +684,6 @@ public class AkiServerUtil {
 					if ( !nT.isNull() ){
 						String nextTimestamp = nT.asString();
 						AkiInternalStorageUtil.setLastServerTimestamp(context, nextTimestamp);
-						Log.wtf("PULL MAN!", "(just got response from server) SETTING LAST SERVER TT TO: " + nextTimestamp + "!");
 					}
 
 					boolean isFinished = responseJSON.get("finished").asBoolean();
@@ -697,7 +699,6 @@ public class AkiServerUtil {
 						AkiInternalStorageUtil.storePulledMessage(context, chatRoom, sender, content, timestamp);
 					}
 					if ( messages.size() > 0 ){
-						Log.wtf("PULL MAN!", "GOT RESULT!");
 
 						AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 						List<JsonObject> messagesList = AkiChatAdapter.toJsonObjectList(
@@ -720,7 +721,6 @@ public class AkiServerUtil {
 					}
 					
 					int timeout = AkiInternalStorageUtil.getNextTimeout(context);
-					Log.wtf("PULL MAN!", "getMessages runnable will run again in: " + timeout + " seconds!");
 					handler.postDelayed(self, timeout * 1000);
 				}
 
@@ -728,7 +728,6 @@ public class AkiServerUtil {
 				public void onFailure(Throwable failure) {
 
 					if ( tolerance >= 3 ){
-						Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
 						Log.e(AkiApplication.TAG, "GetMessages runnable canceled due to failing more than 3 consecutive times!");
 						AkiInternalStorageUtil.resetTimeout(context);
 						handler.removeCallbacks(self);
@@ -736,14 +735,12 @@ public class AkiServerUtil {
 					}
 
 					int timeout = AkiInternalStorageUtil.getNextTimeout(context);
-					Log.wtf("PULL MAN!", "getMessages runnable will run again in: " + timeout + " seconds!");
 					handler.postDelayed(self, timeout * 1000);
 					tolerance++;
 				}
 
 				@Override
 				public void onCancel() {
-					Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
 					Log.e(AkiApplication.TAG, "GetMessages runnable canceled!");
 					AkiInternalStorageUtil.resetTimeout(context);
 					handler.removeCallbacks(self);
@@ -765,18 +762,15 @@ public class AkiServerUtil {
 			getMessages = new GetMessages(context, handler);
 		}
 		else {
-			Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
 			AkiInternalStorageUtil.resetTimeout(context);
 			handler.removeCallbacks(getMessages);
 		}
-		Log.wtf("PULL MAN!", "Starting getMessages runnable!");
 		handler.post(getMessages);
 	}
 
 	public static synchronized void stopGettingMessages(final Context context){
 
 		if ( handler != null ){
-			Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
 			AkiInternalStorageUtil.resetTimeout(context);
 			handler.removeCallbacks(getMessages);
 		}

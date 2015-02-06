@@ -130,6 +130,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
 					}
+					AkiChatFragment.getInstance().externalRefreshAll();
 				}
 			});
 
@@ -139,6 +140,16 @@ public class AkiSettingsFragment extends SherlockFragment {
 				public void onClick(View view) {
 					if ( anonymousCheck.isChecked() != true && !AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
 						AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), anonymousCheck.isChecked());
+						AkiServerUtil.sendPresenceToServer(context, currentUser.getId(), new AsyncCallback() {
+							@Override
+							public void onSuccess(Object response) {
+								AkiChatFragment.getInstance().externalRefreshAll();
+							}
+							@Override
+							public void onFailure(Throwable failure) {}
+							@Override
+							public void onCancel() {}
+						});
 					}
 					else{
 						anonymousCheck.setChecked(false);
@@ -316,4 +327,5 @@ public class AkiSettingsFragment extends SherlockFragment {
 			callback.onFailure(any);
 		}
 	}
+
 }

@@ -442,7 +442,7 @@ public class AkiChatFragment extends SherlockFragment {
 										JsonObject responseJSON = (JsonObject) response;
 										final JsonValue chatRoomId = responseJSON.get("chat_room");
 										if ( chatRoomId != null && !chatRoomId.isNull() ){
-											AkiServerUtil.enterChatRoom(activity, currentUser.getId(), chatRoomId.asString());
+											AkiServerUtil.enterChatRoom(activity, currentUser.getId(), chatRoomId.asString(), responseJSON.get("should_not_be_anonymous") == null);
 											final CheckBox anonymousCheck = (CheckBox) activity.findViewById(R.id.com_lespi_aki_main_settings_anonymous);
 											anonymousCheck.setChecked(AkiInternalStorageUtil.getAnonymousSetting(activity.getApplicationContext(), currentUser.getId()));
 											activity.setGeofence();
