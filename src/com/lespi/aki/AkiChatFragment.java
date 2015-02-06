@@ -430,6 +430,9 @@ public class AkiChatFragment extends SherlockFragment {
 									@Override
 									public void onSuccess(Object response) {
 
+										AkiServerUtil.makeSureUserPictureIsUploaded(activity.getApplicationContext(), currentUser.getId());
+										AkiServerUtil.makeSureCoverPhotoIsUploaded(activity.getApplicationContext(), currentUser.getId());
+										
 										AkiServerUtil.getMutualInterests(activity.getApplicationContext());
 										mutualAdapter.setNotifyOnChange(true);
 										
@@ -438,7 +441,7 @@ public class AkiChatFragment extends SherlockFragment {
 
 										JsonObject responseJSON = (JsonObject) response;
 										final JsonValue chatRoomId = responseJSON.get("chat_room");
-										if ( chatRoomId != null ){
+										if ( chatRoomId != null && !chatRoomId.isNull() ){
 											AkiServerUtil.enterChatRoom(activity, currentUser.getId(), chatRoomId.asString());
 											final CheckBox anonymousCheck = (CheckBox) activity.findViewById(R.id.com_lespi_aki_main_settings_anonymous);
 											anonymousCheck.setChecked(AkiInternalStorageUtil.getAnonymousSetting(activity.getApplicationContext(), currentUser.getId()));
@@ -446,6 +449,10 @@ public class AkiChatFragment extends SherlockFragment {
 											refreshReceivedMessages(activity, session, currentUser);
 											sendMessageBtn.setEnabled(true);
 											AkiServerUtil.getMessages(activity.getApplicationContext());
+										}
+
+										if ( activity.locationServicesConnected() ){
+											activity.startPeriodicLocationUpdates();
 										}
 									}
 

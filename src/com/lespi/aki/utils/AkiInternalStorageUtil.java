@@ -479,7 +479,7 @@ public class AkiInternalStorageUtil {
 	public static boolean isMandatorySettingMissing(Context context){
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
-		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_mandatory_setting_missing), false);
+		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_mandatory_setting_missing), true);
 	}
 
 	public static synchronized void aMandatorySettingIsMissing(Context context, boolean missing){
@@ -577,6 +577,11 @@ public class AkiInternalStorageUtil {
 		}
 	}
 
+	public static synchronized void wipeCachedUserLocation(Context context, String userId) {
+		File file = new File(context.getFilesDir(), R.string.com_lespi_aki_data_user_location+userId);
+		file.delete();
+	}
+	
 	public static AkiLocation getCachedGeofenceCenter(Context context) {
 
 		AkiLocation center = null;

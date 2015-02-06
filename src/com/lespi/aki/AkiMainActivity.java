@@ -358,6 +358,10 @@ LocationClient.OnRemoveGeofencesResultListener {
 			return;
 		}
 
+		if ( AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
+			return;
+		}
+		
 		boolean sendPresence = false;
 
 		final AkiLocation oldLocation = AkiInternalStorageUtil.getCachedUserLocation(context, currentUserId);
@@ -379,6 +383,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 						chatFragment.onResume();
 					}
 					else if ( AkiApplication.LOGGED_IN ){
+						
 						JsonObject responseJSON = (JsonObject) response;
 						final JsonValue newChatRoomId = responseJSON.get("chat_room");
 						String currentChatRoomId = AkiInternalStorageUtil.getCurrentChatRoom(context);

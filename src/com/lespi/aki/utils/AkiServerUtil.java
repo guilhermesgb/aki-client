@@ -151,7 +151,6 @@ public class AkiServerUtil {
 				if ( nT != null ){
 					String nextTimestamp = nT.asString();
 					AkiInternalStorageUtil.setLastServerTimestamp(context, nextTimestamp);
-					Log.wtf("PULL MAN!", "(just got into a room so) SETTING LAST SERVER TT TO: " + nextTimestamp + "!");
 				}
 				JsonValue updateMutualInterests = responseJSON.get("update_mutual_interests");
 				if ( updateMutualInterests != null ){
@@ -415,26 +414,30 @@ public class AkiServerUtil {
 				for ( String memberId : members.names() ){
 					memberIds.add(memberId);
 					
-					JsonObject memberInfo = members.get(memberId).asObject();
-					if ( memberInfo.get("full_name") != null && !memberInfo.get("full_name").isNull() ){
-						AkiInternalStorageUtil.cacheUserFullName(context, memberId,
-								memberInfo.get("full_name").asString());
-					}
-					if ( memberInfo.get("first_name") != null && !memberInfo.get("first_name").isNull() ){
-						AkiInternalStorageUtil.cacheUserFirstName(context, memberId,
-								memberInfo.get("first_name").asString());
-					}
-					if ( memberInfo.get("nickname") != null && !memberInfo.get("nickname").isNull() ){
-						AkiInternalStorageUtil.cacheUserNickname(context, memberId,
-								memberInfo.get("nickname").asString());
-					}
-					if ( memberInfo.get("gender") != null && !memberInfo.get("gender").isNull() ){
-						AkiInternalStorageUtil.cacheUserGender(context, memberId,
-								memberInfo.get("gender").asString());
-					}
-					if ( memberInfo.get("anonymous") != null && !memberInfo.get("anonymous").isNull() ){
-						AkiInternalStorageUtil.setAnonymousSetting(context, memberId,
-								memberInfo.get("anonymous").asBoolean());
+					String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
+					
+					if ( !currentUserId.equals(memberId) ){
+						JsonObject memberInfo = members.get(memberId).asObject();
+						if ( memberInfo.get("full_name") != null && !memberInfo.get("full_name").isNull() ){
+							AkiInternalStorageUtil.cacheUserFullName(context, memberId,
+									memberInfo.get("full_name").asString());
+						}
+						if ( memberInfo.get("first_name") != null && !memberInfo.get("first_name").isNull() ){
+							AkiInternalStorageUtil.cacheUserFirstName(context, memberId,
+									memberInfo.get("first_name").asString());
+						}
+						if ( memberInfo.get("nickname") != null && !memberInfo.get("nickname").isNull() ){
+							AkiInternalStorageUtil.cacheUserNickname(context, memberId,
+									memberInfo.get("nickname").asString());
+						}
+						if ( memberInfo.get("gender") != null && !memberInfo.get("gender").isNull() ){
+							AkiInternalStorageUtil.cacheUserGender(context, memberId,
+									memberInfo.get("gender").asString());
+						}
+						if ( memberInfo.get("anonymous") != null && !memberInfo.get("anonymous").isNull() ){
+							AkiInternalStorageUtil.setAnonymousSetting(context, memberId,
+									memberInfo.get("anonymous").asBoolean());
+						}						
 					}
 					
 					if ( currentMembers.contains(memberId) ){

@@ -172,8 +172,9 @@ public class AkiMatchProfileActivity extends SherlockActivity {
 			@Override
 			public void onClick(View view) {
 				Log.wtf("FACEBOOK", "Trying to start Facebook Messenger chat with user " + userId + "!");
-//				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("fb://messaging/{#" +  userId + "}")));
-				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("fb://messaging/" +  userId)));
+				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("fb-messenger://user/" + userId))); //"100003279799340")));
+				Log.wtf("FACEBOOK", "Surely didn't work!");
+				//TODO take this out
 			}
 		});
     }

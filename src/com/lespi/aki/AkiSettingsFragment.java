@@ -48,7 +48,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 		return view;
 	}
 
-	public void refreshSettings(final AkiMainActivity activity, final Session currentSession,
+	public synchronized void refreshSettings(final AkiMainActivity activity, final Session currentSession,
 			final GraphUser currentUser, final AsyncCallback callback) {
 
 		if ( activity == null || currentUser == null ){
@@ -58,12 +58,13 @@ public class AkiSettingsFragment extends SherlockFragment {
 		final Context context = activity.getApplicationContext();
 		
 		try{
-			AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
+			AkiInternalStorageUtil.aMandatorySettingIsMissing(context, true);
 
 			TextView settingsFullname = (TextView) activity.findViewById(R.id.com_lespi_aki_main_settings_fullname);
 			settingsFullname.setText(currentUser.getName());
 			AkiInternalStorageUtil.cacheUserFullName(context, currentUser.getId(), currentUser.getName());
-
+			AkiInternalStorageUtil.cacheUserFirstName(context, currentUser.getId(), currentUser.getFirstName());
+			
 			final EditText nicknameBox = (EditText) activity.findViewById(R.id.com_lespi_aki_main_settings_nickname);
 			String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, currentUser.getId());
 
@@ -81,8 +82,10 @@ public class AkiSettingsFragment extends SherlockFragment {
 				CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_nickname_required);
 				Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 				toast.show();
+				AkiInternalStorageUtil.wipeCachedUserLocation(context, currentUser.getId());
 			}
 			else{
+				AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
 				if ( !nicknameBox.isFocused() ){
 					nicknameBox.setText(nickname);
 				}
@@ -110,7 +113,6 @@ public class AkiSettingsFragment extends SherlockFragment {
 					AkiInternalStorageUtil.cacheUserNickname(context, currentUser.getId(), newNickname);
 					nicknameBox.setText(newNickname);
 					if ( AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
-
 						AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
 						SlidingMenu slidingMenu = activity.getSlidingMenu();
 						slidingMenu.setSlidingEnabled(true);
@@ -123,57 +125,11 @@ public class AkiSettingsFragment extends SherlockFragment {
 						toast.show();
 					}
 					else{
+						AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
 						CharSequence toastText = context.getString(R.string.com_lespi_aki_toast_nickname_updated) + " " + newNickname + "!";
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
 					}
-					AkiServerUtil.sendPresenceToServer(context, currentUser.getId(), new AsyncCallback() {
-						@Override
-						public void onSuccess(Object response) {
-							AkiServerUtil.uploadCoverPhoto(context, currentUser.getId(), new AsyncCallback() {
-								@Override
-								public void onSuccess(Object response) {
-									Log.i(AkiApplication.TAG, "Cover photo of user {" + currentUser.getId() + "} uploaded to server!");
-								}
-								
-								@Override
-								public void onFailure(Throwable error) {
-									Log.e(AkiApplication.TAG, "Error while trying to upload cover photo of user {" + currentUser.getId() + "} to server.");
-								}
-								
-								@Override
-								public void onCancel() {
-									Log.e(AkiApplication.TAG, "Could not upload cover photo of user {" + currentUser.getId() + "} to server.");
-								}
-							});
-						}
-						
-						@Override
-						public void onFailure(Throwable failure) {
-							Log.e(AkiApplication.TAG, "Error while trying user {" + currentUser.getId() + "} trying to send presence to server.");
-						}
-						
-						@Override
-						public void onCancel() {
-							Log.e(AkiApplication.TAG, "User {" + currentUser.getId() + "} could not send presence to server.");
-						}
-					});
-					AkiServerUtil.uploadUserPicture(context, currentUser.getId(), new AsyncCallback() {
-						@Override
-						public void onSuccess(Object response) {
-							Log.i(AkiApplication.TAG, "Picture of user {" + currentUser.getId() + "} uploaded to server!");
-						}
-						
-						@Override
-						public void onFailure(Throwable error) {
-							Log.e(AkiApplication.TAG, "Error while trying to upload picture of user {" + currentUser.getId() + "} to server.");
-						}
-						
-						@Override
-						public void onCancel() {
-							Log.e(AkiApplication.TAG, "Could not upload picture of user {" + currentUser.getId() + "} to server.");
-						}
-					});
 				}
 			});
 
@@ -183,7 +139,6 @@ public class AkiSettingsFragment extends SherlockFragment {
 				public void onClick(View view) {
 					if ( anonymousCheck.isChecked() != true && !AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
 						AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), anonymousCheck.isChecked());
-						AkiServerUtil.sendPresenceToServer(context, currentUser.getId(), null);
 					}
 					else{
 						anonymousCheck.setChecked(false);
