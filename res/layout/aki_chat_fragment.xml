@@ -138,52 +138,18 @@
                 android:src="@drawable/icon_mutual" />
         </RelativeLayout>
 
-        <ProgressBar
-            android:id="@+id/com_lespi_aki_main_chat_progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/picture_layout_width_members"
-            android:layout_gravity="center"
-            android:layout_marginTop="15dp"
-            android:visibility="visible" />
-
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/com_lespi_aki_main_chat_members_list"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/picture_layout_width_members"
-            android:layout_gravity="center_vertical"
+            android:layout_height="@dimen/picture_layout_height_members"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
             android:visibility="gone" >
 
             <ImageView
-                android:id="@+id/com_lespi_aki_main_chat_members_list_first"
+                android:id="@+id/com_lespi_aki_main_chat_members_list_sixth"
                 android:layout_width="@dimen/picture_layout_width_members"
                 android:layout_height="@dimen/picture_layout_height_members"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
-                android:paddingEnd="10dp"
-                android:paddingStart="10dp"
-                android:visibility="gone" >
-            </ImageView>
-
-            <ImageView
-                android:id="@+id/com_lespi_aki_main_chat_members_list_second"
-                android:layout_width="@dimen/picture_layout_width_members"
-                android:layout_height="@dimen/picture_layout_height_members"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@id/com_lespi_aki_main_chat_members_list_first"
-                android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
-                android:paddingEnd="10dp"
-                android:paddingStart="10dp"
-                android:visibility="gone" />
-
-            <ImageView
-                android:id="@+id/com_lespi_aki_main_chat_members_list_third"
-                android:layout_width="@dimen/picture_layout_width_members"
-                android:layout_height="@dimen/picture_layout_height_members"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/com_lespi_aki_main_chat_members_list_first"
                 android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
                 android:paddingEnd="10dp"
                 android:paddingStart="10dp"
@@ -193,9 +159,33 @@
                 android:id="@+id/com_lespi_aki_main_chat_members_list_fourth"
                 android:layout_width="@dimen/picture_layout_width_members"
                 android:layout_height="@dimen/picture_layout_height_members"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@id/com_lespi_aki_main_chat_members_list_second"
+                android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
+                android:paddingEnd="10dp"
+                android:paddingStart="10dp"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/com_lespi_aki_main_chat_members_list_second"
+                android:layout_width="@dimen/picture_layout_width_members"
+                android:layout_height="@dimen/picture_layout_height_members"
+                android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
+                android:paddingEnd="10dp"
+                android:paddingStart="10dp"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/com_lespi_aki_main_chat_members_list_first"
+                android:layout_width="@dimen/picture_layout_width_members"
+                android:layout_height="@dimen/picture_layout_height_members"
+                android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
+                android:paddingEnd="10dp"
+                android:paddingStart="10dp"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/com_lespi_aki_main_chat_members_list_third"
+                android:layout_width="@dimen/picture_layout_width_members"
+                android:layout_height="@dimen/picture_layout_height_members"
                 android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
                 android:paddingEnd="10dp"
                 android:paddingStart="10dp"
@@ -205,21 +195,6 @@
                 android:id="@+id/com_lespi_aki_main_chat_members_list_fifth"
                 android:layout_width="@dimen/picture_layout_width_members"
                 android:layout_height="@dimen/picture_layout_height_members"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/com_lespi_aki_main_chat_members_list_third"
-                android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
-                android:paddingEnd="10dp"
-                android:paddingStart="10dp"
-                android:visibility="gone" />
-
-            <ImageView
-                android:id="@+id/com_lespi_aki_main_chat_members_list_sixth"
-                android:layout_width="@dimen/picture_layout_width_members"
-                android:layout_height="@dimen/picture_layout_height_members"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@id/com_lespi_aki_main_chat_members_list_fourth"
                 android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
                 android:paddingEnd="10dp"
                 android:paddingStart="10dp"
@@ -229,14 +204,14 @@
                 android:id="@+id/com_lespi_aki_main_chat_members_list_seventh"
                 android:layout_width="@dimen/picture_layout_width_members"
                 android:layout_height="@dimen/picture_layout_height_members"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/com_lespi_aki_main_chat_members_list_fifth"
                 android:contentDescription="@string/com_lespi_aki_message_sender_picture_hint"
                 android:paddingEnd="10dp"
                 android:paddingStart="10dp"
                 android:visibility="gone" />
-        </RelativeLayout>
+            <!-- android:layout_toEndOf="@id/com_lespi_aki_main_chat_members_list_fifth" -->
+            <!-- android:layout_centerHorizontal="true" -->
+            <!-- android:layout_centerVertical="true" -->
+        </LinearLayout>
 
         <ListView
             android:id="@+id/com_lespi_aki_main_messages_list"

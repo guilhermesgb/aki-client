@@ -17,7 +17,6 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -146,8 +145,6 @@ LocationClient.OnRemoveGeofencesResultListener {
 				new Intent(this, AkiIncomingTransitionsIntentService.class),
 				PendingIntent.FLAG_UPDATE_CURRENT);
 
-		ProgressBar loadingIcon = (ProgressBar) findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
-		loadingIcon.setVisibility(View.VISIBLE);
 		slidingMenu.showMenu();
 		slidingMenu.setSlidingEnabled(false);
 	}
@@ -361,6 +358,10 @@ LocationClient.OnRemoveGeofencesResultListener {
 			return;
 		}
 
+		if ( AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
+			return;
+		}
+		
 		boolean sendPresence = false;
 
 		final AkiLocation oldLocation = AkiInternalStorageUtil.getCachedUserLocation(context, currentUserId);
@@ -382,6 +383,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 						chatFragment.onResume();
 					}
 					else if ( AkiApplication.LOGGED_IN ){
+						
 						JsonObject responseJSON = (JsonObject) response;
 						final JsonValue newChatRoomId = responseJSON.get("chat_room");
 						String currentChatRoomId = AkiInternalStorageUtil.getCurrentChatRoom(context);

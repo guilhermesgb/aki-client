@@ -1,5 +1,8 @@
 package com.lespi.aki.receivers;
 
+import java.util.List;
+import java.util.Set;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +28,8 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 
 		Log.d(AkiApplication.TAG, "Received event [" + event + "] on chat room [" + chatRoom + "].");
 
+		boolean shouldRefreshMessages = false;
+		
 		JsonValue userIdJSON = incomingData.get("from");
 		
 		String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
@@ -32,6 +37,8 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 		if ( userIdJSON != null ){
 
 			String userId = userIdJSON.asString();
+			
+			Set<String> currentMemberIds = AkiInternalStorageUtil.getCurrentChatMembers(context);
 			
 			JsonValue firstName = incomingData.get("first_name");
 			if ( firstName != null ){
@@ -62,7 +69,8 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 				
 				String oldNickname = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
 				if ( oldNickname != null && !oldNickname.equals(nickname.asString())
-						&& currentUserId != null && !currentUserId.equals(userId) ){
+						&& currentUserId != null && !currentUserId.equals(userId)
+						&& currentMemberIds.contains(userId) ){
 
 					int formatId = R.string.com_lespi_aki_message_system_nickname_change_other;
 					if ( knownGender.equals("male") ){
@@ -74,6 +82,7 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 					String format = "%s " + context.getResources().getString(formatId) + " %s";
 					AkiInternalStorageUtil.storeSystemMessage(context, chatRoom,
 							String.format(format, oldNickname, nickname.asString()));
+					shouldRefreshMessages = true;
 				}
 				AkiInternalStorageUtil.cacheUserNickname(context, userId, nickname.asString());
 			}
@@ -89,7 +98,8 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 			boolean previouslyAnonymous = AkiInternalStorageUtil.getAnonymousSetting(context, userId);
 			if ( !anonymous && previouslyAnonymous ){
 				if ( fullName != null
-						&& currentUserId != null && !currentUserId.equals(userId) ){
+						&& currentUserId != null && !currentUserId.equals(userId)
+						&& currentMemberIds.contains(userId) ){
 
 					int formatId = R.string.com_lespi_aki_message_system_realname_reveal_other;
 					if ( knownGender.equals("male") ){
@@ -101,6 +111,7 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 					String format = "%s " + context.getResources().getString(formatId) + " %s";
 					AkiInternalStorageUtil.storeSystemMessage(context, chatRoom,
 							String.format(format, nickname.asString(), fullName.asString()));
+					shouldRefreshMessages = true;
 				}
 			}
 			AkiInternalStorageUtil.setAnonymousSetting(context, userId, anonymous);
@@ -125,6 +136,14 @@ public class AkiIncomingUserInfoUpdateReceiver extends BroadcastReceiver {
 			}
 			
 			AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+			if ( shouldRefreshMessages ){
+				List<JsonObject> messages = AkiChatAdapter
+						.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, chatRoom));
+				chatAdapter.clear();
+				if ( messages != null ){
+					chatAdapter.addAll(messages);
+				}
+			}
 			chatAdapter.notifyDataSetChanged();
 			
 			AkiChatFragment.getInstance().externalRefreshAll();

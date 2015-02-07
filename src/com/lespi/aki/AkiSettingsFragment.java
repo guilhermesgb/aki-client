@@ -48,7 +48,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 		return view;
 	}
 
-	public void refreshSettings(final AkiMainActivity activity, final Session currentSession,
+	public synchronized void refreshSettings(final AkiMainActivity activity, final Session currentSession,
 			final GraphUser currentUser, final AsyncCallback callback) {
 
 		if ( activity == null || currentUser == null ){
@@ -58,20 +58,20 @@ public class AkiSettingsFragment extends SherlockFragment {
 		final Context context = activity.getApplicationContext();
 		
 		try{
-			AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
+			AkiInternalStorageUtil.aMandatorySettingIsMissing(context, true);
 
 			TextView settingsFullname = (TextView) activity.findViewById(R.id.com_lespi_aki_main_settings_fullname);
 			settingsFullname.setText(currentUser.getName());
 			AkiInternalStorageUtil.cacheUserFullName(context, currentUser.getId(), currentUser.getName());
-
+			AkiInternalStorageUtil.cacheUserFirstName(context, currentUser.getId(), currentUser.getFirstName());
+			
 			final EditText nicknameBox = (EditText) activity.findViewById(R.id.com_lespi_aki_main_settings_nickname);
 			String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, currentUser.getId());
 
 			final CheckBox anonymousCheck = (CheckBox) activity.findViewById(R.id.com_lespi_aki_main_settings_anonymous);
 			anonymousCheck.setChecked(AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()));
 
-			if ( nickname == null || nickname.trim().isEmpty() ){
-				nicknameBox.setText("");
+			if ( ( nickname == null || nickname.trim().isEmpty() ) ){
 				AkiInternalStorageUtil.aMandatorySettingIsMissing(context, true);
 				anonymousCheck.setChecked(true);
 				anonymousCheck.setEnabled(false);
@@ -82,8 +82,10 @@ public class AkiSettingsFragment extends SherlockFragment {
 				CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_nickname_required);
 				Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 				toast.show();
+				AkiInternalStorageUtil.wipeCachedUserLocation(context, currentUser.getId());
 			}
 			else{
+				AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
 				if ( !nicknameBox.isFocused() ){
 					nicknameBox.setText(nickname);
 				}
@@ -111,7 +113,6 @@ public class AkiSettingsFragment extends SherlockFragment {
 					AkiInternalStorageUtil.cacheUserNickname(context, currentUser.getId(), newNickname);
 					nicknameBox.setText(newNickname);
 					if ( AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
-
 						AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
 						SlidingMenu slidingMenu = activity.getSlidingMenu();
 						slidingMenu.setSlidingEnabled(true);
@@ -124,11 +125,12 @@ public class AkiSettingsFragment extends SherlockFragment {
 						toast.show();
 					}
 					else{
+						AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
 						CharSequence toastText = context.getString(R.string.com_lespi_aki_toast_nickname_updated) + " " + newNickname + "!";
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
 					}
-					AkiServerUtil.sendPresenceToServer(context, currentUser.getId());
+					AkiChatFragment.getInstance().externalRefreshAll();
 				}
 			});
 
@@ -138,7 +140,16 @@ public class AkiSettingsFragment extends SherlockFragment {
 				public void onClick(View view) {
 					if ( anonymousCheck.isChecked() != true && !AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
 						AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), anonymousCheck.isChecked());
-						AkiServerUtil.sendPresenceToServer(context, currentUser.getId());
+						AkiServerUtil.sendPresenceToServer(context, currentUser.getId(), new AsyncCallback() {
+							@Override
+							public void onSuccess(Object response) {
+								AkiChatFragment.getInstance().externalRefreshAll();
+							}
+							@Override
+							public void onFailure(Throwable failure) {}
+							@Override
+							public void onCancel() {}
+						});
 					}
 					else{
 						anonymousCheck.setChecked(false);
@@ -167,6 +178,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 			Bitmap cachedPicture = AkiInternalStorageUtil.getCachedUserPicture(context, currentUser.getId());
 			if ( cachedPicture != null ){
 				settingsPicture.setImageBitmap(cachedPicture);
+				AkiServerUtil.makeSureUserPictureIsUploaded(context, currentUser.getId());
 			}
 			else{
 
@@ -246,6 +258,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 			Bitmap cachedCover = AkiInternalStorageUtil.getCachedUserCoverPhoto(context, currentUser.getId());
 			if ( cachedCover != null ){
 				settingsCover.setImageBitmap(cachedCover);
+				AkiServerUtil.makeSureCoverPhotoIsUploaded(context, currentUser.getId());
 			}
 			else{
 				Bundle params = new Bundle();
@@ -314,4 +327,5 @@ public class AkiSettingsFragment extends SherlockFragment {
 			callback.onFailure(any);
 		}
 	}
+
 }

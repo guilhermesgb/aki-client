@@ -210,6 +210,12 @@ public class AkiInternalStorageUtil {
 		}
 		return timestamps;
 	}
+	
+	public static synchronized void clearTimestamps(Context context, String chatRoom) {
+		
+		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_chat_timestamps)+chatRoom);
+		file.delete();
+	}
 
 	public static String getMostRecentTimestamp(Context context){
 
@@ -309,9 +315,12 @@ public class AkiInternalStorageUtil {
 	public static void cacheLikeMutualInterests(Context context) {
 
 		Set<String> matches = retrieveMatches(context);
+		Set<String> currentChatMembers = getCurrentChatMembers(context);
 		for ( String userId : matches ){
-			AkiServerUtil.sendLikeToServer(context, userId);
-			cacheLikeUser(context, userId);
+			if ( currentChatMembers.contains(userId) ){
+				AkiServerUtil.sendLikeToServer(context, userId);
+				cacheLikeUser(context, userId);
+			}
 		}
 	}
 
@@ -442,7 +451,7 @@ public class AkiInternalStorageUtil {
 		return picture;
 	}
 
-	public static synchronized void cacheUserCoverPhoto(Context context, String userId, Bitmap picture) {
+	public static synchronized void cacheUserCoverPhoto(Context context, final String userId, Bitmap picture) {
 
 		if ( picture == null ){
 			Log.e(AkiApplication.TAG, "Cannot cache a null cover photo for this user "+userId+".");			
@@ -470,7 +479,7 @@ public class AkiInternalStorageUtil {
 	public static boolean isMandatorySettingMissing(Context context){
 
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
-		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_mandatory_setting_missing), false);
+		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_mandatory_setting_missing), true);
 	}
 
 	public static synchronized void aMandatorySettingIsMissing(Context context, boolean missing){
@@ -568,6 +577,11 @@ public class AkiInternalStorageUtil {
 		}
 	}
 
+	public static synchronized void wipeCachedUserLocation(Context context, String userId) {
+		File file = new File(context.getFilesDir(), R.string.com_lespi_aki_data_user_location+userId);
+		file.delete();
+	}
+	
 	public static AkiLocation getCachedGeofenceCenter(Context context) {
 
 		AkiLocation center = null;
@@ -771,4 +785,115 @@ public class AkiInternalStorageUtil {
 		sharedPref.edit().clear().commit();
 	}
 
+	@SuppressWarnings("unchecked")
+	public static synchronized Set<String> getCurrentChatMembers(Context context) {
+
+		Set<String> memberIds = new HashSet<String>();
+		String currentChat = getCurrentChatRoom(context);
+		if ( currentChat == null ){
+			return memberIds;
+		}
+
+		try {
+
+			ObjectInputStream ois = new ObjectInputStream(context.openFileInput(
+					context.getString(R.string.com_lespi_aki_data_chat_members) + currentChat));
+			memberIds = (Set<String>) ois.readObject();
+			ois.close();
+		} catch (FileNotFoundException e) {
+			Log.i(AkiApplication.TAG, "There are no saved chat memberIds.");
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "Could not retrieve saved chat memberIds.");
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			Log.e(AkiApplication.TAG, "Could not retrieve saved chat memberIds.");
+			e.printStackTrace();			
+		}
+		return memberIds;
+	}
+
+	public static void chatMemberHasJoined(Context context, String userId, boolean logMemberArrival) {
+
+		String currentChat = getCurrentChatRoom(context);
+		if ( currentChat == null ){
+			return;
+		}
+		
+		try {
+			Set<String> memberIds = getCurrentChatMembers(context);
+			memberIds.add(userId);
+
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+					context.getString(R.string.com_lespi_aki_data_chat_members) + currentChat, Context.MODE_PRIVATE));
+			oos.writeObject(memberIds);
+			oos.close();
+
+			if ( logMemberArrival ){
+				String currentUserId = getCurrentUser(context);
+				String identifier = getCachedUserFullName(context, userId);
+				if ( getAnonymousSetting(context, currentUserId) || getAnonymousSetting(context, userId) || identifier == null ){
+					identifier = getCachedUserNickname(context, userId);
+					if ( identifier == null ){
+						identifier = userId;
+					}
+				}
+				
+				String currentChatRoom = getCurrentChatRoom(context);
+				storeSystemMessage(context, currentChatRoom,
+						identifier + " " + context.getString(R.string.com_lespi_aki_message_system_user_arrived_to_chat_room));
+			}
+
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "Could not add chat member of id: " + userId + ".");
+			e.printStackTrace();
+		}
+	}
+
+	public static synchronized void chatMemberHasLeft(Context context, String userId) {
+
+		String currentChat = getCurrentChatRoom(context);
+		if ( currentChat == null ){
+			return;
+		}
+		
+		try {
+			Set<String> memberIds = getCurrentChatMembers(context);
+			if ( memberIds.contains(userId) ){
+				memberIds.remove(userId);
+			}
+
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+					context.getString(R.string.com_lespi_aki_data_chat_members) + currentChat, Context.MODE_PRIVATE));
+			oos.writeObject(memberIds);
+			oos.close();
+
+			String currentUserId = getCurrentUser(context);
+			String identifier = getCachedUserFullName(context, userId);
+			if ( getAnonymousSetting(context, currentUserId) || getAnonymousSetting(context, userId) || identifier == null ){
+				identifier = getCachedUserNickname(context, userId);
+				if ( identifier == null ){
+					identifier = userId;
+				}
+			}
+			
+			String currentChatRoom = getCurrentChatRoom(context);
+			storeSystemMessage(context, currentChatRoom,
+					identifier + " " + context.getString(R.string.com_lespi_aki_message_system_user_left_chat_room));
+
+		} catch (IOException e) {
+			Log.e(AkiApplication.TAG, "Could not remove chat member of id: " + userId + ".");
+			e.printStackTrace();
+		}
+	}
+
+	public static synchronized void wipeCurrentChatMembers(Context context) {
+
+		String currentChat = getCurrentChatRoom(context);
+		if ( currentChat == null ){
+			return;
+		}
+		
+		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_chat_members) + currentChat);
+		file.delete();
+	}
 }

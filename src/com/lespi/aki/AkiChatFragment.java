@@ -46,7 +46,7 @@ import com.facebook.widget.LoginButton;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
-import com.lespi.aki.utils.AkiHttpUtil;
+import com.lespi.aki.utils.AkiHttpRequestUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
 import com.parse.ParseInstallation;
@@ -129,12 +129,7 @@ public class AkiChatFragment extends SherlockFragment {
 			return;
 		}
 
-		final ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
-		loadingIcon.setVisibility(View.VISIBLE);
-		final RelativeLayout membersList = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
-		membersList.setVisibility(View.GONE);
-		
-		if ( !AkiHttpUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
+		if ( !AkiHttpRequestUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
 			CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_no_internet_connection);
 			Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 			toast.show();
@@ -194,8 +189,10 @@ public class AkiChatFragment extends SherlockFragment {
 
 												AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 												chatAdapter.clear();
-												loadingIcon.setVisibility(View.VISIBLE);
-												membersList.setVisibility(View.GONE);
+												
+												LinearLayout currentMemberIcons = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+												currentMemberIcons.setVisibility(View.INVISIBLE);
+												//TODO SOMETHING HERE
 
 												String contentTitle = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_title);
 												String contentText = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_text);
@@ -283,8 +280,10 @@ public class AkiChatFragment extends SherlockFragment {
 
 												AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 												chatAdapter.clear();
-												loadingIcon.setVisibility(View.VISIBLE);
-												membersList.setVisibility(View.GONE);
+												
+												LinearLayout currentMemberIcons = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+												currentMemberIcons.setVisibility(View.INVISIBLE);
+												//TODO SOMETHING HERE
 
 												CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_skipped_chat);
 												Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
@@ -431,6 +430,9 @@ public class AkiChatFragment extends SherlockFragment {
 									@Override
 									public void onSuccess(Object response) {
 
+										AkiServerUtil.makeSureUserPictureIsUploaded(activity.getApplicationContext(), currentUser.getId());
+										AkiServerUtil.makeSureCoverPhotoIsUploaded(activity.getApplicationContext(), currentUser.getId());
+										
 										AkiServerUtil.getMutualInterests(activity.getApplicationContext());
 										mutualAdapter.setNotifyOnChange(true);
 										
@@ -439,14 +441,20 @@ public class AkiChatFragment extends SherlockFragment {
 
 										JsonObject responseJSON = (JsonObject) response;
 										final JsonValue chatRoomId = responseJSON.get("chat_room");
-										if ( chatRoomId != null ){
-											AkiServerUtil.enterChatRoom(activity, currentUser.getId(), chatRoomId.asString());
+										if ( chatRoomId != null && !chatRoomId.isNull() ){
+											AkiServerUtil.enterChatRoom(activity, currentUser.getId(), chatRoomId.asString(), responseJSON.get("should_not_be_anonymous") == null);
 											final CheckBox anonymousCheck = (CheckBox) activity.findViewById(R.id.com_lespi_aki_main_settings_anonymous);
-											anonymousCheck.setChecked(AkiInternalStorageUtil.getAnonymousSetting(activity.getApplicationContext(), currentUser.getId()));
+											if ( anonymousCheck != null ){
+												anonymousCheck.setChecked(AkiInternalStorageUtil.getAnonymousSetting(activity.getApplicationContext(), currentUser.getId()));
+											}
 											activity.setGeofence();
 											refreshReceivedMessages(activity, session, currentUser);
 											sendMessageBtn.setEnabled(true);
 											AkiServerUtil.getMessages(activity.getApplicationContext());
+										}
+
+										if ( activity.locationServicesConnected() ){
+											activity.startPeriodicLocationUpdates();
 										}
 									}
 
@@ -510,7 +518,7 @@ public class AkiChatFragment extends SherlockFragment {
 			webView.loadUrl("javascript:show_login_screen();");
 		}
 
-		final RelativeLayout membersList = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+		final LinearLayout membersList = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
 		membersList.setVisibility(View.GONE);
 		
 		RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
@@ -527,8 +535,6 @@ public class AkiChatFragment extends SherlockFragment {
 
 		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(activity.getApplicationContext());
 		chatAdapter.clear();
-		ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
-		loadingIcon.setVisibility(View.VISIBLE);
 
 		if ( activity.locationServicesConnected() ){
 			activity.stopPeriodicLocationUpdates();
@@ -547,6 +553,11 @@ public class AkiChatFragment extends SherlockFragment {
 				@Override
 				public void onSuccess(Object response) {
 					AkiServerUtil.leaveChatRoom(context, currentUserId);
+					AkiInternalStorageUtil.wipeMatches(context);
+					String chatId = AkiInternalStorageUtil.getCurrentChatRoom(context);
+					if ( chatId != null ){
+						AkiInternalStorageUtil.removeCachedMessages(context, chatId);
+					}
 					AkiInternalStorageUtil.clearVolatileStorage(context);
 					AkiInternalStorageUtil.wipeCachedUserLocation(context, new AsyncCallback() {
 
@@ -571,6 +582,7 @@ public class AkiChatFragment extends SherlockFragment {
 					CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_exited_chat);
 					Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 					toast.show();
+					AkiApplication.isNotLoggedIn();
 				}
 
 				@Override
@@ -586,7 +598,6 @@ public class AkiChatFragment extends SherlockFragment {
 			});
 		}
 
-		AkiApplication.isNotLoggedIn();
 		ParseInstallation installation = ParseInstallation.getCurrentInstallation();
 		installation.put("uid", "not_logged");
 		installation.saveInBackground();
@@ -603,10 +614,11 @@ public class AkiChatFragment extends SherlockFragment {
 			activity.startPeriodicLocationUpdates();
 		}
 
-		final RelativeLayout membersList = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
-		membersList.setVisibility(View.GONE);
-		
 		AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), currentUserId);
+		
+//		final LinearLayout membersList = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+//		membersList.setVisibility(View.VISIBLE);
+		//TODO THIS IS RELATED AS WELL, GUESS CAN TAKE THIS OUT
 
 		RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
 		background.setVisibility(View.GONE);
@@ -662,6 +674,7 @@ public class AkiChatFragment extends SherlockFragment {
 				listView.setWillNotCacheDrawing(true);
 
 				refreshMembersList(activity, currentUser.getId());
+				//TODO APPARENTLY HAVE TO REMOVE THE OTHER ONE TO AVOID RACE CONDITION
 			}
 		}.execute();
 	}
@@ -752,11 +765,9 @@ public class AkiChatFragment extends SherlockFragment {
 
 				}
 				
-				final ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_chat_progress_bar);
-				loadingIcon.setVisibility(View.GONE);
-
-				final RelativeLayout membersList = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
-				membersList.setVisibility(View.VISIBLE);
+				LinearLayout currentMemberIcons = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
+				currentMemberIcons.setVisibility(View.VISIBLE);
+				//TODO THIS IS RELATED TO THE OTHER TOODS
 			}
 
 			@Override
@@ -805,6 +816,7 @@ public class AkiChatFragment extends SherlockFragment {
 		listView.setWillNotCacheDrawing(true);
 
 		refreshMembersList(activity, currentUserId);
+		//TODO APPARENTLY HAVE TO REMOVE TO AVOID RACE CONDITION
 	}
 	
 	@Override
@@ -826,7 +838,7 @@ public class AkiChatFragment extends SherlockFragment {
 			return;
 		}
 
-		if ( !AkiHttpUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
+		if ( !AkiHttpRequestUtil.isConnectedToTheInternet(activity.getApplicationContext()) ){
 
 			LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
 			RelativeLayout loginArea = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_login);
@@ -973,5 +985,4 @@ public class AkiChatFragment extends SherlockFragment {
 		uiHelper.onSaveInstanceState(outState);
 	}
 
-	
 }

@@ -49,7 +49,14 @@
             android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme" >
         </activity>
-
+        <activity
+            android:name="com.lespi.aki.AkiMatchProfileActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="Aki"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullscreenTheme" >
+        </activity>
+        
         <service android:name="com.parse.PushService" />
 
         <receiver android:name="com.parse.ParseBroadcastReceiver" >

@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.Set;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
@@ -47,9 +48,9 @@ public class AkiServerUtil {
 		}
 	}
 
-	public static void isServerUp(final Context context, final AsyncCallback callback){
+	public static synchronized void isServerUp(final Context context, final AsyncCallback callback){
 
-		AkiHttpUtil.doGETHttpRequest(context, "/", new AsyncCallback() {
+		AkiHttpRequestUtil.doGETHttpRequest(context, "/", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -74,9 +75,9 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void getPresenceFromServer(final Context context, final AsyncCallback callback){
+	public static synchronized void getPresenceFromServer(final Context context, final AsyncCallback callback){
 
-		AkiHttpUtil.doGETHttpRequest(context, "/presence", new AsyncCallback() {
+		AkiHttpRequestUtil.doGETHttpRequest(context, "/presence", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -104,11 +105,7 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void sendPresenceToServer(final Context context, final String userId){
-		sendPresenceToServer(context, userId, null);
-	}
-
-	public static void sendPresenceToServer(final Context context, final String userId, final AsyncCallback callback){
+	public static synchronized void sendPresenceToServer(final Context context, final String userId, final AsyncCallback callback){
 
 		JsonObject payload = new JsonObject();
 		String firstName = AkiInternalStorageUtil.getCachedUserFirstName(context, userId);
@@ -144,7 +141,7 @@ public class AkiServerUtil {
 			payload.add("location", "unknown");
 		}
 
-		AkiHttpUtil.doPOSTHttpRequest(context, "/presence/"+userId, payload, new AsyncCallback(){
+		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/presence/"+userId, payload, new AsyncCallback(){
 
 			@Override
 			public void onSuccess(Object response) {
@@ -154,7 +151,6 @@ public class AkiServerUtil {
 				if ( nT != null ){
 					String nextTimestamp = nT.asString();
 					AkiInternalStorageUtil.setLastServerTimestamp(context, nextTimestamp);
-					Log.wtf("PULL MAN!", "(just got into a room so) SETTING LAST SERVER TT TO: " + nextTimestamp + "!");
 				}
 				JsonValue updateMutualInterests = responseJSON.get("update_mutual_interests");
 				if ( updateMutualInterests != null ){
@@ -181,9 +177,9 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void sendLikeToServer(final Context context, final String userId){
+	public static synchronized void sendLikeToServer(final Context context, final String userId){
 
-		AkiHttpUtil.doPOSTHttpRequest(context, "/like/"+userId, new AsyncCallback() {
+		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/like/"+userId, new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -203,9 +199,9 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void sendDislikeToServer(Context context, final String userId) {
+	public static synchronized void sendDislikeToServer(Context context, final String userId) {
 
-		AkiHttpUtil.doPOSTHttpRequest(context, "/dislike/"+userId, new AsyncCallback() {
+		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/dislike/"+userId, new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -225,9 +221,9 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void sendInactiveToServer(final Context context){
+	public static synchronized void sendInactiveToServer(final Context context){
 
-		AkiHttpUtil.doPOSTHttpRequest(context, "/inactive", new AsyncCallback() {
+		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/inactive", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -251,9 +247,9 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void sendExitToServer(final Context context, final AsyncCallback callback){
+	public static synchronized void sendExitToServer(final Context context, final AsyncCallback callback){
 
-		AkiHttpUtil.doPOSTHttpRequest(context, "/exit", new AsyncCallback() {
+		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/exit", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -279,9 +275,9 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void sendSkipToServer(final Context context, final AsyncCallback callback){
+	public static synchronized void sendSkipToServer(final Context context, final AsyncCallback callback){
 
-		AkiHttpUtil.doPOSTHttpRequest(context, "/skip", new AsyncCallback() {
+		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/skip", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -306,8 +302,12 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void enterChatRoom(Context context, String currentUserId, String newChatRoom) {
+	public static synchronized void enterChatRoom(Context context, String currentUserId,
+			String newChatRoom, boolean shouldBeAnonymous) {
 
+		Log.w(AkiApplication.TAG, "GOT INTO ENTER CHAT");
+		
+		boolean redirectedToNewChat = false;
 		String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
 		if ( currentChatRoom == null ){
 			Log.i(AkiApplication.TAG, "No current chat room address set.");
@@ -321,6 +321,7 @@ public class AkiServerUtil {
 		}
 		else{
 			leaveChatRoom(context, currentUserId);
+			redirectedToNewChat = true;
 			Log.i(AkiApplication.TAG, "Had to leave current chat room address {" +
 					currentChatRoom + "} because will be assigned to new chat room " +
 					"address {" + newChatRoom + "}.");
@@ -336,17 +337,41 @@ public class AkiServerUtil {
 		AkiInternalStorageUtil.setCurrentChatRoom(context, newChatRoom);
 		Log.i(AkiApplication.TAG, "Current chat room set to chat room address {" + newChatRoom + "}.");
 
-		AkiInternalStorageUtil.setAnonymousSetting(context, currentUserId, true);
+		if ( shouldBeAnonymous ){
+			AkiInternalStorageUtil.setAnonymousSetting(context, currentUserId, true);
+		}
+		else {
+			AkiInternalStorageUtil.setAnonymousSetting(context, currentUserId, false);
+		}
 		AkiInternalStorageUtil.wipeCachedGeofenceCenter(context);
 		AkiInternalStorageUtil.cacheGeofenceRadius(context, -1);
 		AkiInternalStorageUtil.willUpdateGeofence(context);
 		AkiInternalStorageUtil.clearUserLikes(context);
 		AkiInternalStorageUtil.cacheLikeMutualInterests(context);
-		AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
-				context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room));
+		getMembersList(context, null);
+		
+		if ( redirectedToNewChat ){
+			Log.w(AkiApplication.TAG, "Just gave a 'you've been redirected' message");
+			AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
+					context.getResources().getString(R.string.com_lespi_aki_message_system_redirected_to_new_chat_room));
+		}
+		else{
+			Log.w(AkiApplication.TAG, "Just gave a 'you've joined chat' message");
+			AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
+					context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room));
+		}
+
+		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+			List<JsonObject> messages = AkiChatAdapter
+					.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, newChatRoom));
+			chatAdapter.clear();
+			if ( messages != null ){
+				chatAdapter.addAll(messages);
+			}
+		chatAdapter.notifyDataSetChanged();
 	}
 
-	public static void leaveChatRoom(Context context, String currentUserId) {
+	public static synchronized void leaveChatRoom(Context context, String currentUserId) {
 
 		if ( currentUserId != null ){
 			AkiInternalStorageUtil.setAnonymousSetting(context, currentUserId, true);
@@ -357,6 +382,8 @@ public class AkiServerUtil {
 			Log.i(AkiApplication.TAG, "No need to unsubscribe as no current chat room address is set.");
 		}
 		else{
+			AkiInternalStorageUtil.wipeCurrentChatMembers(context);
+			AkiInternalStorageUtil.clearTimestamps(context, currentChatRoom);
 			PushService.unsubscribe(context, currentChatRoom);
 			AkiInternalStorageUtil.setCurrentChatRoom(context, null);
 			Log.i(AkiApplication.TAG, "Unsubscribed from chat room address {" + currentChatRoom + "}.");
@@ -368,35 +395,109 @@ public class AkiServerUtil {
 		}
 	}
 
-	public static void getMembersList(final Context context, final AsyncCallback callback) {
-
-		AkiHttpUtil.doGETHttpRequest(context, "/members", new AsyncCallback() {
+	public static synchronized void getMembersList(final Context context, final AsyncCallback callback) {
+		
+		if ( AkiInternalStorageUtil.getCurrentChatRoom(context) == null ){
+			return;
+		}
+		
+		AkiHttpRequestUtil.doGETHttpRequest(context, "/members", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
+				
 				JsonObject members = ((JsonObject) response).get("members").asObject();
+
+				boolean shouldRefreshMessages = true;
+				boolean thereAreNewMessages = false;
+				
+				Set<String> currentMembers = AkiInternalStorageUtil.getCurrentChatMembers(context);
+				if ( currentMembers.size() == 0 ){
+					shouldRefreshMessages = false;
+				}
+				
 				List<String> memberIds = new ArrayList<String>();
 				for ( String memberId : members.names() ){
 					memberIds.add(memberId);
+					
+					String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
+					
+					if ( !currentUserId.equals(memberId) ){
+						JsonObject memberInfo = members.get(memberId).asObject();
+						if ( memberInfo.get("full_name") != null && !memberInfo.get("full_name").isNull() ){
+							AkiInternalStorageUtil.cacheUserFullName(context, memberId,
+									memberInfo.get("full_name").asString());
+						}
+						if ( memberInfo.get("first_name") != null && !memberInfo.get("first_name").isNull() ){
+							AkiInternalStorageUtil.cacheUserFirstName(context, memberId,
+									memberInfo.get("first_name").asString());
+						}
+						if ( memberInfo.get("nickname") != null && !memberInfo.get("nickname").isNull() ){
+							AkiInternalStorageUtil.cacheUserNickname(context, memberId,
+									memberInfo.get("nickname").asString());
+						}
+						if ( memberInfo.get("gender") != null && !memberInfo.get("gender").isNull() ){
+							AkiInternalStorageUtil.cacheUserGender(context, memberId,
+									memberInfo.get("gender").asString());
+						}
+						if ( memberInfo.get("anonymous") != null && !memberInfo.get("anonymous").isNull() ){
+							AkiInternalStorageUtil.setAnonymousSetting(context, memberId,
+									memberInfo.get("anonymous").asBoolean());
+						}						
+					}
+					
+					if ( currentMembers.contains(memberId) ){
+						currentMembers.remove(memberId);
+					}
+					else{
+						AkiInternalStorageUtil.chatMemberHasJoined(context, memberId, shouldRefreshMessages);
+						thereAreNewMessages = true;
+					}
 				}
-				callback.onSuccess(memberIds);
+				
+				for ( String oldMemberId : currentMembers ){
+					AkiInternalStorageUtil.chatMemberHasLeft(context, oldMemberId);
+					thereAreNewMessages = true;
+				}
+				
+				AkiMutualAdapter mutualAdapter = AkiMutualAdapter.getInstance(context);
+				mutualAdapter.notifyDataSetChanged();
+				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
+				if ( shouldRefreshMessages && thereAreNewMessages ){
+					String currentChatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
+					List<JsonObject> messages = AkiChatAdapter
+							.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, currentChatRoom));
+					chatAdapter.clear();
+					if ( messages != null ){
+						chatAdapter.addAll(messages);
+					}
+				}
+				chatAdapter.notifyDataSetChanged();
+				
+				if ( callback != null ){
+					callback.onSuccess(memberIds);
+				}
 			}
 
 			@Override
 			public void onFailure(Throwable failure) {
-				callback.onFailure(failure);
+				if ( callback != null ){
+					callback.onFailure(failure);
+				}
 			}
 
 			@Override
 			public void onCancel() {
-				callback.onCancel();
+				if ( callback != null ){
+					callback.onCancel();
+				}
 			}
 		});
 	}
 
 	public static synchronized void getMutualInterests(final Context context) {
 
-		AkiHttpUtil.doGETHttpRequest(context, "/mutual", new AsyncCallback() {
+		AkiHttpRequestUtil.doGETHttpRequest(context, "/mutual", new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -404,10 +505,27 @@ public class AkiServerUtil {
 				AkiInternalStorageUtil.wipeMatches(context);
 				JsonArray mutualInterests = ((JsonObject) response).get("mutuals").asArray();
 				for ( JsonValue interest : mutualInterests ){
-					String userId = interest.asObject().get("uid").asString();
+					JsonObject interestJSON = interest.asObject();
+					String userId = interestJSON.get("uid").asString();
 					boolean notify = !oldMutualInterests.contains(userId);
 					if ( !notify ){
 						oldMutualInterests.remove(userId);
+					}
+					if ( interestJSON.get("nickname") != null && !interestJSON.get("nickname").isNull() ){
+						String nickname = interestJSON.get("nickname").asString();
+						AkiInternalStorageUtil.cacheUserNickname(context, userId, nickname);
+					}
+					if ( interestJSON.get("gender") != null && !interestJSON.get("gender").isNull() ){
+						String gender = interestJSON.get("gender").asString();
+						AkiInternalStorageUtil.cacheUserGender(context, userId, gender);
+					}
+					if ( interestJSON.get("first_name") != null && !interestJSON.get("first_name").isNull() ){
+						String firstName = interestJSON.get("first_name").asString();
+						AkiInternalStorageUtil.cacheUserFirstName(context, userId, firstName);
+					}
+					if ( interestJSON.get("full_name") != null && !interestJSON.get("full_name").isNull() ){
+						String fullName = interestJSON.get("full_name").asString();
+						AkiInternalStorageUtil.cacheUserFullName(context, userId, fullName);
 					}
 					AkiInternalStorageUtil.storeNewMatch(context, userId, notify);
 				}
@@ -442,7 +560,7 @@ public class AkiServerUtil {
 	
 	public static synchronized void removeMutualInterest(final Context context, final String userId) {
 
-		AkiHttpUtil.doDELETEHttpRequest(context, "/mutual/" + userId, new AsyncCallback() {
+		AkiHttpRequestUtil.doDELETEHttpRequest(context, "/mutual/" + userId, new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -473,7 +591,7 @@ public class AkiServerUtil {
 		});
 	}
 	
-	public static void sendMessage(final Context context, String message, final AsyncCallback callback) {
+	public static synchronized void sendMessage(final Context context, String message, final AsyncCallback callback) {
 
 		final String chatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
 		String currentUser = AkiInternalStorageUtil.getCurrentUser(context);
@@ -504,7 +622,7 @@ public class AkiServerUtil {
 		JsonObject payload = new JsonObject();
 		payload.add("message", message);
 
-		AkiHttpUtil.doPOSTHttpRequest(context, "/message", payload, new AsyncCallback() {
+		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/message", payload, new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {
@@ -544,8 +662,6 @@ public class AkiServerUtil {
 		@Override
 		public void run() {
 
-			Log.wtf("PULL MAN!", "getMessages runnable just started!");
-
 			final String chatRoom = AkiInternalStorageUtil.getCurrentChatRoom(context);
 			final String currentUser = AkiInternalStorageUtil.getCurrentUser(context);
 
@@ -555,11 +671,10 @@ public class AkiServerUtil {
 			}
 
 			String lastServerTimestamp = AkiInternalStorageUtil.getLastServerTimestamp(context);
-			Log.wtf("PULL MAN!", "USING LAST SERVER TT WE HAVE: " + lastServerTimestamp + "!");
 			String targetEndpoint = "/message/2?next=" + lastServerTimestamp;
 
 			final Runnable self = this;
-			AkiHttpUtil.doGETHttpRequest(context, targetEndpoint, new AsyncCallback() {
+			AkiHttpRequestUtil.doGETHttpRequest(context, targetEndpoint, new AsyncCallback() {
 
 				@Override
 				public void onSuccess(Object response) {
@@ -569,7 +684,6 @@ public class AkiServerUtil {
 					if ( !nT.isNull() ){
 						String nextTimestamp = nT.asString();
 						AkiInternalStorageUtil.setLastServerTimestamp(context, nextTimestamp);
-						Log.wtf("PULL MAN!", "(just got response from server) SETTING LAST SERVER TT TO: " + nextTimestamp + "!");
 					}
 
 					boolean isFinished = responseJSON.get("finished").asBoolean();
@@ -585,12 +699,11 @@ public class AkiServerUtil {
 						AkiInternalStorageUtil.storePulledMessage(context, chatRoom, sender, content, timestamp);
 					}
 					if ( messages.size() > 0 ){
-						Log.wtf("PULL MAN!", "GOT RESULT!");
 
 						AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 						List<JsonObject> messagesList = AkiChatAdapter.toJsonObjectList(
 								AkiInternalStorageUtil.retrieveMessages(context, chatRoom)
-								);
+						);
 
 						chatAdapter.clear();
 						if ( messagesList != null ){
@@ -608,7 +721,6 @@ public class AkiServerUtil {
 					}
 					
 					int timeout = AkiInternalStorageUtil.getNextTimeout(context);
-					Log.wtf("PULL MAN!", "getMessages runnable will run again in: " + timeout + " seconds!");
 					handler.postDelayed(self, timeout * 1000);
 				}
 
@@ -616,7 +728,6 @@ public class AkiServerUtil {
 				public void onFailure(Throwable failure) {
 
 					if ( tolerance >= 3 ){
-						Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
 						Log.e(AkiApplication.TAG, "GetMessages runnable canceled due to failing more than 3 consecutive times!");
 						AkiInternalStorageUtil.resetTimeout(context);
 						handler.removeCallbacks(self);
@@ -624,14 +735,12 @@ public class AkiServerUtil {
 					}
 
 					int timeout = AkiInternalStorageUtil.getNextTimeout(context);
-					Log.wtf("PULL MAN!", "getMessages runnable will run again in: " + timeout + " seconds!");
 					handler.postDelayed(self, timeout * 1000);
 					tolerance++;
 				}
 
 				@Override
 				public void onCancel() {
-					Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
 					Log.e(AkiApplication.TAG, "GetMessages runnable canceled!");
 					AkiInternalStorageUtil.resetTimeout(context);
 					handler.removeCallbacks(self);
@@ -644,7 +753,7 @@ public class AkiServerUtil {
 	public static GetMessages getMessages;
 	public static Handler handler;
 
-	public static void getMessages(final Context context){
+	public static synchronized void getMessages(final Context context){
 
 		if ( handler == null ){
 			handler = new Handler();
@@ -653,25 +762,133 @@ public class AkiServerUtil {
 			getMessages = new GetMessages(context, handler);
 		}
 		else {
-			Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
 			AkiInternalStorageUtil.resetTimeout(context);
 			handler.removeCallbacks(getMessages);
 		}
-		Log.wtf("PULL MAN!", "Starting getMessages runnable!");
 		handler.post(getMessages);
 	}
 
-	public static void stopGettingMessages(final Context context){
+	public static synchronized void stopGettingMessages(final Context context){
 
 		if ( handler != null ){
-			Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
 			AkiInternalStorageUtil.resetTimeout(context);
 			handler.removeCallbacks(getMessages);
 		}
 	}
 
-	public static void restartGettingMessages(final Context context){
+	public static synchronized void restartGettingMessages(final Context context){
 		stopGettingMessages(context);
 		getMessages(context);
 	}
+	
+	public static synchronized void uploadCoverPhoto(final Context context, final String userId, AsyncCallback callback){
+		Bitmap imageBitmap = AkiInternalStorageUtil.getCachedUserCoverPhoto(context, userId);
+		AkiHttpUploadUtil.doHttpUpload(context, context.getString(R.string.com_lespi_aki_data_user_coverphoto)+userId, imageBitmap, callback);
+	}
+	
+	public static synchronized void makeSureCoverPhotoIsUploaded(final Context context, final String userId){
+		String url = "/upload/" + context.getString(R.string.com_lespi_aki_data_user_coverphoto) + userId + ".png";
+		AkiHttpRequestUtil.doHEADHttpRequest(context, url, new AsyncCallback() {
+			@Override
+			public void onSuccess(Object response) {
+				Log.i(AkiApplication.TAG, "Cover photo of user {" + userId + "} is already uploaded to server!");
+			}
+			
+			@Override
+			public void onFailure(Throwable error) {
+				AkiServerUtil.uploadCoverPhoto(context, userId, new AsyncCallback() {
+					@Override
+					public void onSuccess(Object response) {
+						Log.i(AkiApplication.TAG, "Cover photo of user {" + userId + "} uploaded to server!");
+					}
+					
+					@Override
+					public void onFailure(Throwable error) {
+						Log.e(AkiApplication.TAG, "Error while trying to upload cover photo of user {" + userId + "} to server.");
+					}
+					
+					@Override
+					public void onCancel() {
+						Log.e(AkiApplication.TAG, "Could not upload cover photo of user {" + userId + "} to server.");
+					}
+				});
+			}
+			
+			@Override
+			public void onCancel() {
+				AkiServerUtil.uploadCoverPhoto(context, userId, new AsyncCallback() {
+					@Override
+					public void onSuccess(Object response) {
+						Log.i(AkiApplication.TAG, "Cover photo of user {" + userId + "} uploaded to server!");
+					}
+					
+					@Override
+					public void onFailure(Throwable error) {
+						Log.e(AkiApplication.TAG, "Error while trying to upload cover photo of user {" + userId + "} to server.");
+					}
+					
+					@Override
+					public void onCancel() {
+						Log.e(AkiApplication.TAG, "Could not upload cover photo of user {" + userId + "} to server.");
+					}
+				});
+			}
+		});
+	}
+
+	public static synchronized void uploadUserPicture(final Context context, final String userId, AsyncCallback callback){
+		Bitmap imageBitmap = AkiInternalStorageUtil.getCachedUserPicture(context, userId);
+		AkiHttpUploadUtil.doHttpUpload(context, context.getString(R.string.com_lespi_aki_data_user_picture)+userId, imageBitmap, callback);
+	}
+	
+	public static synchronized void makeSureUserPictureIsUploaded(final Context context, final String userId){
+		String url = "/upload/" + context.getString(R.string.com_lespi_aki_data_user_picture) + userId + ".png";
+		AkiHttpRequestUtil.doHEADHttpRequest(context, url, new AsyncCallback() {
+			@Override
+			public void onSuccess(Object response) {
+				Log.i(AkiApplication.TAG, "Picture of user {" + userId + "} is already uploaded to server!");
+			}
+			
+			@Override
+			public void onFailure(Throwable error) {
+				AkiServerUtil.uploadUserPicture(context, userId, new AsyncCallback() {
+					@Override
+					public void onSuccess(Object response) {
+						Log.i(AkiApplication.TAG, "Picture of user {" + userId + "} uploaded to server!");
+					}
+					
+					@Override
+					public void onFailure(Throwable error) {
+						Log.e(AkiApplication.TAG, "Error while trying to upload picture of user {" + userId + "} to server.");
+					}
+					
+					@Override
+					public void onCancel() {
+						Log.e(AkiApplication.TAG, "Could not upload picture of user {" + userId + "} to server.");
+					}
+				});
+			}
+			
+			@Override
+			public void onCancel() {
+				AkiServerUtil.uploadUserPicture(context, userId, new AsyncCallback() {
+					@Override
+					public void onSuccess(Object response) {
+						Log.i(AkiApplication.TAG, "Picture of user {" + userId + "} uploaded to server!");
+					}
+					
+					@Override
+					public void onFailure(Throwable error) {
+						Log.e(AkiApplication.TAG, "Error while trying to upload picture of user {" + userId + "} to server.");
+					}
+					
+					@Override
+					public void onCancel() {
+						Log.e(AkiApplication.TAG, "Could not upload picture of user {" + userId + "} to server.");
+					}
+				});
+			}
+		});
+	}
+	
 }
