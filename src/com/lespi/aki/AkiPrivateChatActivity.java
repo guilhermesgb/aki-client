@@ -15,8 +15,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -25,8 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
-import com.facebook.Session;
-import com.facebook.model.GraphUser;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
@@ -168,9 +166,6 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 
 		final AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(activity.getApplicationContext());
 		final ListView listView = (ListView) activity.findViewById(R.id.com_lespi_aki_main_messages_list);
-		chatAdapter.setCurrentUser(AkiApplication.getCurrentUser());
-		chatAdapter.setCurrentSession(AkiApplication.getSession());
-		chatAdapter.setActivity(activity);
 		chatAdapter.registerDataSetObserver(new DataSetObserver() {
 			@Override
 			public void onChanged() {

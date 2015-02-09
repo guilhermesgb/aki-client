@@ -8,8 +8,6 @@ import android.app.Application;
 import android.os.Build;
 import android.util.Log;
 
-import com.facebook.Session;
-import com.facebook.model.GraphUser;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.PushService;
@@ -44,20 +42,9 @@ public class AkiApplication extends Application {
     public static final long FAST_INTERVAL_CEILING_IN_MILLISECONDS =
             1000 * FAST_CEILING_IN_SECONDS;
     
-    public static Session SESSION;
-    
     public static String CURRENT_PRIVATE_ID = null;
     
-    public static void setSession(Session session){
-    	SESSION = session;
-    }
-    
-    public static Session getSession(){
-    	return SESSION;
-    }
-    
 	public static CookieManager cookieManager;
-	private static GraphUser CURRENT_USER;
 	
 	static {
 		disableConnectionReuseIfNecessary();
@@ -122,22 +109,16 @@ public class AkiApplication extends Application {
 		SERVER_DOWN = false;
 	}
 
-	public static GraphUser getCurrentUser() {
-		return CURRENT_USER;
-	}
-	
-	public static void setCurrentUser(GraphUser currentUser){
-		CURRENT_USER = currentUser;
-	}
 	public static boolean isPrivateChatShowing(String userId){
 		return userId.equals(CURRENT_PRIVATE_ID);
 	}
+
 	public static void setCurrentPrivateId(String userId){
 		CURRENT_PRIVATE_ID = userId;
 	}
+
 	public static String getCurrentPrivateId(){
 		return CURRENT_PRIVATE_ID;
 	}
-	
 	
 }

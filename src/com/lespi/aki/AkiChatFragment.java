@@ -124,7 +124,6 @@ public class AkiChatFragment extends SherlockFragment {
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
 		Log.v(AkiApplication.TAG, "AkiChatFragment$onSessionStateChange");
-		AkiApplication.setSession(session);
 		final AkiMainActivity activity = (AkiMainActivity) getActivity();
 		if ( activity == null ){
 			Log.d(AkiApplication.TAG, "Facebook session callback called but there is no MainActivity alive, so ignored session change event.");
@@ -152,11 +151,9 @@ public class AkiChatFragment extends SherlockFragment {
 
 				@Override
 				public void onCompleted(final GraphUser currentUser, Response response) {
-					Log.v(AkiApplication.TAG, "AkiChatFragment$newMemberRequestCompleted");
 					if ( currentUser != null ){
 
 						switchToChatArea(activity, currentUser.getId());
-						AkiApplication.setCurrentUser(currentUser);
 						if ( AkiInternalStorageUtil.getCurrentChatRoom(activity.getApplicationContext()) != null ){
 							refreshReceivedMessages(activity, session, currentUser);
 						}

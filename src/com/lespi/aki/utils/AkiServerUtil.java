@@ -2,6 +2,7 @@ package com.lespi.aki.utils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -9,7 +10,6 @@ import java.util.Set;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
-import android.text.style.BulletSpan;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -391,9 +391,17 @@ public class AkiServerUtil {
 			Log.i(AkiApplication.TAG, "Unsubscribed from chat room address {" + currentChatRoom + "}.");
 			AkiInternalStorageUtil.removeCachedMessages(context, currentChatRoom);
 		}
+		
+		Set<String> privateChatIds = new HashSet<String>();
+		for ( String userId : AkiInternalStorageUtil.retrieveMatches(context) ){
+			privateChatIds.add(buildPrivateChatId(context, userId));
+		}
+		
 		for ( String remainingChatRoom : PushService.getSubscriptions(context) ){
-			PushService.unsubscribe(context, remainingChatRoom);
-			Log.e(AkiApplication.TAG, "Cleanup -> unsubscribing from chat room address: {" + remainingChatRoom + "}.");
+			if ( !privateChatIds.contains(remainingChatRoom) ){
+				PushService.unsubscribe(context, remainingChatRoom);
+				Log.e(AkiApplication.TAG, "Cleanup -> unsubscribing from chat room address: {" + remainingChatRoom + "}.");
+			}
 		}
 	}
 
@@ -538,7 +546,6 @@ public class AkiServerUtil {
 						AkiInternalStorageUtil.cacheUserFullName(context, userId, fullName);
 					}
 					AkiInternalStorageUtil.storeNewMatch(context, userId, notify);
-					PushService.subscribe(context, buildPrivateChatId(context, userId), AkiMainActivity.class);
 				}
 				for ( String userId : oldMutualInterests ){
 					AkiServerUtil.sendDislikeToServer(context, userId);
@@ -587,7 +594,6 @@ public class AkiServerUtil {
 				
 				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 				chatAdapter.notifyDataSetChanged();
-				PushService.unsubscribe(context, buildPrivateChatId(context, userId));
 			}
 
 			@Override

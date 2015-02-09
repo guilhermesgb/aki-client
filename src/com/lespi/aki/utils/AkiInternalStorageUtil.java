@@ -25,9 +25,11 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.lespi.aki.AkiApplication;
+import com.lespi.aki.AkiMainActivity;
 import com.lespi.aki.R;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
+import com.parse.PushService;
 import com.parse.internal.AsyncCallback;
 
 public class AkiInternalStorageUtil {
@@ -729,6 +731,7 @@ public class AkiInternalStorageUtil {
 			}
 
 			matches.add(userId);
+			PushService.subscribe(context, AkiServerUtil.buildPrivateChatId(context, userId), AkiMainActivity.class);
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
 					context.getString(R.string.com_lespi_aki_data_matches), Context.MODE_PRIVATE));
 			oos.writeObject(matches);
@@ -780,6 +783,7 @@ public class AkiInternalStorageUtil {
 			Set<String> matches = retrieveMatches(context);
 			if ( matches.contains(userId) ){
 				matches.remove(userId);
+				PushService.unsubscribe(context, AkiServerUtil.buildPrivateChatId(context, userId));
 			}
 
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
@@ -795,6 +799,11 @@ public class AkiInternalStorageUtil {
 
 	public static synchronized void wipeMatches(Context context) {
 
+		Set<String> matches = retrieveMatches(context);
+		for ( String userId : matches ){
+			PushService.unsubscribe(context, AkiServerUtil.buildPrivateChatId(context, userId));
+		}
+		
 		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_matches));
 		file.delete();
 	}
