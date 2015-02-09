@@ -65,16 +65,15 @@ public class AkiPrivateChatActivity extends SherlockActivity {
         final Context context = getApplicationContext();
 
         String userFullName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
-        TextView headerView = (TextView) findViewById(R.id.com_lespi_aki_match_profile_header);
+        TextView headerView = (TextView) findViewById(R.id.com_lespi_aki_private_chat_header);
         if ( userFullName != null ){
-        	headerView.setText(userFullName);
-        	
+        	headerView.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_header_pattern), userFullName));
         }
         else{
-        	headerView.setText("Match");
+        	headerView.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_header_pattern), "Match"));
         	
         }
-        final ImageView userPictureView = (ImageView) findViewById(R.id.com_lespi_aki_match_profile_picture);
+        final ImageView userPictureView = (ImageView) findViewById(R.id.com_lespi_aki_private_chat_user_picture);
         Bitmap userPicture = AkiInternalStorageUtil.getCachedUserPicture(context, userId);
         if ( userPicture != null ){
         	userPictureView.setImageBitmap(userPicture);
@@ -109,7 +108,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 				}
 			}.execute();
         }
-        final ImageButton sendMessageBtn = (ImageButton) findViewById(R.id.com_lespi_aki_main_chat_send_btn);
+        final ImageButton sendMessageBtn = (ImageButton) findViewById(R.id.com_lespi_aki_private_chat_send_btn);
         sendMessageBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -123,7 +122,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 					return;
 				}
 
-				final EditText chatBox = (EditText) findViewById(R.id.com_lespi_aki_main_chat_input);
+				final EditText chatBox = (EditText) findViewById(R.id.com_lespi_aki_private_chat_input);
 				final String message = chatBox.getText().toString().trim();
 				if ( !message.isEmpty() ){
 					chatBox.setText("");
@@ -132,7 +131,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 						@Override
 						public void onSuccess(Object response) {
 							Log.v(AkiApplication.TAG, "Message: " + message + " sent!");
-//							refreshReceivedMessages();
+//							refreshReceivedMessages(userId);
 						}
 
 						@Override
@@ -172,7 +171,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		final Context context = activity.getApplicationContext();
 
 		final AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(activity.getApplicationContext());
-		final ListView listView = (ListView) activity.findViewById(R.id.com_lespi_aki_main_messages_list);
+		final ListView listView = (ListView) activity.findViewById(R.id.com_lespi_aki_private_messages_list);
 		chatAdapter.registerDataSetObserver(new DataSetObserver() {
 			@Override
 			public void onChanged() {
@@ -197,7 +196,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 				if ( messages != null ){
 					chatAdapter.addAll(messages);
 				}
-				ListView listView = (ListView) activity.findViewById(R.id.com_lespi_aki_main_messages_list);
+				ListView listView = (ListView) activity.findViewById(R.id.com_lespi_aki_private_messages_list);
 				listView.setAdapter(chatAdapter);
 				listView.setSelection(chatAdapter.getCount() - 1);
 				listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
@@ -214,7 +213,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		AkiApplication.isNowInForeground();
 		super.onResume();
 	}
-    
+
 	@Override
 	protected void onPause(){
 		AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
@@ -222,7 +221,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		AkiApplication.isNowInBackground();
 		super.onPause();
 	}
-    
+
     @Override
     protected void onStop() {
     	AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
@@ -230,7 +229,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		AkiApplication.isNowInBackground();
 		super.onStop();
     }
-	
+
     @Override
     protected void onDestroy() {
     	AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
@@ -238,5 +237,5 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		AkiApplication.isNowInBackground();
 		super.onDestroy();
     }
-    
+
 }

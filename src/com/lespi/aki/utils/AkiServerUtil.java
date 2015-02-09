@@ -700,8 +700,8 @@ public class AkiServerUtil {
 			@Override
 			public void onSuccess(Object response) {
 				AkiInternalStorageUtil.resetTimeout(context,chatRoom);
+				restartGettingPrivateMessages(context, userId);
 				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
-				getPrivateMessages(context, userId);
 				callback.onSuccess(response);
 			}
 

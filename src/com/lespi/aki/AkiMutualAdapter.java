@@ -22,7 +22,6 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,6 +44,8 @@ import com.lespi.aki.utils.AkiServerUtil;
 
 public class AkiMutualAdapter extends ArrayAdapter<String> {
 
+	public static final String API_LOCATION = "https://lespi-server.herokuapp.com/upload/";
+	
 	private final Context context;
 	private final List<String> interests;
 	private Session currentSession = null;
@@ -110,6 +111,7 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 		public TextView userNick;
 		public ImageView userPicture;
 		public ImageView userGender;
+		public TextView userUnreadCounter;
 		public ImageButton userRemoveMatch;
 	}
 	
@@ -151,6 +153,8 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 					.findViewById(R.id.com_lespi_aki_mutual_interest_user_picture);
 			viewHolder.userGender = (ImageView) rowView
 					.findViewById(R.id.com_lespi_aki_mutual_interest_user_gender);
+			viewHolder.userUnreadCounter = (TextView) rowView
+					.findViewById(R.id.com_lespi_aki_mutual_interest_user_unread_counter);
 			viewHolder.userRemoveMatch = (ImageButton) rowView
 					.findViewById(R.id.com_lespi_aki_mutual_interest_delete_match_btn);
 			rowView.setTag(viewHolder);
@@ -215,11 +219,6 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 
 		String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
 		if ( nickname != null ){
-			String privateChatRoom = AkiServerUtil.buildPrivateChatId(context, userId);
-			int unreadCounter = AkiInternalStorageUtil.getPrivateChatRoomUnreadCounter(context, privateChatRoom);
-			if ( unreadCounter > 0 ){
-				nickname += " (" + Integer.toString(unreadCounter) + ")";
-			}
 			viewHolder.userNick.setText(nickname);
 		}
 		else{
@@ -238,6 +237,15 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 		}
 		viewHolder.userGender.setImageAlpha(255);
 
+		viewHolder.userUnreadCounter.setVisibility(View.GONE);
+		String privateChatRoom = AkiServerUtil.buildPrivateChatId(context, userId);
+		int unreadCounter = AkiInternalStorageUtil.getPrivateChatRoomUnreadCounter(context, privateChatRoom);
+		if ( unreadCounter > 0 ){
+			viewHolder.userUnreadCounter.setVisibility(View.VISIBLE);
+//			viewHolder.userUnreadCounter.setAlpha(0.7f);
+			viewHolder.userUnreadCounter.setText(Integer.toString(unreadCounter));
+		}
+		
 		Bitmap picture = AkiInternalStorageUtil.getCachedUserPicture(context, userId);
 
 		if ( picture != null ){
@@ -254,63 +262,78 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 				picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_female);
 				viewHolder.userPicture.setImageBitmap(getRoundedBitmap(picturePlaceholder));
 			}
-
-			Bundle params = new Bundle();
-			params.putBoolean("redirect", false);
-			params.putString("width", "143");
-			params.putString("height", "143");
-			new Request(currentSession, "/" + userId + "/picture",
-					params, HttpMethod.GET, new Request.Callback() {
-				public void onCompleted(Response response) {
-					if (response.getError() != null || JsonValue.readFrom(response.getRawResponse()).asObject().get("data") == null) {
-						Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from Facebook.");
-						return;
+			new AsyncTask<Void, Void, Bitmap>() {
+				@Override
+				protected Bitmap doInBackground(Void... params) {
+					try {
+						URL picture_address = new URL(API_LOCATION + context.getString(R.string.com_lespi_aki_data_user_picture) + userId + ".png");
+						Bitmap picture = BitmapFactory.decodeStream(picture_address.openConnection().getInputStream());
+						AkiInternalStorageUtil.cacheUserPicture(context, userId, picture);
+						return picture;
+					} catch (MalformedURLException e) {
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query a user picture from our server.");
+						e.printStackTrace();
+						return null;
+					} catch (IOException e) {
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from our server.");
+						e.printStackTrace();
+						return null;
 					}
-
-					JsonObject information = JsonValue.readFrom(response.getRawResponse()).asObject().get("data").asObject();
-
-					if (information.get("is_silhouette").asBoolean()) {
-						Log.i(AkiApplication.TAG, "User does not have a picture from Facebook.");
-						return;
-					}
-
-					new AsyncTask<String, Void, Bitmap>() {
-
-						@Override
-						protected Bitmap doInBackground(String... params) {
-
-							try {
-								URL picture_address = new URL(params[0]);
-								Bitmap picture = getRoundedBitmap(BitmapFactory.decodeStream(picture_address.openConnection().getInputStream()));
-								AkiInternalStorageUtil.cacheUserPicture(context, userId, picture);
-								return picture;
-
-							} catch (MalformedURLException e) {
-								Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from Facebook.");
-								e.printStackTrace();
-								return null;
-							} catch (IOException e) {
-								Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from Facebook.");
-								e.printStackTrace();
-								return null;
-							}
-						}
-
-						@Override
-						protected void onPostExecute(Bitmap picture) {
-							if (picture != null) {
-								viewHolder.userPicture.setImageBitmap(picture);
-								viewHolder.userPicture.setImageAlpha(255);
-							} else {
-								Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from Facebook.");
-							}
-						}
-
-					}.execute(information.get("url").asString());
 				}
-			}).executeAsync();
+				@Override
+				protected void onPostExecute(Bitmap picture) {
+					if ( picture != null ){
+						viewHolder.userPicture.setImageBitmap(picture);
+					}
+					else{
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from our server.");
+					}
+				}
+			}.execute();
 		}
 
+		final ImageView userCoverView = (ImageView) rowView.findViewById(R.id.com_lespi_aki_mutual_interest_user_cover);
+		userCoverView.setAdjustViewBounds(false);
+		userCoverView.setMinimumWidth(851);
+		userCoverView.setMinimumHeight(315);
+		userCoverView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		Bitmap coverPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_cover);
+		userCoverView.setImageBitmap(coverPlaceholder);
+		Bitmap cachedCoverPhoto = AkiInternalStorageUtil.getCachedUserCoverPhoto(context, userId);
+		if ( cachedCoverPhoto != null ){
+			userCoverView.setImageBitmap(cachedCoverPhoto);
+		}
+		else {
+			new AsyncTask<Void, Void, Bitmap>() {
+				@Override
+				protected Bitmap doInBackground(Void... params) {
+					try {
+						URL picture_address = new URL(API_LOCATION + context.getString(R.string.com_lespi_aki_data_user_coverphoto) + userId + ".png");
+						Bitmap picture = BitmapFactory.decodeStream(picture_address.openConnection().getInputStream());
+						AkiInternalStorageUtil.cacheUserCoverPhoto(context, userId, picture);
+						return picture;
+					} catch (MalformedURLException e) {
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query a user cover photo from our server.");
+						e.printStackTrace();
+						return null;
+					} catch (IOException e) {
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query user cover photo from our server.");
+						e.printStackTrace();
+						return null;
+					}
+				}
+				@Override
+				protected void onPostExecute(Bitmap picture) {
+					if ( picture != null ){
+						userCoverView.setImageBitmap(picture);
+					}
+					else{
+						Log.e(AkiApplication.TAG, "A problem happened while trying to query user cover photo from our server.");
+					}
+				}
+			}.execute();
+		}
+		
 		if ( activity != null ){
 			
 			final StringBuilder message = new StringBuilder()
