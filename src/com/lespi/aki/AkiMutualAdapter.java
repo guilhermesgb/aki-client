@@ -215,6 +215,11 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 
 		String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
 		if ( nickname != null ){
+			String privateChatRoom = AkiServerUtil.buildPrivateChatId(context, userId);
+			int unreadCounter = AkiInternalStorageUtil.getPrivateChatRoomUnreadCounter(context, privateChatRoom);
+			if ( unreadCounter > 0 ){
+				nickname += " (" + Integer.toString(unreadCounter) + ")";
+			}
 			viewHolder.userNick.setText(nickname);
 		}
 		else{
@@ -348,7 +353,7 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 				@Override
 				public void onClick(View view) {
 					Intent intent = new Intent(activity, AkiPrivateChatActivity.class);
-					intent.putExtra(AkiMatchProfileActivity.KEY_USER_ID, userId);
+					intent.putExtra(AkiPrivateChatActivity.KEY_USER_ID, userId);
 					activity.startActivity(intent);
 				}
 			});

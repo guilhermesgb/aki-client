@@ -79,10 +79,12 @@ public class AkiApplication extends Application {
 	public static void isNowInForeground() {
 		IN_BACKGROUND = false;
 		INCOMING_MESSAGES_COUNTER = 0;
+		Log.wtf(AkiApplication.TAG, "IN FOREGROUND NOW!!"); //TODO remove this
 	}
 	
 	public static void isNowInBackground() {
 		IN_BACKGROUND = true;
+		Log.wtf(AkiApplication.TAG, "IN BACKGROUND NOW!!"); //TODO remove this
 	}
 
 	public static void isShowingSettingsMenu() {
@@ -113,12 +115,9 @@ public class AkiApplication extends Application {
 		return userId.equals(CURRENT_PRIVATE_ID);
 	}
 
-	public static void setCurrentPrivateId(String userId){
+	public static synchronized void setCurrentPrivateId(String userId){
 		CURRENT_PRIVATE_ID = userId;
-	}
-
-	public static String getCurrentPrivateId(){
-		return CURRENT_PRIVATE_ID;
+		Log.wtf(AkiApplication.TAG, "SETTING PRIVATE CHAT ID: " + AkiApplication.CURRENT_PRIVATE_ID); //TODO remove this
 	}
 	
 }

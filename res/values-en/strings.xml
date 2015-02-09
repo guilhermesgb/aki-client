@@ -62,6 +62,8 @@
     <string name="com_lespi_aki_notif_exit_title_walking">You\'ve been kicked out of chat room due to you walking away from it.</string>
     <string name="com_lespi_aki_notif_new_match_title">New match!</string>
     <string name="com_lespi_aki_notif_new_match_text">is also interested in you!</string>
+    <string name="com_lespi_aki_notif_new_private_message_title">"sent you a private message."</string>
+    <string name="com_lespi_aki_notif_new_private_messages_title">"sent you %d private messages!"</string>
     <string name="com_lespi_aki_persistent_preferences">com_lespi_aki_permanent_data</string>
     <string name="com_lespi_aki_volatile_preferences">com_lespi_aki_temporary_data</string>
     <string name="com_lespi_aki_data_current_user">current-user</string>
@@ -87,6 +89,7 @@
     <string name="com_lespi_aki_data_geofence_center">geofence-center</string>
     <string name="com_lespi_aki_data_geofence_radius">geofence-radius</string>
     <string name="com_lespi_aki_data_last_timeout">last-timeout</string>
+    <string name="com_lespi_aki_data_private_chat_room_unread_counter">private-chat-room-unread-counter_</string>
     <string name="com_lespi_aki_toast_no_internet_connection">No internet connection!</string>
     <string name="com_lespi_aki_toast_cannot_determine_location">Cannot determine your location!</string>
     <string name="com_lespi_aki_toast_please_enable_gps">Please enable GPS!</string>

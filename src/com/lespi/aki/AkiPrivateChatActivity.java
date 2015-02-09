@@ -34,7 +34,8 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 
 	public static final String KEY_USER_ID = "user-id";
 	public static final String API_LOCATION = "https://lespi-server.herokuapp.com/upload/";
-	public static String userId;
+	
+	public String matchUserId = null;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,12 +49,18 @@ public class AkiPrivateChatActivity extends SherlockActivity {
         if ( extras == null ){
         	return;
         }
-        userId = extras.getString(KEY_USER_ID);
+        final String userId = extras.getString(KEY_USER_ID);
         if ( userId == null ){
         	return;
         }
         
+        this.matchUserId = userId;
+        
         AkiApplication.setCurrentPrivateId(userId);
+		AkiApplication.isNowInForeground();
+        
+        AkiInternalStorageUtil.setPrivateChatRoomUnreadCounter(getApplicationContext(),
+        		AkiServerUtil.buildPrivateChatId(getApplicationContext(), userId), 0);
         
         final Context context = getApplicationContext();
 
@@ -120,12 +127,12 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 				final String message = chatBox.getText().toString().trim();
 				if ( !message.isEmpty() ){
 					chatBox.setText("");
-					AkiServerUtil.sendPrivateMessage(getApplicationContext(), message,userId,new AsyncCallback() {
+					AkiServerUtil.sendPrivateMessage(getApplicationContext(), message, userId, new AsyncCallback() {
 
 						@Override
 						public void onSuccess(Object response) {
 							Log.v(AkiApplication.TAG, "Message: " + message + " sent!");
-							refreshReceivedMessages();
+//							refreshReceivedMessages();
 						}
 
 						@Override
@@ -155,12 +162,12 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 				}
 			}
 		});
-        refreshReceivedMessages();
-        AkiServerUtil.restartGettingPrivateMessages(context,userId);
+        refreshReceivedMessages(userId);
+        AkiServerUtil.restartGettingPrivateMessages(context, userId);
 
     }
     
-    private void refreshReceivedMessages() {
+    private void refreshReceivedMessages(final String userId) {
     	final Activity activity = this;
 		final Context context = activity.getApplicationContext();
 
@@ -179,7 +186,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 			@Override
 			protected List<JsonObject> doInBackground(Void... params) {
 
-				PriorityQueue<JsonObject> messages = AkiInternalStorageUtil.retrieveMessages(context,AkiServerUtil.buildPrivateChatId(context, userId));
+				PriorityQueue<JsonObject> messages = AkiInternalStorageUtil.retrieveMessages(context, AkiServerUtil.buildPrivateChatId(context, userId));
 				return AkiChatAdapter.toJsonObjectList(messages);
 			}
 
@@ -201,16 +208,35 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		
 	}
     
+	@Override
+	protected void onStart(){
+		AkiApplication.setCurrentPrivateId(this.matchUserId);
+		AkiApplication.isNowInForeground();
+		super.onResume();
+	}
+    
+	@Override
+	protected void onPause(){
+		AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
+		AkiApplication.setCurrentPrivateId(null);
+		AkiApplication.isNowInBackground();
+		super.onPause();
+	}
+    
+    @Override
+    protected void onStop() {
+    	AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
+		AkiApplication.setCurrentPrivateId(null);
+		AkiApplication.isNowInBackground();
+		super.onStop();
+    }
+	
     @Override
     protected void onDestroy() {
-    	// TODO Auto-generated method stub
-    	super.onDestroy();
     	AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
-    	
-    	
-    	
+		AkiApplication.setCurrentPrivateId(null);
+		AkiApplication.isNowInBackground();
+		super.onDestroy();
     }
-
-
-     
+    
 }

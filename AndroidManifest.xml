@@ -28,8 +28,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:supportsRtl="false" >
+        android:supportsRtl="false"
+        android:theme="@style/AppTheme" >
         <activity
             android:name="com.lespi.aki.AkiMainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -63,7 +63,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme" >
         </activity>
-        
+
         <service android:name="com.parse.PushService" />
 
         <receiver android:name="com.parse.ParseBroadcastReceiver" >
@@ -122,7 +122,7 @@
                 </action>
             </intent-filter>
         </receiver>
-        
+
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/fb_app_id" />

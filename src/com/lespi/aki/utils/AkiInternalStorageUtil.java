@@ -925,4 +925,18 @@ public class AkiInternalStorageUtil {
 		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_chat_members) + currentChat);
 		file.delete();
 	}
+	
+	public static int getPrivateChatRoomUnreadCounter(Context context, String chatRoom){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getInt(context.getString(R.string.com_lespi_aki_data_private_chat_room_unread_counter) + chatRoom, 0);
+	}
+
+	public static synchronized void setPrivateChatRoomUnreadCounter(Context context, String chatRoom, int counter) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putInt(context.getString(R.string.com_lespi_aki_data_private_chat_room_unread_counter) + chatRoom, counter);
+		editor.commit();
+	}
 }

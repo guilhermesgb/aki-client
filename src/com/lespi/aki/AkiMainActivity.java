@@ -207,7 +207,9 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 		Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
 		AkiServerUtil.stopGettingMessages(getApplicationContext());
-		AkiApplication.isNowInBackground();
+		if ( AkiApplication.CURRENT_PRIVATE_ID == null ){
+			AkiApplication.isNowInBackground();
+		}
 
 		if ( AkiServerUtil.isActiveOnServer() ){
 			AkiServerUtil.sendInactiveToServer(getApplicationContext());
@@ -216,13 +218,14 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 	@Override
 	protected void onPause(){
-
-		super.onPause();
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$onPause");
 
 		Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
 		AkiServerUtil.stopGettingMessages(getApplicationContext());
-		AkiApplication.isNowInBackground();
+		if ( AkiApplication.CURRENT_PRIVATE_ID == null ){
+			AkiApplication.isNowInBackground();
+		}
+		super.onPause();
 	}
 
 	@Override
@@ -230,6 +233,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 		super.onStart();
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$onStart");
+		AkiApplication.isNowInForeground();
 		if ( !locationClient.isConnected() && !locationClient.isConnecting() ){
 			locationClient.connect();
 		}
@@ -237,7 +241,6 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 	@Override
 	protected void onResume(){
-		super.onResume();
 		Log.v(AkiApplication.TAG, "AkiMAINActivity$onResume");
 		AkiApplication.isNowInForeground();
 
@@ -249,6 +252,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		if ( AkiServerUtil.isActiveOnServer() ){
 			chatFragment.onResume();
 		}
+		super.onResume();
 	}
 
 	@Override

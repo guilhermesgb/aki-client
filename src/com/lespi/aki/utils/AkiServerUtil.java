@@ -975,7 +975,6 @@ public class AkiServerUtil {
 			AkiInternalStorageUtil.resetTimeout(context, getPrivateMessages.chatRoom);
 			handlerPrivate.removeCallbacks(getPrivateMessages);
 			getPrivateMessages=null;
-			AkiApplication.setCurrentPrivateId(null);
 		}
 	}
 
