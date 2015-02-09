@@ -9,6 +9,7 @@ import java.util.Set;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.text.style.BulletSpan;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,6 +18,7 @@ import com.lespi.aki.AkiChatAdapter;
 import com.lespi.aki.AkiChatFragment;
 import com.lespi.aki.AkiMainActivity;
 import com.lespi.aki.AkiMutualAdapter;
+import com.lespi.aki.AkiPrivateChatAdapter;
 import com.lespi.aki.R;
 import com.lespi.aki.json.JsonArray;
 import com.lespi.aki.json.JsonObject;
@@ -494,6 +496,14 @@ public class AkiServerUtil {
 			}
 		});
 	}
+	
+	public static String buildPrivateChatId(Context context,String secondId ){
+		String currentId = AkiInternalStorageUtil.getCurrentUser(context);
+		String chatId = "chat-" + (currentId.compareTo(secondId) <= 0 ? currentId + secondId : secondId + currentId);
+		
+		
+		return chatId;
+	}
 
 	public static synchronized void getMutualInterests(final Context context) {
 
@@ -528,6 +538,7 @@ public class AkiServerUtil {
 						AkiInternalStorageUtil.cacheUserFullName(context, userId, fullName);
 					}
 					AkiInternalStorageUtil.storeNewMatch(context, userId, notify);
+					PushService.subscribe(context, buildPrivateChatId(context, userId), AkiMainActivity.class);
 				}
 				for ( String userId : oldMutualInterests ){
 					AkiServerUtil.sendDislikeToServer(context, userId);
@@ -576,6 +587,7 @@ public class AkiServerUtil {
 				
 				AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 				chatAdapter.notifyDataSetChanged();
+				PushService.unsubscribe(context, buildPrivateChatId(context, userId));
 			}
 
 			@Override
@@ -643,6 +655,59 @@ public class AkiServerUtil {
 			public void onCancel() {
 				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
 				AkiChatFragment.getInstance().externalRefreshAll();
+				callback.onCancel();
+			}
+		});
+	}
+	public static synchronized void sendPrivateMessage(final Context context, String message,final String userId, final AsyncCallback callback) {
+
+		final String chatRoom = buildPrivateChatId(context, userId);
+		String currentUser = AkiInternalStorageUtil.getCurrentUser(context);
+		if ( chatRoom == null || currentUser == null ){
+			Log.e(AkiApplication.TAG, "Could not send message: no current_user_id or no current chat_room found.");
+			callback.onCancel();
+			return;
+		}
+
+		BigInteger temporaryTimestamp = new BigInteger(AkiInternalStorageUtil.getMostRecentTimestamp(context));
+		temporaryTimestamp = temporaryTimestamp.multiply(BigInteger.TEN).multiply(BigInteger.TEN);
+		temporaryTimestamp = temporaryTimestamp.add(new BigInteger(Integer.toString(new Random().nextInt(100))));
+
+		final JsonObject temporaryMessage = AkiInternalStorageUtil.storeTemporaryMessage(context, chatRoom, currentUser,
+				message, temporaryTimestamp.toString());
+
+		AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context);
+		List<JsonObject> messages = AkiPrivateChatAdapter.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, chatRoom));
+
+		chatAdapter.clear();
+		if ( messages != null ){
+			chatAdapter.addAll(messages);
+		}
+		chatAdapter.notifyDataSetChanged();
+
+
+		JsonObject payload = new JsonObject();
+		payload.add("message", message);
+
+		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+userId, payload, new AsyncCallback() {
+
+			@Override
+			public void onSuccess(Object response) {
+				AkiInternalStorageUtil.resetTimeout(context,chatRoom);
+				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
+				getPrivateMessages(context, userId);
+				callback.onSuccess(response);
+			}
+
+			@Override
+			public void onFailure(Throwable failure) {
+				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
+				callback.onFailure(failure);
+			}
+
+			@Override
+			public void onCancel() {
+				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
 				callback.onCancel();
 			}
 		});
@@ -749,9 +814,111 @@ public class AkiServerUtil {
 			});
 		}
 	}
+	public static class GetPrivateMessages implements Runnable {
+
+		private final Context context;
+		private final Handler handler;
+		private int tolerance = 0;
+		private String userId;
+		private String chatRoom;
+
+		public GetPrivateMessages(Context context, Handler handler, String userId){
+			this.context = context;
+			this.handler = handler;
+			this.userId= userId;
+			this.chatRoom = buildPrivateChatId(context, userId);
+		}
+
+		@Override
+		public void run() {
+
+			final String currentUser = AkiInternalStorageUtil.getCurrentUser(context);
+
+			if ( chatRoom == null || currentUser == null ){
+				Log.e(AkiApplication.TAG, "GetMessages runnable stopped as either the current chat_room or current_user is missing!");
+				return;
+			}
+
+			String lastServerTimestamp = AkiInternalStorageUtil.getLastServerTimestamp(context,chatRoom);
+			String targetEndpoint = "/private_message/"+userId+"?next=" + lastServerTimestamp;
+
+			final Runnable self = this;
+			AkiHttpRequestUtil.doGETHttpRequest(context, targetEndpoint, new AsyncCallback() {
+
+				@Override
+				public void onSuccess(Object response) {
+
+					JsonObject responseJSON = ((JsonObject) response);
+					JsonValue nT = responseJSON.get("next");
+					if ( !nT.isNull() ){
+						String nextTimestamp = nT.asString();
+						AkiInternalStorageUtil.setLastServerTimestamp(context, nextTimestamp, chatRoom);
+					}
+
+					boolean isFinished = responseJSON.get("finished").asBoolean();
+					if ( !isFinished ){
+						AkiInternalStorageUtil.resetTimeout(context,chatRoom);
+					}
+
+					JsonArray messages = responseJSON.get("messages").asArray();
+					for ( JsonValue message : messages ){
+						String sender = message.asObject().get("sender").asString();
+						String content = message.asObject().get("message").asString();
+						String timestamp = message.asObject().get("timestamp").asString();
+						AkiInternalStorageUtil.storePulledMessage(context, chatRoom, sender, content, timestamp);
+					}
+					if ( messages.size() > 0 ){
+
+						AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context);
+						List<JsonObject> messagesList = AkiPrivateChatAdapter.toJsonObjectList(
+								AkiInternalStorageUtil.retrieveMessages(context, chatRoom)
+						);
+
+						chatAdapter.clear();
+						if ( messagesList != null ){
+							chatAdapter.addAll(messagesList);
+						}
+						chatAdapter.notifyDataSetChanged();
+
+						AkiInternalStorageUtil.resetTimeout(context,chatRoom);
+					}
+
+					
+					int timeout = AkiInternalStorageUtil.getNextTimeout(context,chatRoom);
+					handler.postDelayed(self, timeout * 1000);
+				}
+
+				@Override
+				public void onFailure(Throwable failure) {
+
+					if ( tolerance >= 3 ){
+						Log.e(AkiApplication.TAG, "GetMessages runnable canceled due to failing more than 3 consecutive times!");
+						AkiInternalStorageUtil.resetTimeout(context,chatRoom);
+						handler.removeCallbacks(self);
+						return;
+					}
+
+					int timeout = AkiInternalStorageUtil.getNextTimeout(context,chatRoom);
+					handler.postDelayed(self, timeout * 1000);
+					tolerance++;
+				}
+
+				@Override
+				public void onCancel() {
+					Log.e(AkiApplication.TAG, "GetMessages runnable canceled!");
+					AkiInternalStorageUtil.resetTimeout(context,chatRoom);
+					handler.removeCallbacks(self);
+					return;
+				}
+			});
+		}
+	}
 
 	public static GetMessages getMessages;
 	public static Handler handler;
+	
+	public static GetPrivateMessages getPrivateMessages;
+	public static Handler handlerPrivate;
 
 	public static synchronized void getMessages(final Context context){
 
@@ -779,6 +946,36 @@ public class AkiServerUtil {
 	public static synchronized void restartGettingMessages(final Context context){
 		stopGettingMessages(context);
 		getMessages(context);
+	}
+	
+	public static synchronized void getPrivateMessages(final Context context, String userId){
+
+		if ( handlerPrivate == null ){
+			handlerPrivate = new Handler();
+		}
+		if ( getPrivateMessages == null ){
+			getPrivateMessages = new GetPrivateMessages(context, handlerPrivate, userId);
+		}
+		else {
+			AkiInternalStorageUtil.resetTimeout(context,buildPrivateChatId(context, userId));
+			handlerPrivate.removeCallbacks(getPrivateMessages);
+		}
+		handlerPrivate.post(getPrivateMessages);
+	}
+
+	public static synchronized void stopGettingPrivateMessages(final Context context){
+
+		if ( handlerPrivate != null && getPrivateMessages!=null){
+			AkiInternalStorageUtil.resetTimeout(context, getPrivateMessages.chatRoom);
+			handlerPrivate.removeCallbacks(getPrivateMessages);
+			getPrivateMessages=null;
+			AkiApplication.setCurrentPrivateId(null);
+		}
+	}
+
+	public static synchronized void restartGettingPrivateMessages(final Context context, String userId){
+		stopGettingPrivateMessages(context);
+		getPrivateMessages(context, userId);
 	}
 	
 	public static synchronized void uploadCoverPhoto(final Context context, final String userId, AsyncCallback callback){

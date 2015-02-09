@@ -243,7 +243,20 @@ public class AkiInternalStorageUtil {
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_last_server_timestamp), lastServerTimestamp);
 		editor.commit();
-	}	
+	}
+	public static synchronized String getLastServerTimestamp(Context context,String chatRoom){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_last_server_timestamp)+chatRoom, BigInteger.ZERO.toString());
+	}
+
+	public static synchronized void setLastServerTimestamp(Context context, String lastServerTimestamp,String chatRoom) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_last_server_timestamp)+chatRoom, lastServerTimestamp);
+		editor.commit();
+	}
 
 	public static int compareTimestamps(String lhsTimestamp, String rhsTimestamp){
 		BigInteger lhs = new BigInteger(lhsTimestamp);
@@ -657,24 +670,31 @@ public class AkiInternalStorageUtil {
 		editor.commit();
 	}
 
-	public static int getNextTimeout(Context context) {
+	public static int getNextTimeout(Context context ,String chatRoom) {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
-		int timeout = sharedPref.getInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 1);
+		int timeout = sharedPref.getInt(context.getString(R.string.com_lespi_aki_data_last_timeout)+chatRoom, 1);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		int nextTimeout = timeout * 2;
 		if ( nextTimeout > 45 ){
 			nextTimeout = 45;
 		}
-		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout), nextTimeout);
+		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout)+chatRoom, nextTimeout);
 		editor.commit();
 		return timeout;
 	}
 
-	public static synchronized void resetTimeout(Context context) {
+	public static synchronized void resetTimeout(Context context,String chatRoom) {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
-		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 1);
+		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout)+chatRoom, 1);
 		editor.commit();
+	}
+	
+	public static int getNextTimeout(Context context) {
+		return getNextTimeout(context,"");		
+	}
+	public static synchronized void resetTimeout(Context context) {
+		resetTimeout(context,"");
 	}
 
 	@SuppressWarnings("unchecked")

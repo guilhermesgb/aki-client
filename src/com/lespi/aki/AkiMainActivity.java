@@ -56,7 +56,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 	private AkiSettingsFragment settingsFragment;
 	private AkiMutualFragment mutualsFragment;
 	private SlidingMenu slidingMenu;
-
+	public static final String KEY_USER_ID = "user-id";
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -80,13 +80,13 @@ LocationClient.OnRemoveGeofencesResultListener {
 			chatFragment = (AkiChatFragment) getSupportFragmentManager()
 					.findFragmentById(R.id.aki_chat_frame);
 		}
+		Bundle extras = getIntent().getExtras();
 
 		setContentView(R.layout.aki_chat_fragment);
 
 		RelativeLayout background = (RelativeLayout) findViewById(R.id.com_lespi_aki_main_background);
 		background.setVisibility(View.VISIBLE);
 		
-		Bundle extras = getIntent().getExtras();
 		if ( extras != null ){
 			boolean seenSplash = extras.getBoolean("seenSplash", false);
 			chatFragment.setSeenSplash(seenSplash);

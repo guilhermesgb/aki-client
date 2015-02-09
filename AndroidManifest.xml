@@ -56,6 +56,13 @@
             android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme" >
         </activity>
+        <activity
+            android:name="com.lespi.aki.AkiPrivateChatActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="Aki"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullscreenTheme" >
+        </activity>
         
         <service android:name="com.parse.PushService" />
 
@@ -80,6 +87,14 @@
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.lespi.aki.receivers.INCOMING_MESSAGE" >
+                </action>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.lespi.aki.receivers.AkiIncomingPrivateMessageReceiver"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.lespi.aki.receivers.INCOMING_PRIVATE_MESSAGE" >
                 </action>
             </intent-filter>
         </receiver>

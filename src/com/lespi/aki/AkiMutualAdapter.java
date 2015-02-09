@@ -347,7 +347,7 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 			rowView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					Intent intent = new Intent(activity, AkiMatchProfileActivity.class);
+					Intent intent = new Intent(activity, AkiPrivateChatActivity.class);
 					intent.putExtra(AkiMatchProfileActivity.KEY_USER_ID, userId);
 					activity.startActivity(intent);
 				}
