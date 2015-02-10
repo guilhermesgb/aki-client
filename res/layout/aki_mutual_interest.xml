@@ -89,6 +89,7 @@
         android:layout_alignParentTop="true"
         android:contentDescription="@string/com_lespi_aki_mutual_interest_delete_match_hint"
         android:padding="10dp"
+        android:layout_marginStart="5dp"
         android:src="@drawable/icon_remove"
         android:textColor="#FFF3E7"
         android:textSize="@dimen/settings_entry_size" />

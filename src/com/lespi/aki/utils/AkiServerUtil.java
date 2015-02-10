@@ -884,6 +884,7 @@ public class AkiServerUtil {
 							chatAdapter.addAll(messagesList);
 						}
 						chatAdapter.notifyDataSetChanged();
+						
 						AkiInternalStorageUtil.resetTimeout(context, chatRoom);
 					}
 					int timeout = AkiInternalStorageUtil.getNextTimeout(context, chatRoom);

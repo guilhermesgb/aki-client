@@ -15,7 +15,9 @@ import java.util.Set;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -751,12 +753,17 @@ public class AkiInternalStorageUtil {
 				String contentText = identifier + " " + context.getString(R.string.com_lespi_aki_notif_new_match_text);
 
 				Notification.Builder notifyBuilder = new Notification.Builder(context)
-				.setSmallIcon(R.drawable.notification_icon)
-				.setContentTitle(contentTitle)
-				.setContentText(contentText)
-				.setSound(alarmSound)
-				.setAutoCancel(true);
-
+					.setSmallIcon(R.drawable.notification_icon)
+					.setContentTitle(contentTitle)
+					.setContentText(contentText)
+					.setSound(alarmSound)
+					.setAutoCancel(true);
+				Intent intent = new Intent();
+				intent.setClass(context, AkiMainActivity.class);
+				intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+				PendingIntent pending = PendingIntent.getActivity(context, 0, intent, 0);
+				notifyBuilder.setContentIntent(pending);
+				
 				NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 				notificationManager.notify(AkiApplication.NEW_MATCH_NOTIFICATION_ID, notifyBuilder.build());
 			}

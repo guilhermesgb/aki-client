@@ -11,8 +11,8 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.lespi.aki.AkiApplication;
+import com.lespi.aki.AkiMainActivity;
 import com.lespi.aki.AkiMutualAdapter;
-import com.lespi.aki.AkiPrivateChatActivity;
 import com.lespi.aki.R;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
@@ -40,9 +40,8 @@ public class AkiIncomingPrivateMessageReceiver extends BroadcastReceiver {
 			return;
 		}
 
-		intent.setClass(context, AkiPrivateChatActivity.class);
-		intent.putExtra(AkiPrivateChatActivity.KEY_USER_ID, from);
-		intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setClass(context, AkiMainActivity.class);
+		intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
 		Log.wtf(AkiApplication.TAG, "CURRENT PRIVATE CHAT ID: " + AkiApplication.CURRENT_PRIVATE_ID); //TODO remove this
 		Log.wtf(AkiApplication.TAG, "RECEIVED PRIVATE CHAT ID: " + from); //TODO remove this
