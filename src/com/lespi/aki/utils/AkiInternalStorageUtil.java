@@ -946,4 +946,30 @@ public class AkiInternalStorageUtil {
 		editor.putInt(context.getString(R.string.com_lespi_aki_data_private_chat_room_unread_counter) + chatRoom, counter);
 		editor.commit();
 	}
+	
+	public static boolean viewGetPrivateChatRoomAnonymousSetting(Context context, String chatRoom, String userId){
+		Boolean bool = getPrivateChatRoomAnonymousSetting(context, chatRoom, userId);
+		if ( bool != null ){
+			return Boolean.valueOf(bool);
+		}
+		return true;
+	}
+	
+	public static Boolean getPrivateChatRoomAnonymousSetting(Context context, String chatRoom, String userId){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		String bool = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_private_chat_room_anonymous_setting) + chatRoom + "_" + userId, "null");
+		if ( bool.equals("true") || bool.equals("false") ){
+			return Boolean.valueOf(bool);
+		}
+		return null;
+	}
+	
+	public static synchronized void setPrivateChatRoomAnonymousSetting(Context context, String chatRoom, String userId, boolean anonymous){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_private_chat_room_anonymous_setting) + chatRoom + "_" + userId, Boolean.toString(anonymous));
+		editor.commit();		
+	}
 }

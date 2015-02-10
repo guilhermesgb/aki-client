@@ -1,15 +1,10 @@
 package com.lespi.aki;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.PriorityQueue;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,7 +13,6 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,54 +54,24 @@ public class AkiPrivateChatActivity extends SherlockActivity {
         AkiApplication.setCurrentPrivateId(userId);
 		AkiApplication.isNowInForeground();
         
+		final String privateChatRoom = AkiServerUtil.buildPrivateChatId(getApplicationContext(), userId);
+		
         AkiInternalStorageUtil.setPrivateChatRoomUnreadCounter(getApplicationContext(),
-        		AkiServerUtil.buildPrivateChatId(getApplicationContext(), userId), 0);
+        		privateChatRoom, 0);
         
         final Context context = getApplicationContext();
 
-        String userFullName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
+        String headerName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
+        if ( AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, userId) ){
+        	headerName = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
+        }
         TextView headerView = (TextView) findViewById(R.id.com_lespi_aki_private_chat_header);
-        if ( userFullName != null ){
-        	headerView.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_header_pattern), userFullName));
+        if ( headerName != null ){
+        	headerView.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_header_pattern), headerName));
         }
         else{
-        	headerView.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_header_pattern), "Match"));
+        	headerView.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_header_pattern), "a Match"));
         	
-        }
-        final ImageView userPictureView = (ImageView) findViewById(R.id.com_lespi_aki_private_chat_user_picture);
-        Bitmap userPicture = AkiInternalStorageUtil.getCachedUserPicture(context, userId);
-        if ( userPicture != null ){
-        	userPictureView.setImageBitmap(userPicture);
-        }
-        else {
-			new AsyncTask<Void, Void, Bitmap>() {
-				@Override
-				protected Bitmap doInBackground(Void... params) {
-					try {
-						URL picture_address = new URL(API_LOCATION + context.getString(R.string.com_lespi_aki_data_user_picture) + userId + ".png");
-						Bitmap picture = BitmapFactory.decodeStream(picture_address.openConnection().getInputStream());
-						AkiInternalStorageUtil.cacheUserPicture(context, userId, picture);
-						return picture;
-					} catch (MalformedURLException e) {
-						Log.e(AkiPrivateChatActivity.TAG, "A problem happened while trying to query a user picture from our server.");
-						e.printStackTrace();
-						return null;
-					} catch (IOException e) {
-						Log.e(AkiPrivateChatActivity.TAG, "A problem happened while trying to query user picture from our server.");
-						e.printStackTrace();
-						return null;
-					}
-				}
-				@Override
-				protected void onPostExecute(Bitmap picture) {
-					if ( picture != null ){
-						userPictureView.setImageBitmap(picture);
-					}
-					else{
-						Log.e(AkiPrivateChatActivity.TAG, "A problem happened while trying to query user picture from our server.");
-					}
-				}
-			}.execute();
         }
         final ImageButton sendMessageBtn = (ImageButton) findViewById(R.id.com_lespi_aki_private_chat_send_btn);
         sendMessageBtn.setOnClickListener(new OnClickListener() {
@@ -133,7 +97,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 						public void onSuccess(Object response) {
 							Log.v(AkiPrivateChatActivity.TAG, "Message: " + message + " sent!");
 							ListView listView = (ListView) findViewById(R.id.com_lespi_aki_private_messages_list);
-							AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context);
+							AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context, privateChatRoom);
 							listView.setAdapter(chatAdapter);
 							listView.setSelection(chatAdapter.getCount() - 1);
 							listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
@@ -168,15 +132,15 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 				}
 			}
 		});
-        refreshReceivedMessages(userId);
+        refreshReceivedMessages(userId, privateChatRoom);
         AkiServerUtil.getPrivateMessages(context, userId);
     }
     
-    private void refreshReceivedMessages(final String userId) {
+    private void refreshReceivedMessages(final String userId, final String privateChatRoom) {
     	final Activity activity = this;
 		final Context context = activity.getApplicationContext();
 
-		final AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(activity.getApplicationContext());
+		final AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(activity.getApplicationContext(), privateChatRoom);
 		final ListView listView = (ListView) activity.findViewById(R.id.com_lespi_aki_private_messages_list);
 		listView.setSelection(chatAdapter.getCount() - 1);
 		listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
@@ -187,7 +151,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 			@Override
 			protected List<JsonObject> doInBackground(Void... params) {
 
-				PriorityQueue<JsonObject> messages = AkiInternalStorageUtil.retrieveMessages(context, AkiServerUtil.buildPrivateChatId(context, userId));
+				PriorityQueue<JsonObject> messages = AkiInternalStorageUtil.retrieveMessages(context, privateChatRoom);
 				return AkiChatAdapter.toJsonObjectList(messages);
 			}
 

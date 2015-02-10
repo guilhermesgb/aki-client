@@ -423,7 +423,6 @@ public class AkiChatFragment extends SherlockFragment {
 								});
 								
 								final AkiMutualAdapter mutualAdapter = AkiMutualAdapter.getInstance(activity.getApplicationContext());
-								mutualAdapter.setCurrentSession(session);
 								mutualAdapter.setActivity(getActivity());
 								mutualAdapter.setNotifyOnChange(false);
 

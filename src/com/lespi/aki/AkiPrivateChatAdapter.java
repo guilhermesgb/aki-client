@@ -33,6 +33,7 @@ public class AkiPrivateChatAdapter extends ArrayAdapter<JsonObject> {
 
 	private final Context context;
 	private final List<JsonObject> messages;
+	private final String privateChatRoom;
 
 	private final int[] COLORS = new int[] {
 			R.color.com_lespi_aki_message_text_color_0,
@@ -59,18 +60,19 @@ public class AkiPrivateChatAdapter extends ArrayAdapter<JsonObject> {
 		return toReturn;
 	}
 
-	public static AkiPrivateChatAdapter getInstance(Context context) {
-		if (instance == null) {
+	public static AkiPrivateChatAdapter getInstance(Context context, String privateChatRoom) {
+		if (instance == null || !instance.privateChatRoom.equals(privateChatRoom) ) {
 			List<JsonObject> messages = new ArrayList<JsonObject>();
-			instance = new AkiPrivateChatAdapter(context, messages);
+			instance = new AkiPrivateChatAdapter(context, messages, privateChatRoom);
 		}
 		return instance;
 	}
 
-	private AkiPrivateChatAdapter(Context context, List<JsonObject> messages) {
+	private AkiPrivateChatAdapter(Context context, List<JsonObject> messages, String privateChatRoom) {
 		super(context, R.layout.aki_chat_message_you, messages);
 		this.context = context;
 		this.messages = messages;
+		this.privateChatRoom = privateChatRoom;
 		userToColorMapping = new HashMap<String, Integer>();
 		String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
 		if ( currentUserId != null ){
@@ -241,10 +243,16 @@ public class AkiPrivateChatAdapter extends ArrayAdapter<JsonObject> {
 			rl.setBackgroundColor(rowView.getResources().getColor(color));
 		}
 
-
-		String senderFirstName = AkiInternalStorageUtil.getCachedUserFirstName(context, senderId);
-		viewHolder.senderName.setText(senderFirstName);
-
+		
+		if ( AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, this.privateChatRoom, senderId) ){
+			String senderNickname = AkiInternalStorageUtil.getCachedUserNickname(context, senderId);
+			viewHolder.senderName.setText(senderNickname);
+		}
+		else {
+			String senderFirstName = AkiInternalStorageUtil.getCachedUserFirstName(context, senderId);
+			viewHolder.senderName.setText(senderFirstName);
+		}
+		
 		String gender = AkiInternalStorageUtil.getCachedUserGender(context, senderId);
 		Bitmap picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown_gender);
 		Bitmap genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_unknown_gender);
@@ -258,15 +266,26 @@ public class AkiPrivateChatAdapter extends ArrayAdapter<JsonObject> {
 			}
 		}
 		viewHolder.senderPicture.setImageBitmap(getRoundedBitmap(picturePlaceholder));
-		viewHolder.senderGender.setImageBitmap(genderPlaceholder);
-		viewHolder.senderGender.setImageAlpha(255);
-
-		Bitmap picture = AkiInternalStorageUtil.getCachedUserPicture(
-				context, senderId);
-		if (picture != null) {
-			viewHolder.senderPicture.setImageBitmap(picture);
-		}
 		viewHolder.senderPicture.setImageAlpha(255);
+		viewHolder.senderGender.setImageBitmap(genderPlaceholder);
+		if ( !AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, senderId) ){
+			viewHolder.senderGender.setImageAlpha(255);
+		}
+		else{
+			viewHolder.senderGender.setImageAlpha(0);
+		}
+
+		if ( !AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, senderId)
+				|| senderId.equals(currentUserId) ){
+			Bitmap picture = AkiInternalStorageUtil.getCachedUserPicture(
+					context, senderId);
+			if (picture != null) {
+				viewHolder.senderPicture.setImageBitmap(picture);
+			}
+			if ( senderId.equals(currentUserId) ){
+				viewHolder.senderPicture.setImageAlpha(128);
+			}
+		}
 		return rowView;
 	}
 }

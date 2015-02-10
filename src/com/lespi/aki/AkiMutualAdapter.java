@@ -33,12 +33,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.HttpMethod;
-import com.facebook.Request;
-import com.facebook.Response;
-import com.facebook.Session;
-import com.lespi.aki.json.JsonObject;
-import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
 
@@ -48,7 +42,6 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 	
 	private final Context context;
 	private final List<String> interests;
-	private Session currentSession = null;
 	private FragmentActivity activity = null;
 
 	private static AkiMutualAdapter instance;
@@ -65,10 +58,6 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 		super(context, R.layout.aki_mutual_interest, interests);
 		this.context = context;
 		this.interests = interests;
-	}
-
-	public void setCurrentSession(Session currentSession) {
-		this.currentSession = currentSession;
 	}
 
 	public void setActivity(FragmentActivity activity) {
@@ -175,46 +164,20 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 			return rowView;
 		}
 
-		final String fullName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
-		if ( fullName != null ){
-			viewHolder.userName.setText(fullName);
+		String privateChatRoom = AkiServerUtil.buildPrivateChatId(context, userId);
+		
+		String fullName = null;
+		if ( AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, userId) ){
+			viewHolder.userName.setText("???");
 		}
 		else{
-			new Request(currentSession, "/" + userId, null,
-					HttpMethod.GET, new Request.Callback() {
-				public void onCompleted(Response response) {
-					if (response.getError() == null) {
-						JsonObject information = JsonValue.readFrom(response.getRawResponse()).asObject();
-
-						final JsonValue fullName = information.get("name");
-						if ( fullName != null ){
-							AkiInternalStorageUtil.cacheUserFullName(context, userId, fullName.asString());
-							viewHolder.userName.setText(fullName.asString());
-						}
-
-						JsonValue firstName = information.get("first_name");
-						if ( firstName != null ){
-							AkiInternalStorageUtil.cacheUserFirstName(context, userId, firstName.asString());
-						}
-
-						JsonValue gender = information.get("gender");
-						if (gender != null) {
-							AkiInternalStorageUtil.cacheUserGender(context, userId, gender.asString());
-							Bitmap genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_unknown_gender);
-							viewHolder.userGender.setImageBitmap(genderPlaceholder);
-							if (gender.asString().equals("male")) {
-								genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_male);
-							} else if (gender.asString().equals("female")) {
-								genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_female);
-							}
-							viewHolder.userGender.setImageAlpha(255);
-						}
-					}
-					else{
-						viewHolder.userName.setVisibility(View.GONE);
-					}
-				}
-			}).executeAsync();
+			fullName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
+			if ( fullName != null ){
+				viewHolder.userName.setText(fullName);
+			}
+			else{
+				viewHolder.userName.setText("???");
+			}
 		}
 
 		String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
@@ -238,58 +201,57 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 		viewHolder.userGender.setImageAlpha(255);
 
 		viewHolder.userUnreadCounter.setVisibility(View.GONE);
-		String privateChatRoom = AkiServerUtil.buildPrivateChatId(context, userId);
 		int unreadCounter = AkiInternalStorageUtil.getPrivateChatRoomUnreadCounter(context, privateChatRoom);
 		if ( unreadCounter > 0 ){
 			viewHolder.userUnreadCounter.setVisibility(View.VISIBLE);
-//			viewHolder.userUnreadCounter.setAlpha(0.7f);
 			viewHolder.userUnreadCounter.setText(Integer.toString(unreadCounter));
 		}
-		
-		Bitmap picture = AkiInternalStorageUtil.getCachedUserPicture(context, userId);
 
-		if ( picture != null ){
-			viewHolder.userPicture.setImageBitmap(picture);
-			viewHolder.userPicture.setImageAlpha(255);
-		}
-		else{
-			Bitmap picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown_gender);
+		Bitmap picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown_gender);
+		viewHolder.userPicture.setImageBitmap(getRoundedBitmap(picturePlaceholder));
+		if (gender.equals("male")) {
+			picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_male);
 			viewHolder.userPicture.setImageBitmap(getRoundedBitmap(picturePlaceholder));
-			if (gender.equals("male")) {
-				picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_male);
-				viewHolder.userPicture.setImageBitmap(getRoundedBitmap(picturePlaceholder));
-			} else if (gender.equals("female")) {
-				picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_female);
-				viewHolder.userPicture.setImageBitmap(getRoundedBitmap(picturePlaceholder));
+		} else if (gender.equals("female")) {
+			picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_female);
+			viewHolder.userPicture.setImageBitmap(getRoundedBitmap(picturePlaceholder));
+		}
+		if ( !AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, userId) ){
+			Bitmap picture = AkiInternalStorageUtil.getCachedUserPicture(context, userId);
+			if ( picture != null ){
+				viewHolder.userPicture.setImageBitmap(picture);
+				viewHolder.userPicture.setImageAlpha(255);
 			}
-			new AsyncTask<Void, Void, Bitmap>() {
-				@Override
-				protected Bitmap doInBackground(Void... params) {
-					try {
-						URL picture_address = new URL(API_LOCATION + context.getString(R.string.com_lespi_aki_data_user_picture) + userId + ".png");
-						Bitmap picture = BitmapFactory.decodeStream(picture_address.openConnection().getInputStream());
-						AkiInternalStorageUtil.cacheUserPicture(context, userId, picture);
-						return picture;
-					} catch (MalformedURLException e) {
-						Log.e(AkiApplication.TAG, "A problem happened while trying to query a user picture from our server.");
-						e.printStackTrace();
-						return null;
-					} catch (IOException e) {
-						Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from our server.");
-						e.printStackTrace();
-						return null;
+			else{
+				new AsyncTask<Void, Void, Bitmap>() {
+					@Override
+					protected Bitmap doInBackground(Void... params) {
+						try {
+							URL picture_address = new URL(API_LOCATION + context.getString(R.string.com_lespi_aki_data_user_picture) + userId + ".png");
+							Bitmap picture = BitmapFactory.decodeStream(picture_address.openConnection().getInputStream());
+							AkiInternalStorageUtil.cacheUserPicture(context, userId, picture);
+							return picture;
+						} catch (MalformedURLException e) {
+							Log.e(AkiApplication.TAG, "A problem happened while trying to query a user picture from our server.");
+							e.printStackTrace();
+							return null;
+						} catch (IOException e) {
+							Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from our server.");
+							e.printStackTrace();
+							return null;
+						}
 					}
-				}
-				@Override
-				protected void onPostExecute(Bitmap picture) {
-					if ( picture != null ){
-						viewHolder.userPicture.setImageBitmap(picture);
+					@Override
+					protected void onPostExecute(Bitmap picture) {
+						if ( picture != null ){
+							viewHolder.userPicture.setImageBitmap(picture);
+						}
+						else{
+							Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from our server.");
+						}
 					}
-					else{
-						Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from our server.");
-					}
-				}
-			}.execute();
+				}.execute();
+			}
 		}
 
 		final ImageView userCoverView = (ImageView) rowView.findViewById(R.id.com_lespi_aki_mutual_interest_user_cover);
@@ -297,41 +259,44 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 		userCoverView.setMinimumWidth(851);
 		userCoverView.setMinimumHeight(315);
 		userCoverView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-		Bitmap coverPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_cover);
-		userCoverView.setImageBitmap(coverPlaceholder);
-		Bitmap cachedCoverPhoto = AkiInternalStorageUtil.getCachedUserCoverPhoto(context, userId);
-		if ( cachedCoverPhoto != null ){
-			userCoverView.setImageBitmap(cachedCoverPhoto);
-		}
-		else {
-			new AsyncTask<Void, Void, Bitmap>() {
-				@Override
-				protected Bitmap doInBackground(Void... params) {
-					try {
-						URL picture_address = new URL(API_LOCATION + context.getString(R.string.com_lespi_aki_data_user_coverphoto) + userId + ".png");
-						Bitmap picture = BitmapFactory.decodeStream(picture_address.openConnection().getInputStream());
-						AkiInternalStorageUtil.cacheUserCoverPhoto(context, userId, picture);
-						return picture;
-					} catch (MalformedURLException e) {
-						Log.e(AkiApplication.TAG, "A problem happened while trying to query a user cover photo from our server.");
-						e.printStackTrace();
-						return null;
-					} catch (IOException e) {
-						Log.e(AkiApplication.TAG, "A problem happened while trying to query user cover photo from our server.");
-						e.printStackTrace();
-						return null;
+
+		if ( !AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, userId) ){
+			Bitmap cachedCoverPhoto = AkiInternalStorageUtil.getCachedUserCoverPhoto(context, userId);
+			if ( cachedCoverPhoto != null ){
+				userCoverView.setImageBitmap(cachedCoverPhoto);
+			}
+			else {
+				Bitmap coverPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_cover);
+				userCoverView.setImageBitmap(coverPlaceholder);
+				new AsyncTask<Void, Void, Bitmap>() {
+					@Override
+					protected Bitmap doInBackground(Void... params) {
+						try {
+							URL picture_address = new URL(API_LOCATION + context.getString(R.string.com_lespi_aki_data_user_coverphoto) + userId + ".png");
+							Bitmap picture = BitmapFactory.decodeStream(picture_address.openConnection().getInputStream());
+							AkiInternalStorageUtil.cacheUserCoverPhoto(context, userId, picture);
+							return picture;
+						} catch (MalformedURLException e) {
+							Log.e(AkiApplication.TAG, "A problem happened while trying to query a user cover photo from our server.");
+							e.printStackTrace();
+							return null;
+						} catch (IOException e) {
+							Log.e(AkiApplication.TAG, "A problem happened while trying to query user cover photo from our server.");
+							e.printStackTrace();
+							return null;
+						}
 					}
-				}
-				@Override
-				protected void onPostExecute(Bitmap picture) {
-					if ( picture != null ){
-						userCoverView.setImageBitmap(picture);
+					@Override
+					protected void onPostExecute(Bitmap picture) {
+						if ( picture != null ){
+							userCoverView.setImageBitmap(picture);
+						}
+						else{
+							Log.e(AkiApplication.TAG, "A problem happened while trying to query user cover photo from our server.");
+						}
 					}
-					else{
-						Log.e(AkiApplication.TAG, "A problem happened while trying to query user cover photo from our server.");
-					}
-				}
-			}.execute();
+				}.execute();
+			}			
 		}
 		
 		if ( activity != null ){

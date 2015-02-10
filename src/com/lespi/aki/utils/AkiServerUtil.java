@@ -547,6 +547,11 @@ public class AkiServerUtil {
 						AkiInternalStorageUtil.cacheUserFullName(context, userId, fullName);
 					}
 					AkiInternalStorageUtil.storeNewMatch(context, userId, notify);
+					
+					String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
+					String privateChatId = buildPrivateChatId(context, userId);
+					boolean anonymous = AkiInternalStorageUtil.getAnonymousSetting(context, currentUserId);
+					AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatId, currentUserId, anonymous);
 				}
 				for ( String userId : oldMutualInterests ){
 					AkiServerUtil.sendDislikeToServer(context, userId);
@@ -666,11 +671,11 @@ public class AkiServerUtil {
 			}
 		});
 	}
-	public static synchronized void sendPrivateMessage(final Context context, String message,final String userId, final AsyncCallback callback) {
+	public static synchronized void sendPrivateMessage(final Context context, String message, final String userId, final AsyncCallback callback) {
 
 		final String chatRoom = buildPrivateChatId(context, userId);
-		String currentUser = AkiInternalStorageUtil.getCurrentUser(context);
-		if ( chatRoom == null || currentUser == null ){
+		String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
+		if ( chatRoom == null || currentUserId == null ){
 			Log.e(AkiServerUtil.TAG, "Could not send message: no current_user_id or no current chat_room found.");
 			callback.onCancel();
 			return;
@@ -680,10 +685,10 @@ public class AkiServerUtil {
 		temporaryTimestamp = temporaryTimestamp.multiply(BigInteger.TEN).multiply(BigInteger.TEN);
 		temporaryTimestamp = temporaryTimestamp.add(new BigInteger(Integer.toString(new Random().nextInt(100))));
 
-		final JsonObject temporaryMessage = AkiInternalStorageUtil.storeTemporaryMessage(context, chatRoom, currentUser,
+		final JsonObject temporaryMessage = AkiInternalStorageUtil.storeTemporaryMessage(context, chatRoom, currentUserId,
 				message, temporaryTimestamp.toString());
 
-		AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context);
+		AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context, chatRoom);
 		List<JsonObject> messages = AkiPrivateChatAdapter.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, chatRoom));
 
 		chatAdapter.clear();
@@ -695,6 +700,11 @@ public class AkiServerUtil {
 		JsonObject payload = new JsonObject();
 		payload.add("message", message);
 
+		Boolean isAnonymous = AkiInternalStorageUtil.getPrivateChatRoomAnonymousSetting(context, chatRoom, currentUserId);
+		if ( isAnonymous != null ){
+			payload.add("anonymous", isAnonymous.booleanValue());
+		}
+		
 		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+userId, payload, new AsyncCallback() {
 
 			@Override
@@ -866,6 +876,11 @@ public class AkiServerUtil {
 						AkiInternalStorageUtil.resetTimeout(context, chatRoom);
 					}
 
+					JsonObject anonymous = responseJSON.get("anonymous").asObject();
+					for ( String userId : anonymous.names() ){
+						AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, chatRoom, userId, anonymous.get(userId).asBoolean());
+					}
+					
 					JsonArray messages = responseJSON.get("messages").asArray();
 					for ( JsonValue message : messages ){
 						String sender = message.asObject().get("sender").asString();
@@ -875,7 +890,7 @@ public class AkiServerUtil {
 					}
 					if ( messages.size() > 0 ){
 
-						AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context);
+						AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context, chatRoom);
 						List<JsonObject> messagesList = AkiPrivateChatAdapter.toJsonObjectList(
 								AkiInternalStorageUtil.retrieveMessages(context, chatRoom)
 						);

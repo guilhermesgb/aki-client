@@ -18,7 +18,8 @@
         android:alpha="0.65"
         android:contentDescription="@string/com_lespi_aki_main_settings_cover_hint"
         android:cropToPadding="true"
-        android:orientation="horizontal" />
+        android:orientation="horizontal"
+        android:src="@drawable/no_cover" />
 
     <ImageView
         android:id="@+id/com_lespi_aki_mutual_interest_user_picture"
@@ -71,13 +72,13 @@
         android:id="@+id/com_lespi_aki_mutual_interest_user_unread_counter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/icon_like"
-        android:textColor="@android:color/white"
-        android:textStyle="bold"
-        android:textAlignment="center"
-        android:gravity="center"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
+        android:background="@drawable/icon_like"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
         android:visibility="gone" />
 
     <ImageButton
@@ -87,9 +88,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
+        android:layout_marginStart="5dp"
         android:contentDescription="@string/com_lespi_aki_mutual_interest_delete_match_hint"
         android:padding="10dp"
-        android:layout_marginStart="5dp"
         android:src="@drawable/icon_remove"
         android:textColor="#FFF3E7"
         android:textSize="@dimen/settings_entry_size" />

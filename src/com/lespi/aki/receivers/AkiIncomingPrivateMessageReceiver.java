@@ -30,9 +30,13 @@ public class AkiIncomingPrivateMessageReceiver extends BroadcastReceiver {
 		Log.d(AkiApplication.TAG, "Received event [" + event + "] on chat room [" + privateChatRoom + "].");
 
 		String from = incomingData.get("from").asString();
-
 		if (from.isEmpty()){
 			return;
+		}
+		
+		JsonValue anonymous = incomingData.get("anonymous");
+		if ( anonymous != null && !anonymous.isNull() ){
+			AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatRoom, from, anonymous.asBoolean());
 		}
 		
 		String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
