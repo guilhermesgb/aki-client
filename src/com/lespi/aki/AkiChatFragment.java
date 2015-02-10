@@ -146,6 +146,8 @@ public class AkiChatFragment extends SherlockFragment {
 			return;
 		}
 
+		AkiApplication.isNowInForeground();
+		
 		if ( state.isOpened() ) {
 
 			Request.newMeRequest(session, new Request.GraphUserCallback() {

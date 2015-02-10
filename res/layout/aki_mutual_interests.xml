@@ -29,7 +29,7 @@
         android:layout_weight="1"
         android:alwaysDrawnWithCache="false"
         android:divider="@android:color/transparent"
-        android:dividerHeight="7dp"
+        android:dividerHeight="14dp"
         android:paddingTop="7dp"
         android:paddingBottom="7dp"
         android:paddingStart="0dp"
