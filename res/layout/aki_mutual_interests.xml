@@ -30,7 +30,10 @@
         android:alwaysDrawnWithCache="false"
         android:divider="@android:color/transparent"
         android:dividerHeight="7dp"
-        android:padding="7dp"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
         android:scrollbars="horizontal" />
 
 </LinearLayout>

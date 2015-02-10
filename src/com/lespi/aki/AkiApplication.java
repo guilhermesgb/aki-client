@@ -15,7 +15,7 @@ import com.parse.PushService;
 
 public class AkiApplication extends Application {
 
-	public final static String TAG = "com.lespi.aki";
+	public final static String TAG = "__AkiApplication__";
 	public final static boolean DEBUG_MODE = false;
 
 	public static boolean IN_BACKGROUND = true;
@@ -89,26 +89,32 @@ public class AkiApplication extends Application {
 
 	public static void isShowingSettingsMenu() {
 		IN_SETTINGS = true;
+		Log.wtf(AkiApplication.TAG, "IS SHOWING SETTINGS NOW!!"); //TODO remove this
 	}
 	
 	public static void isNotShowingSettingsMenu() {
 		IN_SETTINGS = false;
+		Log.wtf(AkiApplication.TAG, "IS NO LONGER SHOWING SETTINGS!!"); //TODO remove this
 	}
 	
 	public static void isLoggedIn() {
 		LOGGED_IN = true;
+		Log.wtf(AkiApplication.TAG, "IS LOGGED IN!!"); //TODO remove this
 	}
 
 	public static void isNotLoggedIn() {
 		LOGGED_IN = false;
+		Log.wtf(AkiApplication.TAG, "IS NOT LOGGED IN!!"); //TODO remove this
 	}
 	
 	public static void serverDown(){
 		SERVER_DOWN = true;
+		Log.wtf(AkiApplication.TAG, "SERVER IS DOWN!!"); //TODO remove this
 	}
 	
 	public static void serverNotDown(){
 		SERVER_DOWN = false;
+		Log.wtf(AkiApplication.TAG, "SERVER IS NOT DOWN!!"); //TODO remove this
 	}
 
 	public static boolean isPrivateChatShowing(String userId){
@@ -117,7 +123,12 @@ public class AkiApplication extends Application {
 
 	public static synchronized void setCurrentPrivateId(String userId){
 		CURRENT_PRIVATE_ID = userId;
-		Log.wtf(AkiApplication.TAG, "SETTING PRIVATE CHAT ID: " + AkiApplication.CURRENT_PRIVATE_ID); //TODO remove this
+		if ( userId == null ){
+			Log.wtf(AkiApplication.TAG, "IS NO LONGER SHOWING PRIVATE CHAT ROOM!!"); //TODO remove this
+		}
+		else{
+			Log.wtf(AkiApplication.TAG, "IS SHOWING PRIVATE CHAT WITH {" + userId + "}!!"); //TODO remove this
+		}
 	}
 	
 }

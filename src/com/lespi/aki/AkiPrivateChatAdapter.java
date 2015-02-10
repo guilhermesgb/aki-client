@@ -27,7 +27,6 @@ import android.widget.TextView;
 
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
-import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 
 public class AkiPrivateChatAdapter extends ArrayAdapter<JsonObject> {
 
@@ -132,23 +131,6 @@ public class AkiPrivateChatAdapter extends ArrayAdapter<JsonObject> {
 		return output;
 	}
 
-	public static double calculateDistance(AkiLocation currentLocation,
-			AkiLocation senderLocation) {
-
-		int R = 6371;
-		double lat1 = Math.toRadians(currentLocation.latitude);
-		double lat2 = Math.toRadians(senderLocation.latitude);
-		double dLat = Math.toRadians(senderLocation.latitude
-				- currentLocation.latitude);
-		double dLong = Math.toRadians(senderLocation.longitude
-				- currentLocation.longitude);
-
-		double a = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(lat1)
-				* Math.cos(lat2) * Math.pow(Math.sin(dLong / 2), 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		return R * c;
-	}
-
 	static class ViewHolder {
 		public TextView senderId;
 		public TextView senderName;
@@ -250,6 +232,9 @@ public class AkiPrivateChatAdapter extends ArrayAdapter<JsonObject> {
 			rl.setBackgroundColor(rowView.getResources().getColor(color));
 			if ( newViewData.get("is_temporary").asString().equals("true") ){
 				rl.setAlpha(0.5f);
+			}
+			else{
+				rl.setAlpha(1);
 			}
 		} else if (!senderId.equals(AkiApplication.SYSTEM_SENDER_ID)) {
 			RelativeLayout rl = (RelativeLayout) rowView.findViewById(R.id.com_lespi_aki_message_you_layout);

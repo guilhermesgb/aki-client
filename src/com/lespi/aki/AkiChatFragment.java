@@ -54,6 +54,7 @@ import com.parse.internal.AsyncCallback;
 
 public class AkiChatFragment extends SherlockFragment {
 
+	public static final String TAG = "__AkiChatFragment__";
 	public static final String KEY_USER_ID = "user-id";
 
 	private boolean seenSplash = false;
@@ -123,10 +124,10 @@ public class AkiChatFragment extends SherlockFragment {
 	}
 
 	private void onSessionStateChange(final Session session, SessionState state, Exception exception) {
-		Log.v(AkiApplication.TAG, "AkiChatFragment$onSessionStateChange");
+		Log.v(AkiChatFragment.TAG, "AkiChatFragment$onSessionStateChange");
 		final AkiMainActivity activity = (AkiMainActivity) getActivity();
 		if ( activity == null ){
-			Log.d(AkiApplication.TAG, "Facebook session callback called but there is no MainActivity alive, so ignored session change event.");
+			Log.d(AkiChatFragment.TAG, "Facebook session callback called but there is no MainActivity alive, so ignored session change event.");
 			return;
 		}
 
@@ -221,7 +222,7 @@ public class AkiChatFragment extends SherlockFragment {
 
 											@Override
 											public void onFailure(Throwable failure) {
-												Log.e(AkiApplication.TAG, "A problem happened while exiting chat room!");
+												Log.e(AkiChatFragment.TAG, "A problem happened while exiting chat room!");
 												failure.printStackTrace();
 											}
 
@@ -237,7 +238,7 @@ public class AkiChatFragment extends SherlockFragment {
 												Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 												toast.show();
 												activity.onResume();
-												Log.e(AkiApplication.TAG, "Exiting chat room canceled.");
+												Log.e(AkiChatFragment.TAG, "Exiting chat room canceled.");
 											}
 										});
 									}
@@ -295,7 +296,7 @@ public class AkiChatFragment extends SherlockFragment {
 
 											@Override
 											public void onFailure(Throwable failure) {
-												Log.e(AkiApplication.TAG, "A problem happened while skipping chat room!");
+												Log.e(AkiChatFragment.TAG, "A problem happened while skipping chat room!");
 												failure.printStackTrace();
 											}
 
@@ -310,7 +311,7 @@ public class AkiChatFragment extends SherlockFragment {
 												}
 												Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 												toast.show();
-												Log.e(AkiApplication.TAG, "Skipping chat room canceled.");
+												Log.e(AkiChatFragment.TAG, "Skipping chat room canceled.");
 												activity.onResume();
 											}
 										});
@@ -353,12 +354,12 @@ public class AkiChatFragment extends SherlockFragment {
 
 										@Override
 										public void onSuccess(Object response) {
-											Log.i(AkiApplication.TAG, "Message: " + message + " sent!");
+											Log.i(AkiChatFragment.TAG, "Message: " + message + " sent!");
 										}
 
 										@Override
 										public void onFailure(Throwable failure) {
-											Log.e(AkiApplication.TAG, "You could not send message!");
+											Log.e(AkiChatFragment.TAG, "You could not send message!");
 											failure.printStackTrace();
 											CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_message_not_sent);
 											Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
@@ -376,7 +377,7 @@ public class AkiChatFragment extends SherlockFragment {
 											}
 											Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 											toast.show();
-											Log.e(AkiApplication.TAG, "Endpoint:sendMessage callback canceled.");
+											Log.e(AkiChatFragment.TAG, "Endpoint:sendMessage callback canceled.");
 											activity.onResume();
 										}
 									});
@@ -461,7 +462,7 @@ public class AkiChatFragment extends SherlockFragment {
 
 									@Override
 									public void onFailure(Throwable failure) {
-										Log.e(AkiApplication.TAG, "Could not send presence to server.");
+										Log.e(AkiChatFragment.TAG, "Could not send presence to server.");
 										failure.printStackTrace();
 										refreshReceivedMessages(activity, session, currentUser);
 									}
@@ -477,7 +478,7 @@ public class AkiChatFragment extends SherlockFragment {
 										}
 										Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 										toast.show();
-										Log.e(AkiApplication.TAG, "Endpoint:sendPresenceToServer callback canceled.");
+										Log.e(AkiChatFragment.TAG, "Endpoint:sendPresenceToServer callback canceled.");
 										activity.onResume();
 									}
 								});
@@ -485,14 +486,14 @@ public class AkiChatFragment extends SherlockFragment {
 
 							@Override
 							public void onFailure(Throwable failure) {
-								Log.e(AkiApplication.TAG, "Could not refresh settings.");
+								Log.e(AkiChatFragment.TAG, "Could not refresh settings.");
 								failure.printStackTrace();
 								refreshReceivedMessages(activity, session, currentUser);
 							}
 
 							@Override
 							public void onCancel() {
-								Log.e(AkiApplication.TAG, "Refresh of settings canceled.");
+								Log.e(AkiChatFragment.TAG, "Refresh of settings canceled.");
 								refreshReceivedMessages(activity, session, currentUser);
 							}
 						});
@@ -572,14 +573,14 @@ public class AkiChatFragment extends SherlockFragment {
 
 						@Override
 						public void onFailure(Throwable failure) {
-							Log.e(AkiApplication.TAG, "Could not wipe cached user location.");
+							Log.e(AkiChatFragment.TAG, "Could not wipe cached user location.");
 							failure.printStackTrace();
 							AkiInternalStorageUtil.setCurrentUser(context, null);
 						}
 
 						@Override
 						public void onCancel() {
-							Log.e(AkiApplication.TAG, "Wipe cached user location callback canceled.");
+							Log.e(AkiChatFragment.TAG, "Wipe cached user location callback canceled.");
 						}
 					});
 					
@@ -591,13 +592,13 @@ public class AkiChatFragment extends SherlockFragment {
 
 				@Override
 				public void onFailure(Throwable failure) {
-					Log.e(AkiApplication.TAG, "A problem happened while exiting chat room!");
+					Log.e(AkiChatFragment.TAG, "A problem happened while exiting chat room!");
 					failure.printStackTrace();
 				}
 
 				@Override
 				public void onCancel() {
-					Log.e(AkiApplication.TAG, "Exiting chat room canceled.");
+					Log.e(AkiChatFragment.TAG, "Exiting chat room canceled.");
 				}
 			});
 		}
@@ -739,7 +740,7 @@ public class AkiChatFragment extends SherlockFragment {
 							continue;
 						}
 						else{
-							Log.e(AkiApplication.TAG, "Refreshing members list: picture of current user (id " + memberId + ") not cached!");
+							Log.e(AkiChatFragment.TAG, "Refreshing members list: picture of current user (id " + memberId + ") not cached!");
 						}
 					}
 
@@ -751,7 +752,7 @@ public class AkiChatFragment extends SherlockFragment {
 							continue;
 						}
 						else{
-							Log.e(AkiApplication.TAG, "Refreshing members list: picture of user (id " + memberId + ") not cached!");
+							Log.e(AkiChatFragment.TAG, "Refreshing members list: picture of user (id " + memberId + ") not cached!");
 						}
 					}
 
@@ -776,7 +777,7 @@ public class AkiChatFragment extends SherlockFragment {
 
 			@Override
 			public void onFailure(Throwable failure) {
-				Log.e(AkiApplication.TAG, "Tried to retrieve members list but currently not in a chat_room!");
+				Log.e(AkiChatFragment.TAG, "Tried to retrieve members list but currently not in a chat_room!");
 				failure.printStackTrace();
 			}
 
@@ -792,7 +793,7 @@ public class AkiChatFragment extends SherlockFragment {
 				Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 				toast.show();
 				activity.onResume();
-				Log.e(AkiApplication.TAG, "Exiting chat room canceled.");						
+				Log.e(AkiChatFragment.TAG, "Exiting chat room canceled.");						
 			}
 		});
 	}
@@ -801,13 +802,13 @@ public class AkiChatFragment extends SherlockFragment {
 		
 		AkiMainActivity activity = (AkiMainActivity) getActivity();
 		if ( activity == null ){
-			Log.i(AkiApplication.TAG, "Not supposed to refresh externally!");
+			Log.i(AkiChatFragment.TAG, "Not supposed to refresh externally!");
 			return;
 		}
 		
 		String currentUserId = AkiInternalStorageUtil.getCurrentUser(activity.getApplicationContext());
 		if ( currentUserId == null ){
-			Log.i(AkiApplication.TAG, "Not supposed to refresh externally!");
+			Log.i(AkiChatFragment.TAG, "Not supposed to refresh externally!");
 			return;
 		}
 		
@@ -826,7 +827,7 @@ public class AkiChatFragment extends SherlockFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.v(AkiApplication.TAG, "AkiChatFragment$onCreate");
+		Log.v(AkiChatFragment.TAG, "AkiChatFragment$onCreate");
 		uiHelper = new UiLifecycleHelper(getActivity(), callback);
 		uiHelper.onCreate(savedInstanceState);
 	}
@@ -834,11 +835,11 @@ public class AkiChatFragment extends SherlockFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		Log.v(AkiApplication.TAG, "AkiChatFragment$onResume");
+		Log.v(AkiChatFragment.TAG, "AkiChatFragment$onResume");
 
 		final AkiMainActivity activity = (AkiMainActivity) getActivity();
 		if ( activity == null ){
-			Log.e(AkiApplication.TAG, "onResume event called but there is no MainActivity alive, so ignored session change event.");
+			Log.e(AkiChatFragment.TAG, "onResume event called but there is no MainActivity alive, so ignored session change event.");
 			return;
 		}
 
@@ -891,7 +892,7 @@ public class AkiChatFragment extends SherlockFragment {
 					ProgressBar loadingIcon = (ProgressBar) activity.findViewById(R.id.com_lespi_aki_main_background_loading);
 					loadingIcon.setVisibility(View.VISIBLE);
 					
-					Log.w(AkiApplication.TAG, "Server is up and running!");
+					Log.w(AkiChatFragment.TAG, "Server is up and running!");
 					Session session = Session.getActiveSession();
 					if (session != null &&
 							(session.isOpened() || session.isClosed()) ) {
@@ -911,7 +912,7 @@ public class AkiChatFragment extends SherlockFragment {
 
 							@Override
 							public void onFailure(Throwable failure) {
-								Log.i(AkiApplication.TAG, "Could not get presence from server.");
+								Log.i(AkiChatFragment.TAG, "Could not get presence from server.");
 								if ( failure != null ){
 									failure.printStackTrace();
 								}
@@ -919,7 +920,7 @@ public class AkiChatFragment extends SherlockFragment {
 
 							@Override
 							public void onCancel() {
-								Log.e(AkiApplication.TAG, "Endpoint:getPresenceFromServer callback canceled.");
+								Log.e(AkiChatFragment.TAG, "Endpoint:getPresenceFromServer callback canceled.");
 							}
 						});
 						String currentUserId = AkiInternalStorageUtil.getCurrentUser(activity.getApplicationContext());
@@ -929,7 +930,7 @@ public class AkiChatFragment extends SherlockFragment {
 
 				@Override
 				public void onFailure(Throwable failure) {
-					Log.wtf(AkiApplication.TAG, "Server is down!!!");
+					Log.wtf(AkiChatFragment.TAG, "Server is down!!!");
 					failure.printStackTrace();
 
 					LinearLayout chatArea = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat);
@@ -952,7 +953,7 @@ public class AkiChatFragment extends SherlockFragment {
 
 				@Override
 				public void onCancel() {
-					Log.w(AkiApplication.TAG, "Canceled checking if Server is up and running!");
+					Log.w(AkiChatFragment.TAG, "Canceled checking if Server is up and running!");
 				}
 			});
 		}
@@ -961,14 +962,14 @@ public class AkiChatFragment extends SherlockFragment {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		Log.v(AkiApplication.TAG, "AkiChatFragment$onActivityResult");
+		Log.v(AkiChatFragment.TAG, "AkiChatFragment$onActivityResult");
 		uiHelper.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		Log.v(AkiApplication.TAG, "AkiChatFragment$onPause");
+		Log.v(AkiChatFragment.TAG, "AkiChatFragment$onPause");
 		SlidingMenu slidingMenu = ((AkiMainActivity) getActivity()).getSlidingMenu();
 		slidingMenu.showContent();
 		slidingMenu.setSlidingEnabled(true);
@@ -978,14 +979,14 @@ public class AkiChatFragment extends SherlockFragment {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		Log.v(AkiApplication.TAG, "AkiChatFragment$onDestroy");
+		Log.v(AkiChatFragment.TAG, "AkiChatFragment$onDestroy");
 		uiHelper.onDestroy();
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Log.v(AkiApplication.TAG, "AkiChatFragment$onSaveInstanceState");
+		Log.v(AkiChatFragment.TAG, "AkiChatFragment$onSaveInstanceState");
 		uiHelper.onSaveInstanceState(outState);
 	}
 

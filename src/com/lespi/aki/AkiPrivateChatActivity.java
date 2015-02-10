@@ -8,7 +8,6 @@ import java.util.PriorityQueue;
 
 import android.app.Activity;
 import android.content.Context;
-import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -32,6 +31,7 @@ import com.parse.internal.AsyncCallback;
 
 public class AkiPrivateChatActivity extends SherlockActivity {
 
+	public static final String TAG = "__AkiPrivateChatActivity__";
 	public static final String KEY_USER_ID = "user-id";
 	public static final String API_LOCATION = "https://lespi-server.herokuapp.com/upload/";
 	
@@ -40,6 +40,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onCreate");
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -88,11 +89,11 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 						AkiInternalStorageUtil.cacheUserPicture(context, userId, picture);
 						return picture;
 					} catch (MalformedURLException e) {
-						Log.e(AkiApplication.TAG, "A problem happened while trying to query a user picture from our server.");
+						Log.e(AkiPrivateChatActivity.TAG, "A problem happened while trying to query a user picture from our server.");
 						e.printStackTrace();
 						return null;
 					} catch (IOException e) {
-						Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from our server.");
+						Log.e(AkiPrivateChatActivity.TAG, "A problem happened while trying to query user picture from our server.");
 						e.printStackTrace();
 						return null;
 					}
@@ -103,7 +104,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 						userPictureView.setImageBitmap(picture);
 					}
 					else{
-						Log.e(AkiApplication.TAG, "A problem happened while trying to query user picture from our server.");
+						Log.e(AkiPrivateChatActivity.TAG, "A problem happened while trying to query user picture from our server.");
 					}
 				}
 			}.execute();
@@ -130,13 +131,19 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 
 						@Override
 						public void onSuccess(Object response) {
-							Log.v(AkiApplication.TAG, "Message: " + message + " sent!");
-//							refreshReceivedMessages(userId);
+							Log.v(AkiPrivateChatActivity.TAG, "Message: " + message + " sent!");
+							ListView listView = (ListView) findViewById(R.id.com_lespi_aki_private_messages_list);
+							AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context);
+							listView.setAdapter(chatAdapter);
+							listView.setSelection(chatAdapter.getCount() - 1);
+							listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
+							listView.setWillNotCacheDrawing(true);
+					        AkiServerUtil.restartGettingPrivateMessages(context, userId);
 						}
 
 						@Override
 						public void onFailure(Throwable failure) {
-							Log.e(AkiApplication.TAG, "You could not send message!");
+							Log.e(AkiPrivateChatActivity.TAG, "You could not send message!");
 							failure.printStackTrace();
 							CharSequence toastText = getApplicationContext().getText(R.string.com_lespi_aki_toast_message_not_sent);
 							Toast toast = Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_SHORT);
@@ -154,7 +161,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 							}
 							Toast toast = Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 							toast.show();
-							Log.e(AkiApplication.TAG, "Endpoint:sendMessage callback canceled.");
+							Log.e(AkiPrivateChatActivity.TAG, "Endpoint:sendMessage callback canceled.");
 							onResume();
 						}
 					});
@@ -162,8 +169,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 			}
 		});
         refreshReceivedMessages(userId);
-        AkiServerUtil.restartGettingPrivateMessages(context, userId);
-
+        AkiServerUtil.getPrivateMessages(context, userId);
     }
     
     private void refreshReceivedMessages(final String userId) {
@@ -172,13 +178,9 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 
 		final AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(activity.getApplicationContext());
 		final ListView listView = (ListView) activity.findViewById(R.id.com_lespi_aki_private_messages_list);
-		chatAdapter.registerDataSetObserver(new DataSetObserver() {
-			@Override
-			public void onChanged() {
-				listView.setSelection(chatAdapter.getCount() - 1);
-			}
-			
-		});
+		listView.setSelection(chatAdapter.getCount() - 1);
+		listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
+		listView.setWillNotCacheDrawing(true);
 
 		new AsyncTask<Void, Void, List<JsonObject>>(){
 
@@ -204,11 +206,11 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 
 			}
 		}.execute();
-		
 	}
     
 	@Override
 	protected void onStart(){
+		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onStart");
 		AkiApplication.setCurrentPrivateId(this.matchUserId);
 		AkiApplication.isNowInForeground();
 		super.onResume();
@@ -216,6 +218,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 
 	@Override
 	protected void onPause(){
+		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onPause");
 		AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
 		AkiApplication.setCurrentPrivateId(null);
 		AkiApplication.isNowInBackground();
@@ -224,6 +227,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 
     @Override
     protected void onStop() {
+		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onStop");
     	AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
 		AkiApplication.setCurrentPrivateId(null);
 		AkiApplication.isNowInBackground();
@@ -232,6 +236,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 
     @Override
     protected void onDestroy() {
+		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onDestroy");
     	AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
 		AkiApplication.setCurrentPrivateId(null);
 		AkiApplication.isNowInBackground();
