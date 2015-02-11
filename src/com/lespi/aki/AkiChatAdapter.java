@@ -635,11 +635,12 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		}
 		else {
 
-			if (AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
-					|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId())){
-				viewHolder.senderLiked.setVisibility(View.GONE);
-				return rowView;
-			}
+//TODO TAKE THIS OUT SO THAT ANONYMOUS vs. ANONYMOUS AND ANONYMOUS vs. IDENTIFIED CAN ALSO LIKE EACH OTHER
+//			if (AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
+//					|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId())){
+//				viewHolder.senderLiked.setVisibility(View.GONE);
+//				return rowView;
+//			}
 
 			final GestureDetector mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
 				@Override
