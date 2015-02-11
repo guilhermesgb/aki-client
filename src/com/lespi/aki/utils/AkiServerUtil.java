@@ -681,52 +681,54 @@ public class AkiServerUtil {
 			return;
 		}
 
-		BigInteger temporaryTimestamp = new BigInteger(AkiInternalStorageUtil.getMostRecentTimestamp(context));
-		temporaryTimestamp = temporaryTimestamp.multiply(BigInteger.TEN).multiply(BigInteger.TEN);
-		temporaryTimestamp = temporaryTimestamp.add(new BigInteger(Integer.toString(new Random().nextInt(100))));
-
-		final JsonObject temporaryMessage = AkiInternalStorageUtil.storeTemporaryMessage(context, chatRoom, currentUserId,
-				message, temporaryTimestamp.toString());
-
-		AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context, chatRoom);
-		List<JsonObject> messages = AkiPrivateChatAdapter.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, chatRoom));
-
-		chatAdapter.clear();
-		if ( messages != null ){
-			chatAdapter.addAll(messages);
-		}
-		chatAdapter.notifyDataSetChanged();
-
 		JsonObject payload = new JsonObject();
-		payload.add("message", message);
-
 		Boolean isAnonymous = AkiInternalStorageUtil.getPrivateChatRoomAnonymousSetting(context, chatRoom, currentUserId);
 		if ( isAnonymous != null ){
 			payload.add("anonymous", isAnonymous.booleanValue());
 		}
 		
-		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+userId, payload, new AsyncCallback() {
-
-			@Override
-			public void onSuccess(Object response) {
-				AkiInternalStorageUtil.resetTimeout(context, chatRoom);
-				restartGettingPrivateMessages(context, userId);
-				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
-				callback.onSuccess(response);
+		if ( message != null ){
+			BigInteger temporaryTimestamp = new BigInteger(AkiInternalStorageUtil.getMostRecentTimestamp(context));
+			temporaryTimestamp = temporaryTimestamp.multiply(BigInteger.TEN).multiply(BigInteger.TEN);
+			temporaryTimestamp = temporaryTimestamp.add(new BigInteger(Integer.toString(new Random().nextInt(100))));
+			
+			final JsonObject temporaryMessage = AkiInternalStorageUtil.storeTemporaryMessage(context, chatRoom, currentUserId,
+					message, temporaryTimestamp.toString());
+			
+			AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context, chatRoom);
+			List<JsonObject> messages = AkiPrivateChatAdapter.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context, chatRoom));
+			
+			chatAdapter.clear();
+			if ( messages != null ){
+				chatAdapter.addAll(messages);
 			}
+			chatAdapter.notifyDataSetChanged();
+			payload.add("message", message);
 
-			@Override
-			public void onFailure(Throwable failure) {
-				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
-				callback.onFailure(failure);
-			}
+			AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+userId, payload, new AsyncCallback() {
+				@Override
+				public void onSuccess(Object response) {
+					AkiInternalStorageUtil.resetTimeout(context, chatRoom);
+					restartGettingPrivateMessages(context, userId);
+					AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
+					callback.onSuccess(response);
+				}
+				@Override
+				public void onFailure(Throwable failure) {
+					AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
+					callback.onFailure(failure);
+				}
+				@Override
+				public void onCancel() {
+					AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
+					callback.onCancel();
+				}
+			});
+		}
+		else {
+			AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+userId, payload, null);
+		}
 
-			@Override
-			public void onCancel() {
-				AkiInternalStorageUtil.removeTemporaryMessage(context, chatRoom, temporaryMessage);
-				callback.onCancel();
-			}
-		});
 	}
 
 	public static class GetMessages implements Runnable {

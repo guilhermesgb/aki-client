@@ -86,10 +86,12 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 				if ( AkiInternalStorageUtil.getPrivateChatRoomAnonymousSetting(context, privateChatRoom, currentUserId) ){
 					anonymousBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_identified));
 					AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatRoom, currentUserId, false);
+					AkiServerUtil.sendPrivateMessage(context, null, userId, null);
 				}
 				else {
 					anonymousBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_anonymous));
 					AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatRoom, currentUserId, true);
+					AkiServerUtil.sendPrivateMessage(context, null, userId, null);
 				}
 				AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context, privateChatRoom);
 				chatAdapter.notifyDataSetChanged();
