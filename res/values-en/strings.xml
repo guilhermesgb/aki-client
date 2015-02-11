@@ -18,6 +18,11 @@
     <string name="com_lespi_aki_main_chat_warning_internet_needed_to_start_using">You need Internet to start chatting!</string>
     <string name="com_lespi_aki_main_chat_warning_gps_needed_to_start_using">You need GPS enabled to start chatting!</string>
     <string name="com_lespi_aki_main_chat_warning_server_down">The server is unavailable!</string>
+    <string name="com_lespi_aki_main_chat_status_alone">You are alone in this group chat room!</string>
+    <string name="com_lespi_aki_main_chat_status_pattern">"You are in a group chat room %s"</string>
+    <string name="com_lespi_aki_main_chat_status_subpattern_single_person">with one more person.</string>
+    <string name="com_lespi_aki_main_chat_status_subpattern_more_people">"with %d more people."</string>
+    <string name="com_lespi_aki_main_chat_status_entering">Entering chat room&#8230;</string>
     <string name="com_lespi_aki_main_settings_info_text">Your profile</string>
     <string name="com_lespi_aki_main_settings_logout_text">Log out from Aki</string>
     <string name="com_lespi_aki_main_settings_cover_hint">A cover photo</string>
@@ -40,8 +45,10 @@
     <string name="com_lespi_aki_mutual_interest_delete_match_confirm_text">Are you sure you want to remove match with </string>
     <string name="com_lespi_aki_mutual_interest_delete_match_confirm_text_unknown_user">this user</string>
     <string name="com_lespi_aki_mutual_interest_no_matches_info">You\'ve got no matches so far!</string>
-    <string name="com_lespi_aki_private_chat_header_pattern">"Private chat with %s"</string>
+    <string name="com_lespi_aki_private_chat_header_text">Private chat</string>
     <string name="com_lespi_aki_private_chat_talk_label">Talk privately</string>
+    <string name="com_lespi_aki_private_chat_back_hint">Go back to group chat</string>
+    <string name="com_lespi_aki_private_chat_status_pattern">"Engage in a private chat with %s"</string>
     <string name="com_lespi_aki_confirm_yes">Yes!</string>
     <string name="com_lespi_aki_confirm_no">No!</string>
     <string name="com_lespi_aki_message_system_nickname_change_male">has changed his nickname to:</string>

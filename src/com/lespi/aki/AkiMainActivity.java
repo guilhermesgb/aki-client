@@ -130,7 +130,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		slidingMenu.setMenu(R.layout.aki_menu_frame);
 		slidingMenu.setSecondaryMenu(R.layout.aki_mutual_interest_frame);
 		slidingMenu.setContentFadeEnabled(true);
-		slidingMenu.setContentFadeDegree(0.50f);
+		slidingMenu.setContentFadeDegree(0.25f);
 		
 		slidingMenu.setOnOpenedListener(new OnOpenedListener() {
 			@Override

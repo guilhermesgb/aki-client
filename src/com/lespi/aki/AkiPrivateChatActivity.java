@@ -28,53 +28,89 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 	public static final String TAG = "__AkiPrivateChatActivity__";
 	public static final String KEY_USER_ID = "user-id";
 	public static final String API_LOCATION = "https://lespi-server.herokuapp.com/upload/";
-	
-	public String matchUserId = null;
-	
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onCreate");
-        
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setContentView(R.layout.aki_private_chat_activity);
-        
-        Bundle extras = getIntent().getExtras();
-        if ( extras == null ){
-        	return;
-        }
-        final String userId = extras.getString(KEY_USER_ID);
-        if ( userId == null ){
-        	return;
-        }
-        
-        this.matchUserId = userId;
-        
-        AkiApplication.setCurrentPrivateId(userId);
-		AkiApplication.isNowInForeground();
-        
-		final String privateChatRoom = AkiServerUtil.buildPrivateChatId(getApplicationContext(), userId);
-		
-        AkiInternalStorageUtil.setPrivateChatRoomUnreadCounter(getApplicationContext(),
-        		privateChatRoom, 0);
-        
-        final Context context = getApplicationContext();
 
-        String headerName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
-        if ( AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, userId) ){
-        	headerName = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
-        }
-        TextView headerView = (TextView) findViewById(R.id.com_lespi_aki_private_chat_header);
-        if ( headerName != null ){
-        	headerView.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_header_pattern), headerName));
-        }
-        else{
-        	headerView.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_header_pattern), "a Match"));
-        	
-        }
-        final ImageButton sendMessageBtn = (ImageButton) findViewById(R.id.com_lespi_aki_private_chat_send_btn);
-        sendMessageBtn.setOnClickListener(new OnClickListener() {
+	public String matchUserId = null;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onCreate");
+
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		setContentView(R.layout.aki_private_chat_activity);
+
+		Bundle extras = getIntent().getExtras();
+		if ( extras == null ){
+			return;
+		}
+		final String userId = extras.getString(KEY_USER_ID);
+		if ( userId == null ){
+			return;
+		}
+
+		this.matchUserId = userId;
+
+		AkiApplication.setCurrentPrivateId(userId);
+		AkiApplication.isNowInForeground();
+
+		final String privateChatRoom = AkiServerUtil.buildPrivateChatId(getApplicationContext(), userId);
+
+		AkiInternalStorageUtil.setPrivateChatRoomUnreadCounter(getApplicationContext(),
+				privateChatRoom, 0);
+
+		final Context context = getApplicationContext();
+
+		ImageButton backBtn = (ImageButton) findViewById(R.id.com_lespi_aki_private_chat_back_btn);
+		backBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				finish();
+				overridePendingTransition(R.anim.hold, R.anim.fade_out);
+			}
+		});
+
+		final String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
+
+		final ImageButton anonymousBtn = (ImageButton) findViewById(R.id.com_lespi_aki_private_chat_anonymous_btn);
+		if ( AkiInternalStorageUtil.getPrivateChatRoomAnonymousSetting(context, privateChatRoom, currentUserId) ){
+			anonymousBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_anonymous));
+		}
+		else {
+			anonymousBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_identified));
+		}
+
+		anonymousBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				if ( AkiInternalStorageUtil.getPrivateChatRoomAnonymousSetting(context, privateChatRoom, currentUserId) ){
+					anonymousBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_identified));
+					AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatRoom, currentUserId, false);
+				}
+				else {
+					anonymousBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_anonymous));
+					AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatRoom, currentUserId, true);
+				}
+				AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(context, privateChatRoom);
+				chatAdapter.notifyDataSetChanged();
+			}
+		});
+
+		TextView headerView = (TextView) findViewById(R.id.com_lespi_aki_private_chat_header);
+		headerView.setText(context.getString(R.string.com_lespi_aki_private_chat_header_text));
+		String headerName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
+		if ( AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, userId) ){
+			headerName = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
+		}		
+		TextView status = (TextView) findViewById(R.id.com_lespi_aki_private_chat_status);
+		if ( headerName != null ){
+			status.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_status_pattern), headerName));
+		}
+		else{
+			status.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_status_pattern), "this match"));
+		}
+		final ImageButton sendMessageBtn = (ImageButton) findViewById(R.id.com_lespi_aki_private_chat_send_btn);
+		sendMessageBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View view) {
@@ -102,7 +138,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 							listView.setSelection(chatAdapter.getCount() - 1);
 							listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
 							listView.setWillNotCacheDrawing(true);
-					        AkiServerUtil.restartGettingPrivateMessages(context, userId);
+							AkiServerUtil.restartGettingPrivateMessages(context, userId);
 						}
 
 						@Override
@@ -132,12 +168,12 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 				}
 			}
 		});
-        refreshReceivedMessages(userId, privateChatRoom);
-        AkiServerUtil.getPrivateMessages(context, userId);
-    }
-    
-    private void refreshReceivedMessages(final String userId, final String privateChatRoom) {
-    	final Activity activity = this;
+		refreshReceivedMessages(userId, privateChatRoom);
+		AkiServerUtil.getPrivateMessages(context, userId);
+	}
+
+	private void refreshReceivedMessages(final String userId, final String privateChatRoom) {
+		final Activity activity = this;
 		final Context context = activity.getApplicationContext();
 
 		final AkiPrivateChatAdapter chatAdapter = AkiPrivateChatAdapter.getInstance(activity.getApplicationContext(), privateChatRoom);
@@ -171,7 +207,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 			}
 		}.execute();
 	}
-    
+
 	@Override
 	protected void onStart(){
 		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onStart");
@@ -189,22 +225,27 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		super.onPause();
 	}
 
-    @Override
-    protected void onStop() {
+	@Override
+	protected void onStop() {
 		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onStop");
-    	AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
+		AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
 		AkiApplication.setCurrentPrivateId(null);
 		AkiApplication.isNowInBackground();
 		super.onStop();
-    }
+	}
 
-    @Override
-    protected void onDestroy() {
+	@Override
+	protected void onDestroy() {
 		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onDestroy");
-    	AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
+		AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
 		AkiApplication.setCurrentPrivateId(null);
 		AkiApplication.isNowInBackground();
 		super.onDestroy();
-    }
+	}
 
+	@Override
+	public void onBackPressed() {
+		finish();
+		overridePendingTransition(R.anim.hold, R.anim.fade_out);
+	}
 }

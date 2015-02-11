@@ -343,6 +343,7 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 					Intent intent = new Intent(activity, AkiPrivateChatActivity.class);
 					intent.putExtra(AkiPrivateChatActivity.KEY_USER_ID, userId);
 					activity.startActivity(intent);
+					activity.overridePendingTransition(R.anim.hold, R.anim.fade_in);
 				}
 			});
 		}

@@ -7,25 +7,56 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingTop="@dimen/activity_vertical_margin" >
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="@dimen/button_height"
         android:background="#333f4f"
         android:orientation="horizontal" >
 
+        <ImageButton
+            android:id="@+id/com_lespi_aki_private_chat_back_btn"
+            style="@style/AkiButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="20sp"
+            android:contentDescription="@string/com_lespi_aki_private_chat_back_hint"
+            android:src="@drawable/icon_backwards" />
+
+        <ImageButton
+            android:id="@+id/com_lespi_aki_private_chat_anonymous_btn"
+            style="@style/AkiButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="20sp"
+            android:contentDescription="@string/com_lespi_aki_main_settings_anonymous_setting_hint"
+            android:src="@drawable/icon_anonymous" />
+
         <TextView
             android:id="@+id/com_lespi_aki_private_chat_header"
             style="@style/AkiButton"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:gravity="center"
-            android:layoutDirection="ltr"
-            android:paddingEnd="0dp"
-            android:paddingStart="0dp"
+            android:layout_centerInParent="true"
             android:textColor="#ffffff"
             android:textSize="19sp" />
-    </LinearLayout>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/com_lespi_aki_private_chat_status"
+        style="@style/AkiButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|center_horizontal"
+        android:gravity="center"
+        android:textColor="#FFF3E7"
+        android:layout_marginTop="10dp"
+        android:alpha="0.6"
+        android:textSize="12sp"
+        android:textStyle="bold|italic" />
 
     <ListView
         android:id="@+id/com_lespi_aki_private_messages_list"

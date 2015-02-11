@@ -282,8 +282,11 @@ public class AkiPrivateChatAdapter extends ArrayAdapter<JsonObject> {
 			if (picture != null) {
 				viewHolder.senderPicture.setImageBitmap(picture);
 			}
-			if ( senderId.equals(currentUserId) ){
+			if ( AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, senderId) ){
 				viewHolder.senderPicture.setImageAlpha(128);
+			}
+			else {
+				viewHolder.senderPicture.setImageAlpha(255);
 			}
 		}
 		return rowView;

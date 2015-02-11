@@ -40,7 +40,9 @@ public class AkiSplashActivity extends SherlockActivity {
             	Intent intent = new Intent(AkiSplashActivity.this, AkiMainActivity.class);
             	intent.putExtra("seenSplash", true);
                 startActivity(intent);
+    			overridePendingTransition(R.anim.hold, R.anim.fade_in);
                 finish();
+    			overridePendingTransition(R.anim.hold, R.anim.fade_out);
             }
         };
     };
