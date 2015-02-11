@@ -692,6 +692,11 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 						AkiServerUtil.sendLikeToServer(context, senderId);
 						AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 						chatAdapter.notifyDataSetChanged();
+						
+						String privateChatId = AkiServerUtil.buildPrivateChatId(context, senderId);
+						AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatId,
+								currentUser.getId(), AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()));
+						AkiServerUtil.sendPrivateMessage(context, null, senderId, null);
 					}
 					return true;
 				}

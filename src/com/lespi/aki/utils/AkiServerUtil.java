@@ -546,10 +546,14 @@ public class AkiServerUtil {
 						String fullName = interestJSON.get("full_name").asString();
 						AkiInternalStorageUtil.cacheUserFullName(context, userId, fullName);
 					}
+					String privateChatId = buildPrivateChatId(context, userId);
+					if ( interestJSON.get("anonymous") != null && !interestJSON.get("anonymous").isNull() ){
+						boolean anonymous = interestJSON.get("anonymous").asBoolean();
+						AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatId, userId, anonymous);
+					}
 					AkiInternalStorageUtil.storeNewMatch(context, userId, notify);
 					
 					String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
-					String privateChatId = buildPrivateChatId(context, userId);
 					boolean anonymous = AkiInternalStorageUtil.getAnonymousSetting(context, currentUserId);
 					AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatId, currentUserId, anonymous);
 				}

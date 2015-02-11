@@ -155,8 +155,7 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 		
 		if ( userId.equals(AkiApplication.SYSTEM_EMPTY_ID) ){
 			viewHolder.userNick.setText(context.getString(R.string.com_lespi_aki_mutual_interest_no_matches_info));
-			Bitmap genderPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_unknown_gender);
-			viewHolder.userGender.setImageBitmap(genderPlaceholder);
+			viewHolder.userGender.setVisibility(View.GONE);
 			Bitmap picturePlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown_gender);
 			viewHolder.userPicture.setImageBitmap(getRoundedBitmap(picturePlaceholder));
 			viewHolder.userName.setVisibility(View.GONE);
