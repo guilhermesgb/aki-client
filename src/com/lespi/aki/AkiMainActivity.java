@@ -122,24 +122,25 @@ LocationClient.OnRemoveGeofencesResultListener {
 		slidingMenu.setShadowDrawable(R.drawable.shadow_left);
 		slidingMenu.setSecondaryShadowDrawable(R.drawable.shadow_right);
 		slidingMenu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-		slidingMenu.setFadeDegree(0.15f);
+		slidingMenu.setFadeEnabled(true);
+		slidingMenu.setFadeDegree(0.75f);
 		slidingMenu.setMode(SlidingMenu.LEFT_RIGHT);
 		slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 		slidingMenu.setTouchModeBehind(SlidingMenu.TOUCHMODE_MARGIN);
 		slidingMenu.setMenu(R.layout.aki_menu_frame);
 		slidingMenu.setSecondaryMenu(R.layout.aki_mutual_interest_frame);
+		slidingMenu.setContentFadeEnabled(true);
+		slidingMenu.setContentFadeDegree(0.50f);
 		
 		slidingMenu.setOnOpenedListener(new OnOpenedListener() {
 			@Override
 			public void onOpened() {
-
 				AkiApplication.isShowingSettingsMenu();
 			}
 		});
 		slidingMenu.setOnClosedListener(new OnClosedListener() {
 			@Override
 			public void onClosed() {
-
 				AkiApplication.isNotShowingSettingsMenu();
 			}
 		});

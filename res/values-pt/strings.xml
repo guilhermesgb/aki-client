@@ -21,10 +21,13 @@
     <string name="com_lespi_aki_main_settings_info_text">Seu perfil</string>
     <string name="com_lespi_aki_main_settings_logout_text">Deslogar do Aki</string>
     <string name="com_lespi_aki_main_settings_cover_hint">Uma foto de cover</string>
-    <string name="com_lespi_aki_main_settings_nickname_text">Seu nickname:</string>
     <string name="com_lespi_aki_main_settings_nickname_change_hint">Atualizar nickname</string>
-    <string name="com_lespi_aki_main_settings_privacy_text">Ficar anônimo?</string>
+    <string name="com_lespi_aki_main_settings_privacy_identify_yourself">Revelar sua identidade?</string>
+    <string name="com_lespi_aki_main_settings_privacy_no_longer_anonymous">Você não está mais anônimo</string>
+    <string name="com_lespi_aki_main_settings_privacy_still_disabled">Desativado até que você escolha um nickname</string>
+	<string name="com_lespi_aki_main_settings_privacy_info_text">No contexto da sala de bate-papo em grupo</string>
     <string name="com_lespi_aki_main_settings_nonickname_text">Você deve escolher um nick!</string>
+    <string name="com_lespi_aki_main_settings_anonymous_setting_hint">Anônimo/Identificado</string>
     <string name="com_lespi_aki_main_mutual_info_text">Seus interesses mútuos</string>
     <string name="com_lespi_aki_message_sender_picture_hint">Pequena foto</string>
     <string name="com_lespi_aki_message_sender_distance_hint">Indicador de distância</string>
