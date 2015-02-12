@@ -116,7 +116,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name="com.lespi.aki.receivers.AkiIncomingGeofenceUpdateReceiver"
+            android:name="com.lespi.aki.receivers.AkiIncomingUserMatchReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.lespi.aki.receivers.INCOMING_MUTUAL_INTEREST_UPDATE" >

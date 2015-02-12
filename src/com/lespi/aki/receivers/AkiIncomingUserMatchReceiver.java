@@ -9,6 +9,7 @@ import com.lespi.aki.AkiApplication;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
+import com.lespi.aki.utils.AkiServerUtil;
 
 public class AkiIncomingUserMatchReceiver extends BroadcastReceiver {
 
@@ -27,12 +28,22 @@ public class AkiIncomingUserMatchReceiver extends BroadcastReceiver {
 		String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
 
 		if ( userId1JSON != null && userId2JSON != null ) {
-			String userId1 = userId1JSON.asString();
-			String userId2 = userId2JSON.asString();
+			String userId1 = userId1JSON.asObject().get("uid").asString();
+			String userId2 = userId2JSON.asObject().get("uid").asString();
 			if ( userId1.equals(currentUserId) ) {
+				String privateChatId = AkiServerUtil.buildPrivateChatId(context, userId2);
+				if ( userId2JSON.asObject().get("anonymous") != null && !userId2JSON.asObject().get("anonymous").isNull() ){
+					boolean anonymous = userId2JSON.asObject().get("anonymous").asBoolean();
+					AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatId, userId2, anonymous);
+				}
 				AkiInternalStorageUtil.storeNewMatch(context, userId2, true);
 			}
 			else if ( userId2.equals(currentUserId) ) {
+				String privateChatId = AkiServerUtil.buildPrivateChatId(context, userId1);
+				if ( userId1JSON.asObject().get("anonymous") != null && !userId1JSON.asObject().get("anonymous").isNull() ){
+					boolean anonymous = userId1JSON.asObject().get("anonymous").asBoolean();
+					AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatId, userId1, anonymous);
+				}
 				AkiInternalStorageUtil.storeNewMatch(context, userId1, true);
 			}
 		}
