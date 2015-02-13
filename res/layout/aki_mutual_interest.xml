@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/com_lespi_aki_message_you_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
-    android:padding="2dp" >
+    android:background="@android:color/transparent" >
 
     <TextView
         android:id="@+id/com_lespi_aki_mutual_interest_user_id"
@@ -13,20 +11,34 @@
         android:visibility="gone" />
 
     <ImageView
-        android:id="@+id/com_lespi_aki_mutual_interest_user_picture"
-        android:layout_width="@dimen/picture_layout_width_settings"
-        android:layout_height="@dimen/picture_layout_height_settings"
+        android:id="@+id/com_lespi_aki_mutual_interest_user_cover"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/profile_cover_photo_height"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp"
+        android:alpha="0.65"
+        android:contentDescription="@string/com_lespi_aki_main_settings_cover_hint"
+        android:cropToPadding="true"
+        android:orientation="horizontal"
+        android:src="@drawable/no_cover" />
+
+    <ImageView
+        android:id="@+id/com_lespi_aki_mutual_interest_user_picture"
+        android:layout_width="@dimen/picture_layout_width_profile"
+        android:layout_height="@dimen/picture_layout_height_profile"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="26dp"
         android:contentDescription="@string/com_lespi_aki_mutual_interest_user_picture_hint" />
 
     <TextView
         android:id="@+id/com_lespi_aki_mutual_interest_user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/com_lespi_aki_mutual_interest_user_picture"
         android:layout_centerHorizontal="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="46dp"
+        android:layout_toEndOf="@+id/com_lespi_aki_mutual_interest_user_picture"
         android:textColor="#ffffff"
         android:textSize="@dimen/settings_fullname_size"
         android:textStyle="bold" />
@@ -35,8 +47,13 @@
         android:id="@+id/com_lespi_aki_mutual_interest_user_nick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/com_lespi_aki_mutual_interest_user_name"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="50dp"
         android:textColor="#ffffff"
         android:textSize="@dimen/mutual_panel_nick_size"
         android:textStyle="italic" />
@@ -51,6 +68,19 @@
         android:contentDescription="@string/com_lespi_aki_mutual_interest_user_gender_hint"
         android:textColor="@color/com_lespi_aki_message_text_color" />
 
+    <TextView
+        android:id="@+id/com_lespi_aki_mutual_interest_user_unread_counter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/icon_like"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
     <ImageButton
         android:id="@+id/com_lespi_aki_mutual_interest_delete_match_btn"
         style="@style/AkiButton"
@@ -58,6 +88,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
+        android:layout_marginStart="5dp"
         android:contentDescription="@string/com_lespi_aki_mutual_interest_delete_match_hint"
         android:padding="10dp"
         android:src="@drawable/icon_remove"

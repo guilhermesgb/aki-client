@@ -15,7 +15,9 @@ import java.util.Set;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -25,9 +27,11 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.lespi.aki.AkiApplication;
+import com.lespi.aki.AkiMainActivity;
 import com.lespi.aki.R;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
+import com.parse.PushService;
 import com.parse.internal.AsyncCallback;
 
 public class AkiInternalStorageUtil {
@@ -243,7 +247,20 @@ public class AkiInternalStorageUtil {
 		SharedPreferences.Editor editor = sharedPref.edit();
 		editor.putString(context.getString(R.string.com_lespi_aki_data_last_server_timestamp), lastServerTimestamp);
 		editor.commit();
-	}	
+	}
+	public static synchronized String getLastServerTimestamp(Context context,String chatRoom){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_last_server_timestamp)+chatRoom, BigInteger.ZERO.toString());
+	}
+
+	public static synchronized void setLastServerTimestamp(Context context, String lastServerTimestamp,String chatRoom) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_last_server_timestamp)+chatRoom, lastServerTimestamp);
+		editor.commit();
+	}
 
 	public static int compareTimestamps(String lhsTimestamp, String rhsTimestamp){
 		BigInteger lhs = new BigInteger(lhsTimestamp);
@@ -657,24 +674,31 @@ public class AkiInternalStorageUtil {
 		editor.commit();
 	}
 
-	public static int getNextTimeout(Context context) {
+	public static int getNextTimeout(Context context ,String chatRoom) {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
-		int timeout = sharedPref.getInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 1);
+		int timeout = sharedPref.getInt(context.getString(R.string.com_lespi_aki_data_last_timeout)+chatRoom, 1);
 		SharedPreferences.Editor editor = sharedPref.edit();
 		int nextTimeout = timeout * 2;
 		if ( nextTimeout > 45 ){
 			nextTimeout = 45;
 		}
-		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout), nextTimeout);
+		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout)+chatRoom, nextTimeout);
 		editor.commit();
 		return timeout;
 	}
 
-	public static synchronized void resetTimeout(Context context) {
+	public static synchronized void resetTimeout(Context context,String chatRoom) {
 		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
-		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout), 1);
+		editor.putInt(context.getString(R.string.com_lespi_aki_data_last_timeout)+chatRoom, 1);
 		editor.commit();
+	}
+	
+	public static int getNextTimeout(Context context) {
+		return getNextTimeout(context,"");		
+	}
+	public static synchronized void resetTimeout(Context context) {
+		resetTimeout(context,"");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -709,6 +733,7 @@ public class AkiInternalStorageUtil {
 			}
 
 			matches.add(userId);
+			PushService.subscribe(context, AkiServerUtil.buildPrivateChatId(context, userId), AkiMainActivity.class);
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
 					context.getString(R.string.com_lespi_aki_data_matches), Context.MODE_PRIVATE));
 			oos.writeObject(matches);
@@ -728,12 +753,17 @@ public class AkiInternalStorageUtil {
 				String contentText = identifier + " " + context.getString(R.string.com_lespi_aki_notif_new_match_text);
 
 				Notification.Builder notifyBuilder = new Notification.Builder(context)
-				.setSmallIcon(R.drawable.notification_icon)
-				.setContentTitle(contentTitle)
-				.setContentText(contentText)
-				.setSound(alarmSound)
-				.setAutoCancel(true);
-
+					.setSmallIcon(R.drawable.notification_icon)
+					.setContentTitle(contentTitle)
+					.setContentText(contentText)
+					.setSound(alarmSound)
+					.setAutoCancel(true);
+				Intent intent = new Intent();
+				intent.setClass(context, AkiMainActivity.class);
+				intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+				PendingIntent pending = PendingIntent.getActivity(context, 0, intent, 0);
+				notifyBuilder.setContentIntent(pending);
+				
 				NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 				notificationManager.notify(AkiApplication.NEW_MATCH_NOTIFICATION_ID, notifyBuilder.build());
 			}
@@ -760,6 +790,7 @@ public class AkiInternalStorageUtil {
 			Set<String> matches = retrieveMatches(context);
 			if ( matches.contains(userId) ){
 				matches.remove(userId);
+				PushService.unsubscribe(context, AkiServerUtil.buildPrivateChatId(context, userId));
 			}
 
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
@@ -775,6 +806,11 @@ public class AkiInternalStorageUtil {
 
 	public static synchronized void wipeMatches(Context context) {
 
+		Set<String> matches = retrieveMatches(context);
+		for ( String userId : matches ){
+			PushService.unsubscribe(context, AkiServerUtil.buildPrivateChatId(context, userId));
+		}
+		
 		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_matches));
 		file.delete();
 	}
@@ -895,5 +931,59 @@ public class AkiInternalStorageUtil {
 		
 		File file = new File(context.getFilesDir(), context.getString(R.string.com_lespi_aki_data_chat_members) + currentChat);
 		file.delete();
+	}
+	
+	public static int getPrivateChatRoomUnreadCounter(Context context, String chatRoom){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getInt(context.getString(R.string.com_lespi_aki_data_private_chat_room_unread_counter) + chatRoom, 0);
+	}
+
+	public static synchronized void setPrivateChatRoomUnreadCounter(Context context, String chatRoom, int counter) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putInt(context.getString(R.string.com_lespi_aki_data_private_chat_room_unread_counter) + chatRoom, counter);
+		editor.commit();
+	}
+	
+	public static boolean viewGetPrivateChatRoomAnonymousSetting(Context context, String chatRoom, String userId){
+		Boolean bool = getPrivateChatRoomAnonymousSetting(context, chatRoom, userId);
+		if ( bool != null ){
+			return Boolean.valueOf(bool);
+		}
+		return true;
+	}
+	
+	public static Boolean getPrivateChatRoomAnonymousSetting(Context context, String chatRoom, String userId){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		String bool = sharedPref.getString(context.getString(R.string.com_lespi_aki_data_private_chat_room_anonymous_setting) + chatRoom + "_" + userId, "null");
+		if ( bool.equals("true") || bool.equals("false") ){
+			return Boolean.valueOf(bool);
+		}
+		return null;
+	}
+	
+	public static synchronized void setPrivateChatRoomAnonymousSetting(Context context, String chatRoom, String userId, boolean anonymous){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_private_chat_room_anonymous_setting) + chatRoom + "_" + userId, Boolean.toString(anonymous));
+		editor.commit();
+	}
+
+	public static String getLastPrivateMessageSender(Context context){
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getString(context.getString(R.string.com_lespi_aki_data_private_chat_room_last_seen), null);
+	}
+	
+	public static void setLastPrivateMessageSender(Context context, String userId) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_persistent_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putString(context.getString(R.string.com_lespi_aki_data_private_chat_room_last_seen), userId);
+		editor.commit();
 	}
 }

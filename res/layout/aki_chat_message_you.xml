@@ -38,6 +38,8 @@
         android:layout_alignStart="@+id/com_lespi_aki_message_sender_name"
         android:layout_below="@+id/com_lespi_aki_message_sender_name"
         android:paddingBottom="5dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="5dp"
         android:singleLine="false"
         android:textColor="@color/com_lespi_aki_message_text_color"
         android:textSize="@dimen/message_size_you" />

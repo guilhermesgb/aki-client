@@ -15,7 +15,7 @@ import com.parse.PushService;
 
 public class AkiApplication extends Application {
 
-	public final static String TAG = "com.lespi.aki";
+	public final static String TAG = "__AkiApplication__";
 	public final static boolean DEBUG_MODE = false;
 
 	public static boolean IN_BACKGROUND = true;
@@ -27,6 +27,7 @@ public class AkiApplication extends Application {
 	public static final int INCOMING_MESSAGE_NOTIFICATION_ID = 1011;
 	public static final int EXITED_ROOM_NOTIFICATION_ID = 1012;
 	public static final int NEW_MATCH_NOTIFICATION_ID = 1013;
+	public static final int INCOMING_PRIVATE_MESSAGE_NOTIFICATION_ID = 1014;
 	
 	public static final String SYSTEM_SENDER_ID = "System";
 	public static final String SYSTEM_EMPTY_ID = "Empty";
@@ -42,7 +43,10 @@ public class AkiApplication extends Application {
     public static final long FAST_INTERVAL_CEILING_IN_MILLISECONDS =
             1000 * FAST_CEILING_IN_SECONDS;
     
+    public static String CURRENT_PRIVATE_ID = null;
+    
 	public static CookieManager cookieManager;
+	
 	static {
 		disableConnectionReuseIfNecessary();
 		enableCookieManagement();
@@ -76,33 +80,56 @@ public class AkiApplication extends Application {
 	public static void isNowInForeground() {
 		IN_BACKGROUND = false;
 		INCOMING_MESSAGES_COUNTER = 0;
+		Log.wtf(AkiApplication.TAG, "IN FOREGROUND NOW!!"); //TODO remove this
 	}
 	
 	public static void isNowInBackground() {
 		IN_BACKGROUND = true;
+		Log.wtf(AkiApplication.TAG, "IN BACKGROUND NOW!!"); //TODO remove this
 	}
 
 	public static void isShowingSettingsMenu() {
 		IN_SETTINGS = true;
+		Log.wtf(AkiApplication.TAG, "IS SHOWING SETTINGS NOW!!"); //TODO remove this
 	}
 	
 	public static void isNotShowingSettingsMenu() {
 		IN_SETTINGS = false;
+		Log.wtf(AkiApplication.TAG, "IS NO LONGER SHOWING SETTINGS!!"); //TODO remove this
 	}
 	
 	public static void isLoggedIn() {
 		LOGGED_IN = true;
+		Log.wtf(AkiApplication.TAG, "IS LOGGED IN!!"); //TODO remove this
 	}
 
 	public static void isNotLoggedIn() {
 		LOGGED_IN = false;
+		Log.wtf(AkiApplication.TAG, "IS NOT LOGGED IN!!"); //TODO remove this
 	}
 	
 	public static void serverDown(){
 		SERVER_DOWN = true;
+		Log.wtf(AkiApplication.TAG, "SERVER IS DOWN!!"); //TODO remove this
 	}
 	
 	public static void serverNotDown(){
 		SERVER_DOWN = false;
+		Log.wtf(AkiApplication.TAG, "SERVER IS NOT DOWN!!"); //TODO remove this
 	}
+
+	public static boolean isPrivateChatShowing(String userId){
+		return userId.equals(CURRENT_PRIVATE_ID);
+	}
+
+	public static synchronized void setCurrentPrivateId(String userId){
+		CURRENT_PRIVATE_ID = userId;
+		if ( userId == null ){
+			Log.wtf(AkiApplication.TAG, "IS NO LONGER SHOWING PRIVATE CHAT ROOM!!"); //TODO remove this
+		}
+		else{
+			Log.wtf(AkiApplication.TAG, "IS SHOWING PRIVATE CHAT WITH {" + userId + "}!!"); //TODO remove this
+		}
+	}
+	
 }

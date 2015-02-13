@@ -28,8 +28,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:supportsRtl="false" >
+        android:supportsRtl="false"
+        android:theme="@style/AppTheme" >
         <activity
             android:name="com.lespi.aki.AkiMainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -50,13 +50,13 @@
             android:theme="@style/FullscreenTheme" >
         </activity>
         <activity
-            android:name="com.lespi.aki.AkiMatchProfileActivity"
+            android:name="com.lespi.aki.AkiPrivateChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="Aki"
             android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme" >
         </activity>
-        
+
         <service android:name="com.parse.PushService" />
 
         <receiver android:name="com.parse.ParseBroadcastReceiver" >
@@ -84,10 +84,26 @@
             </intent-filter>
         </receiver>
         <receiver
+            android:name="com.lespi.aki.receivers.AkiIncomingPrivateMessageReceiver"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.lespi.aki.receivers.INCOMING_PRIVATE_MESSAGE" >
+                </action>
+            </intent-filter>
+        </receiver>
+        <receiver
             android:name="com.lespi.aki.receivers.AkiIncomingUserInfoUpdateReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.lespi.aki.receivers.INCOMING_USER_INFO_UPDATE" >
+                </action>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.lespi.aki.receivers.AkiIncomingMatchInfoUpdateReceiver"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.lespi.aki.receivers.INCOMING_MATCH_INFO_UPDATE" >
                 </action>
             </intent-filter>
         </receiver>
@@ -100,14 +116,14 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name="com.lespi.aki.receivers.AkiIncomingGeofenceUpdateReceiver"
+            android:name="com.lespi.aki.receivers.AkiIncomingUserMatchReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.lespi.aki.receivers.INCOMING_MUTUAL_INTEREST_UPDATE" >
                 </action>
             </intent-filter>
         </receiver>
-        
+
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/fb_app_id" />
