@@ -353,7 +353,7 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 				@Override
 				public void onClick(View view) {
 					Intent intent = new Intent(activity, AkiPrivateChatActivity.class);
-					intent.putExtra(AkiPrivateChatActivity.KEY_USER_ID, userId);
+					AkiInternalStorageUtil.setLastPrivateMessageSender(context, userId);
 					activity.startActivity(intent);
 					activity.overridePendingTransition(R.anim.hold, R.anim.fade_in);
 				}

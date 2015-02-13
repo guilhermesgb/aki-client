@@ -43,7 +43,7 @@
     <string name="com_lespi_aki_mutual_interest_user_picture_hint">Pequena foto</string>
     <string name="com_lespi_aki_mutual_interest_user_gender_hint">Indicador de sexo</string>
     <string name="com_lespi_aki_mutual_interest_delete_match_hint">Remover match</string>
-    <string name="com_lespi_aki_mutual_interest_delete_match_confirm_title">Remover match?</string>
+    <string name="com_lespi_aki_mutual_interest_delete_match_confirm_title">Remover match</string>
     <string name="com_lespi_aki_mutual_interest_delete_match_confirm_text">Tem certeza que você quer remover match com </string>
     <string name="com_lespi_aki_mutual_interest_delete_match_confirm_text_unknown_user">este usuário</string>
     <string name="com_lespi_aki_mutual_interest_no_matches_info">Você ainda não tem matches!</string>
@@ -103,6 +103,7 @@
     <string name="com_lespi_aki_data_last_timeout">last-timeout</string>
     <string name="com_lespi_aki_data_private_chat_room_unread_counter">private-chat-room-unread-counter_</string>
     <string name="com_lespi_aki_data_private_chat_room_anonymous_setting">private-chat-room-anonymous-setting_</string>
+	<string name="com_lespi_aki_data_private_chat_room_last_seen">private-chat-room-last-seen</string>
     <string name="com_lespi_aki_toast_no_internet_connection">Não há conexão com a Internet!</string>
     <string name="com_lespi_aki_toast_cannot_determine_location">Não é possível determinar sua localização atual!</string>
     <string name="com_lespi_aki_toast_please_enable_gps">Por favor, habilite o sensor de GPS!</string>

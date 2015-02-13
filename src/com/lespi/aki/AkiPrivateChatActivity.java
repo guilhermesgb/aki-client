@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,7 +27,6 @@ import com.parse.internal.AsyncCallback;
 public class AkiPrivateChatActivity extends SherlockActivity {
 
 	public static final String TAG = "__AkiPrivateChatActivity__";
-	public static final String KEY_USER_ID = "user-id";
 	public static final String API_LOCATION = "https://lespi-server.herokuapp.com/upload/";
 
 	public String matchUserId = null;
@@ -40,25 +40,34 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.aki_private_chat_activity);
 
-		Bundle extras = getIntent().getExtras();
-		if ( extras == null ){
-			return;
-		}
-		final String userId = extras.getString(KEY_USER_ID);
+		String userId = AkiInternalStorageUtil.getLastPrivateMessageSender(getApplicationContext());
 		if ( userId == null ){
+			Log.wtf("HERE MAN!!", "STARTING PCHAT WITH: NULL");
 			return;
 		}
+
+		Log.wtf("HERE MAN!!", "STARTING PCHAT WITH: " + userId);
+
+		refreshPrivateChat(userId);
+	}
+
+	public void refreshPrivateChat(final String userId){
+
+		final Context context = getApplicationContext();
+
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(AkiApplication.INCOMING_PRIVATE_MESSAGE_NOTIFICATION_ID);
+		AkiMutualAdapter mutualAdapter = AkiMutualAdapter.getInstance(context);
+		mutualAdapter.notifyDataSetChanged();
 
 		this.matchUserId = userId;
 
 		AkiApplication.setCurrentPrivateId(userId);
 		AkiApplication.isNowInForeground();
 
-		final String privateChatRoom = AkiServerUtil.buildPrivateChatId(getApplicationContext(), userId);
+		final String privateChatRoom = AkiServerUtil.buildPrivateChatId(context, userId);
 
-		AkiInternalStorageUtil.setPrivateChatRoomUnreadCounter(getApplicationContext(), privateChatRoom, 0);
-
-		final Context context = getApplicationContext();
+		AkiInternalStorageUtil.setPrivateChatRoomUnreadCounter(context, privateChatRoom, 0);
 
 		ImageButton backBtn = (ImageButton) findViewById(R.id.com_lespi_aki_private_chat_back_btn);
 		backBtn.setOnClickListener(new OnClickListener() {
@@ -208,15 +217,36 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onStart");
 		AkiApplication.setCurrentPrivateId(this.matchUserId);
 		AkiApplication.isNowInForeground();
-		super.onResume();
+
+		String userId = AkiInternalStorageUtil.getLastPrivateMessageSender(getApplicationContext());
+		if ( userId != null ){
+			refreshPrivateChat(userId);
+		}
+		
+		super.onStart();
 	}
 
+	@Override
+	protected void onResume(){
+		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onResume");
+		AkiApplication.setCurrentPrivateId(this.matchUserId);
+		AkiApplication.isNowInForeground();
+
+		String userId = AkiInternalStorageUtil.getLastPrivateMessageSender(getApplicationContext());
+		if ( userId != null ){
+			refreshPrivateChat(userId);
+		}
+		
+		super.onStart();
+	}	
+	
 	@Override
 	protected void onPause(){
 		Log.v(AkiPrivateChatActivity.TAG, "AkiPrivateChatActivity$onPause");
 		AkiServerUtil.stopGettingPrivateMessages(getApplicationContext());
 		AkiApplication.setCurrentPrivateId(null);
 		AkiApplication.isNowInBackground();
+
 		super.onPause();
 	}
 

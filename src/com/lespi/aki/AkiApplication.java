@@ -27,6 +27,7 @@ public class AkiApplication extends Application {
 	public static final int INCOMING_MESSAGE_NOTIFICATION_ID = 1011;
 	public static final int EXITED_ROOM_NOTIFICATION_ID = 1012;
 	public static final int NEW_MATCH_NOTIFICATION_ID = 1013;
+	public static final int INCOMING_PRIVATE_MESSAGE_NOTIFICATION_ID = 1014;
 	
 	public static final String SYSTEM_SENDER_ID = "System";
 	public static final String SYSTEM_EMPTY_ID = "Empty";

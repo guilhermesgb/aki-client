@@ -758,7 +758,7 @@ public class AkiServerUtil {
 			}
 
 			String lastServerTimestamp = AkiInternalStorageUtil.getLastServerTimestamp(context);
-			String targetEndpoint = "/message/2?next=" + lastServerTimestamp;
+			String targetEndpoint = "/message?next=" + lastServerTimestamp;
 
 			final Runnable self = this;
 			AkiHttpRequestUtil.doGETHttpRequest(context, targetEndpoint, new AsyncCallback() {
@@ -862,7 +862,7 @@ public class AkiServerUtil {
 			}
 
 			String lastServerTimestamp = AkiInternalStorageUtil.getLastServerTimestamp(context, chatRoom);
-			String targetEndpoint = "/private_message/"+userId+"/2?next=" + lastServerTimestamp;
+			String targetEndpoint = "/private_message/"+userId+"?next=" + lastServerTimestamp;
 
 			final Runnable self = this;
 			AkiHttpRequestUtil.doGETHttpRequest(context, targetEndpoint, new AsyncCallback() {

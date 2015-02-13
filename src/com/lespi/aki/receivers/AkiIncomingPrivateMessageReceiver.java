@@ -2,6 +2,7 @@ package com.lespi.aki.receivers;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.util.Log;
 
 import com.lespi.aki.AkiApplication;
 import com.lespi.aki.AkiMutualAdapter;
+import com.lespi.aki.AkiPrivateChatActivity;
 import com.lespi.aki.R;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
@@ -75,9 +77,16 @@ public class AkiIncomingPrivateMessageReceiver extends BroadcastReceiver {
 			.setNumber(unreadCounter)
 			.setSound(alarmSound)
 			.setAutoCancel(true);
+			Intent newIntent = new Intent();
+			newIntent.setClass(context, AkiPrivateChatActivity.class);
+			newIntent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+			PendingIntent pending = PendingIntent.getActivity(context, 0, newIntent, 0);
+			notifyBuilder.setContentIntent(pending);
 
+			AkiInternalStorageUtil.setLastPrivateMessageSender(context, from);
+			
 			NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-			notificationManager.notify(AkiApplication.INCOMING_MESSAGE_NOTIFICATION_ID, notifyBuilder.build());
+			notificationManager.notify(AkiApplication.INCOMING_PRIVATE_MESSAGE_NOTIFICATION_ID, notifyBuilder.build());
 			
 			AkiMutualAdapter mutualAdapter = AkiMutualAdapter.getInstance(context);
 			mutualAdapter.notifyDataSetChanged();
