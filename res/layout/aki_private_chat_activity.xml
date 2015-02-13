@@ -51,10 +51,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center|center_horizontal"
-        android:gravity="center"
-        android:textColor="#FFF3E7"
         android:layout_marginTop="10dp"
         android:alpha="0.6"
+        android:gravity="center"
+        android:textColor="#FFF3E7"
         android:textSize="12sp"
         android:textStyle="bold|italic" />
 
@@ -74,7 +74,9 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="#333f4f"
-        android:orientation="horizontal" >
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:padding="0dp" >
 
         <EditText
             android:id="@+id/com_lespi_aki_private_chat_input"
@@ -90,11 +92,13 @@
 
         <ImageButton
             android:id="@+id/com_lespi_aki_private_chat_send_btn"
+            style="@style/AkiButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginBottom="0dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="0dp"
             android:contentDescription="@string/com_lespi_aki_main_chat_send_hint"
             android:padding="10dp"
             android:src="@drawable/icon_send"

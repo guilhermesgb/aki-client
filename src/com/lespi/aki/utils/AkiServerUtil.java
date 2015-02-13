@@ -907,6 +907,7 @@ public class AkiServerUtil {
 							chatAdapter.addAll(messagesList);
 						}
 						chatAdapter.notifyDataSetChanged();
+						chatAdapter.scrollToBottom();
 						
 						AkiInternalStorageUtil.resetTimeout(context, chatRoom);
 					}

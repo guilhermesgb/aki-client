@@ -195,7 +195,6 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 				if ( messages != null ){
 					chatAdapter.addAll(messages);
 				}
-				ListView listView = (ListView) activity.findViewById(R.id.com_lespi_aki_private_messages_list);
 				listView.setAdapter(chatAdapter);
 				listView.setSelection(chatAdapter.getCount() - 1);
 				listView.setChoiceMode(ListView.CHOICE_MODE_NONE);

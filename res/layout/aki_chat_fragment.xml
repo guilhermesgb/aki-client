@@ -240,7 +240,8 @@
             android:layout_height="wrap_content"
             android:background="#333f4f"
             android:gravity="bottom"
-            android:orientation="horizontal" >
+            android:orientation="horizontal"
+            android:padding="0dp" >
 
             <EditText
                 android:id="@+id/com_lespi_aki_main_chat_input"
@@ -256,11 +257,13 @@
 
             <ImageButton
                 android:id="@+id/com_lespi_aki_main_chat_send_btn"
+                style="@style/AkiButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginBottom="0dp"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="0dp"
                 android:contentDescription="@string/com_lespi_aki_main_chat_send_hint"
                 android:padding="10dp"
                 android:src="@drawable/icon_send"

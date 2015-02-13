@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -146,6 +147,18 @@ public class AkiPrivateChatAdapter extends ArrayAdapter<JsonObject> {
 	@Override
 	public View getView(int position, View convertView, final ViewGroup parent) {
 
+		if ( shouldScrollToBottom ){
+			((ListView)parent).clearFocus();
+			final int pos = getCount() - 1;
+			((ListView)parent).post(new Runnable() {
+				@Override
+				public void run() {
+					((ListView)parent).setSelection(pos);
+					shouldScrollToBottom = false;
+				}
+			});
+		}
+		
 		final JsonObject newViewData = messages.get(position);
 
 		View rowView = convertView;
@@ -291,4 +304,11 @@ public class AkiPrivateChatAdapter extends ArrayAdapter<JsonObject> {
 		}
 		return rowView;
 	}
+
+	private boolean shouldScrollToBottom = false;
+	public void scrollToBottom(){
+		shouldScrollToBottom = true;
+		notifyDataSetChanged();
+	}
+	
 }
