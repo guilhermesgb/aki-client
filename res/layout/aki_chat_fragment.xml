@@ -91,9 +91,9 @@
 
             <ImageButton
                 android:id="@+id/com_lespi_aki_main_chat_settings_btn"
-                style="@style/AkiButton"
+                style="?android:attr/borderlessButtonStyle"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/button_height"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="20sp"
@@ -102,25 +102,25 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/button_height"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:orientation="horizontal" >
 
                 <ImageButton
                     android:id="@+id/com_lespi_aki_main_chat_skip_btn"
-                    style="@style/AkiButton"
+                    style="?android:attr/borderlessButtonStyle"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/button_height"
                     android:layout_marginEnd="20sp"
                     android:contentDescription="@string/com_lespi_aki_main_chat_skip_text"
                     android:src="@drawable/icon_skip" />
 
                 <ImageButton
                     android:id="@+id/com_lespi_aki_main_chat_exit_btn"
-                    style="@style/AkiButton"
+                    style="?android:attr/borderlessButtonStyle"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/button_height"
                     android:layout_marginStart="20sp"
                     android:contentDescription="@string/com_lespi_aki_main_chat_exit_text"
                     android:src="@drawable/icon_exit" />
@@ -128,9 +128,9 @@
 
             <ImageButton
                 android:id="@+id/com_lespi_aki_main_chat_mutual_btn"
-                style="@style/AkiButton"
+                style="?android:attr/borderlessButtonStyle"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/button_height"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="20sp"
@@ -257,7 +257,7 @@
 
             <ImageButton
                 android:id="@+id/com_lespi_aki_main_chat_send_btn"
-                style="@style/AkiButton"
+                style="?android:attr/borderlessButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/button_height"
                 android:layout_marginBottom="0dp"

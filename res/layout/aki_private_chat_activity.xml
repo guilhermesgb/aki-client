@@ -15,9 +15,9 @@
 
         <ImageButton
             android:id="@+id/com_lespi_aki_private_chat_back_btn"
-            style="@style/AkiButton"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/button_height"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_marginStart="20sp"
@@ -26,9 +26,9 @@
 
         <ImageButton
             android:id="@+id/com_lespi_aki_private_chat_anonymous_btn"
-            style="@style/AkiButton"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/button_height"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_marginEnd="20sp"
@@ -92,7 +92,7 @@
 
         <ImageButton
             android:id="@+id/com_lespi_aki_private_chat_send_btn"
-            style="@style/AkiButton"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/button_height"
             android:layout_marginBottom="0dp"

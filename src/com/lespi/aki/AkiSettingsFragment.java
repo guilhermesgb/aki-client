@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -13,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -103,8 +106,9 @@ public class AkiSettingsFragment extends SherlockFragment {
 				}
 			}
 
-			ImageButton changeNicknameBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_settings_nickname_btn);
-
+			final ImageButton changeNicknameBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_settings_nickname_btn);
+			changeNicknameBtn.setImageResource(R.drawable.icon_saved);
+			
 			changeNicknameBtn.setOnClickListener(new OnClickListener() {
 
 				@Override
@@ -125,7 +129,6 @@ public class AkiSettingsFragment extends SherlockFragment {
 					AkiInternalStorageUtil.cacheUserNickname(context, currentUser.getId(), newNickname);
 					nicknameBox.setText(newNickname);
 					if ( AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
-						AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
 						SlidingMenu slidingMenu = activity.getSlidingMenu();
 						slidingMenu.setSlidingEnabled(true);
 						slidingMenu.setEnabled(true);
@@ -140,37 +143,56 @@ public class AkiSettingsFragment extends SherlockFragment {
 						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 						toast.show();
 					}
-					else{
-						AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
-						CharSequence toastText = context.getString(R.string.com_lespi_aki_toast_nickname_updated) + " " + newNickname + "!";
-						Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
-						toast.show();
-					}
+					AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
+					changeNicknameBtn.setImageResource(R.drawable.icon_saved);
 					AkiChatFragment.getInstance().externalRefreshAll();
 				}
 			});
-
-			anonymousSection.setOnClickListener(new OnClickListener() {
+			
+			nicknameBox.setOnFocusChangeListener(new OnFocusChangeListener() {
+				@Override
+				public void onFocusChange(View view, boolean hasFocus) {
+					changeNicknameBtn.setImageResource(R.drawable.icon_save);
+				}
+			});
+			
+			anonymousCheck.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick(View view) {
 					if ( !AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
-						anonymousCheck.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_identified));
-						anonymousInfo.setText(activity.getApplicationContext().getString(R.string.com_lespi_aki_main_settings_privacy_no_longer_anonymous));
 						if ( AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
-							AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), false);
-							AkiServerUtil.sendPresenceToServer(context, currentUser.getId(), new AsyncCallback() {
+							new AlertDialog.Builder(activity)
+							.setIcon(R.drawable.icon_identified)
+							.setTitle(R.string.com_lespi_aki_main_settings_privacy_will_identify_title)
+							.setMessage(R.string.com_lespi_aki_main_settings_privacy_will_identify_message)
+							.setPositiveButton(R.string.com_lespi_aki_confirm_yes, new DialogInterface.OnClickListener() {
 								@Override
-								public void onSuccess(Object response) {
-									AkiChatFragment.getInstance().externalRefreshAll();
+								public void onClick(DialogInterface dialog, int which) {
+									anonymousCheck.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_identified));
+									anonymousInfo.setText(activity.getApplicationContext().getString(R.string.com_lespi_aki_main_settings_privacy_no_longer_anonymous));
+									AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), false);
+									AkiServerUtil.sendPresenceToServer(context, currentUser.getId(), new AsyncCallback() {
+										@Override
+										public void onSuccess(Object response) {
+											AkiChatFragment.getInstance().externalRefreshAll();
+										}
+										@Override
+										public void onFailure(Throwable failure) {}
+										@Override
+										public void onCancel() {}
+									});
 								}
+							})
+							.setNegativeButton(R.string.com_lespi_aki_confirm_no, new DialogInterface.OnClickListener(){
 								@Override
-								public void onFailure(Throwable failure) {}
-								@Override
-								public void onCancel() {}
-							});
+								public void onClick(DialogInterface dialog, int which) {}
+							})
+							.show();
 						}
 						else {
+							anonymousCheck.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_identified));
+							anonymousInfo.setText(activity.getApplicationContext().getString(R.string.com_lespi_aki_main_settings_privacy_no_longer_anonymous));
 							CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_anonymous_cannot_be_set);
 							Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 							toast.show();

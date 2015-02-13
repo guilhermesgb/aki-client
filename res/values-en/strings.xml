@@ -6,12 +6,12 @@
     <string name="project_name">Aki</string>
     <string name="com_lespi_aki_splash_logo_hint">Aki - Meet people around you</string>
     <string name="com_lespi_aki_main_login_auth_text">Login to Aki with Facebook</string>
-    <string name="com_lespi_aki_main_chat_send_hint">Type to send a message</string>
+    <string name="com_lespi_aki_main_chat_send_hint">Compose message</string>
     <string name="com_lespi_aki_main_chat_settings_hint">Settings</string>
     <string name="com_lespi_aki_main_chat_exit_text">Exit</string>
     <string name="com_lespi_aki_main_chat_skip_text">Skip</string>
     <string name="com_lespi_aki_main_chat_exit_confirm_title">Leave this chat</string>
-    <string name="com_lespi_aki_main_chat_exit_confirm_text">Are you sure you want to leave? You will minimize the app.</string>
+    <string name="com_lespi_aki_main_chat_exit_confirm_text">Are you sure you want to leave? You will also leave the app in the process.</string>
     <string name="com_lespi_aki_main_chat_skip_confirm_title">Skip to another chat</string>
     <string name="com_lespi_aki_main_chat_skip_confirm_text">Are you sure you want to leave this chat and go to another?</string>
     <string name="com_lespi_aki_main_chat_warning_no_internet_connection_available">No Internet connection available!</string>
@@ -31,7 +31,9 @@
     <string name="com_lespi_aki_main_settings_privacy_no_longer_anonymous">You are no longer anonymous</string>
     <string name="com_lespi_aki_main_settings_privacy_still_disabled">Disabled until you pick a nickname</string>
 	<string name="com_lespi_aki_main_settings_privacy_info_text">In the context of the group chat room</string>
-    <string name="com_lespi_aki_main_settings_nonickname_text">You must pick a nickname!</string>
+	<string name="com_lespi_aki_main_settings_privacy_will_identify_title">Show name and pic</string>
+	<string name="com_lespi_aki_main_settings_privacy_will_identify_message">Ready to reveal your identity?\nYour name and profile picture will be visible to those who also activated this option.\nYou won\'t be able to undo this while you remain in this group chat room.</string>
+	<string name="com_lespi_aki_main_settings_nonickname_text">You must pick a nickname!</string>
     <string name="com_lespi_aki_main_settings_anonymous_setting_hint">Anonymous/Identified</string>
     <string name="com_lespi_aki_main_mutual_info_text">Your mutual interests</string>
     <string name="com_lespi_aki_message_sender_picture_hint">A small picture</string>
@@ -113,7 +115,6 @@
     <string name="com_lespi_aki_toast_nickname_required">You must choose a nickname!</string>
     <string name="com_lespi_aki_toast_nickname_cannot_be_blank">Nickname cannot be blank!</string>
     <string name="com_lespi_aki_toast_nickname_set">Thanks for setting your nickname!</string>
-    <string name="com_lespi_aki_toast_nickname_updated">Nickname updated to</string>
-    <string name="com_lespi_aki_toast_anonymous_cannot_be_set">You cannot be anonymous again, in this chat room!</string>
+    <string name="com_lespi_aki_toast_anonymous_cannot_be_set">In this group chat room, you cannot be anonymous again!</string>
 
 </resources>
