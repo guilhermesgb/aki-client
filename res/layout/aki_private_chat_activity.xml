@@ -86,7 +86,6 @@
             android:hint="@string/com_lespi_aki_main_chat_input_hint"
             android:maxHeight="50dp"
             android:scrollHorizontally="true"
-            android:maxLength="50"
             android:textColor="#fff" />
 
         <ImageButton

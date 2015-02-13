@@ -56,8 +56,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 
 		final String privateChatRoom = AkiServerUtil.buildPrivateChatId(getApplicationContext(), userId);
 
-		AkiInternalStorageUtil.setPrivateChatRoomUnreadCounter(getApplicationContext(),
-				privateChatRoom, 0);
+		AkiInternalStorageUtil.setPrivateChatRoomUnreadCounter(getApplicationContext(), privateChatRoom, 0);
 
 		final Context context = getApplicationContext();
 
@@ -73,7 +72,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		final String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
 
 		final ImageButton anonymousBtn = (ImageButton) findViewById(R.id.com_lespi_aki_private_chat_anonymous_btn);
-		if ( AkiInternalStorageUtil.getPrivateChatRoomAnonymousSetting(context, privateChatRoom, currentUserId) ){
+		if ( AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, currentUserId) ){
 			anonymousBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_anonymous));
 		}
 		else {
@@ -83,7 +82,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		anonymousBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				if ( AkiInternalStorageUtil.getPrivateChatRoomAnonymousSetting(context, privateChatRoom, currentUserId) ){
+				if ( AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, currentUserId) ){
 					anonymousBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_identified));
 					AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatRoom, currentUserId, false);
 					AkiServerUtil.sendPrivateMessage(context, null, userId, null);
@@ -185,17 +184,13 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		listView.setWillNotCacheDrawing(true);
 
 		new AsyncTask<Void, Void, List<JsonObject>>(){
-
 			@Override
 			protected List<JsonObject> doInBackground(Void... params) {
-
 				PriorityQueue<JsonObject> messages = AkiInternalStorageUtil.retrieveMessages(context, privateChatRoom);
 				return AkiChatAdapter.toJsonObjectList(messages);
 			}
-
 			@Override
 			public void onPostExecute(List<JsonObject> messages){
-
 				chatAdapter.clear();
 				if ( messages != null ){
 					chatAdapter.addAll(messages);
@@ -205,7 +200,6 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 				listView.setSelection(chatAdapter.getCount() - 1);
 				listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
 				listView.setWillNotCacheDrawing(true);
-
 			}
 		}.execute();
 	}

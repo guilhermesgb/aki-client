@@ -553,9 +553,11 @@ public class AkiServerUtil {
 					}
 					AkiInternalStorageUtil.storeNewMatch(context, userId, notify);
 					
-					String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
-					boolean anonymous = AkiInternalStorageUtil.getAnonymousSetting(context, currentUserId);
-					AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatId, currentUserId, anonymous);
+					if ( notify ){
+						String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
+						boolean anonymous = AkiInternalStorageUtil.getAnonymousSetting(context, currentUserId);
+						AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatId, currentUserId, anonymous);
+					}
 				}
 				for ( String userId : oldMutualInterests ){
 					AkiServerUtil.sendDislikeToServer(context, userId);
@@ -675,6 +677,7 @@ public class AkiServerUtil {
 			}
 		});
 	}
+
 	public static synchronized void sendPrivateMessage(final Context context, String message, final String userId, final AsyncCallback callback) {
 
 		final String chatRoom = buildPrivateChatId(context, userId);
@@ -686,10 +689,8 @@ public class AkiServerUtil {
 		}
 
 		JsonObject payload = new JsonObject();
-		Boolean isAnonymous = AkiInternalStorageUtil.getPrivateChatRoomAnonymousSetting(context, chatRoom, currentUserId);
-		if ( isAnonymous != null ){
-			payload.add("anonymous", isAnonymous.booleanValue());
-		}
+		boolean isAnonymous = AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, chatRoom, currentUserId);
+		payload.add("anonymous", isAnonymous);
 		
 		if ( message != null ){
 			BigInteger temporaryTimestamp = new BigInteger(AkiInternalStorageUtil.getMostRecentTimestamp(context));
@@ -732,7 +733,6 @@ public class AkiServerUtil {
 		else {
 			AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+userId, payload, null);
 		}
-
 	}
 
 	public static class GetMessages implements Runnable {
@@ -884,7 +884,9 @@ public class AkiServerUtil {
 
 					JsonObject anonymous = responseJSON.get("anonymous").asObject();
 					for ( String userId : anonymous.names() ){
-						AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, chatRoom, userId, anonymous.get(userId).asBoolean());
+						if ( anonymous.get(userId) != null && !anonymous.get(userId).isNull() ){
+							AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, chatRoom, userId, anonymous.get(userId).asBoolean());
+						}
 					}
 					
 					JsonArray messages = responseJSON.get("messages").asArray();

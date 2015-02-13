@@ -165,9 +165,22 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 
 		String privateChatRoom = AkiServerUtil.buildPrivateChatId(context, userId);
 		
+		String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
+		if ( nickname != null ){
+			viewHolder.userNick.setText(nickname);
+			viewHolder.userNick.setVisibility(View.VISIBLE);
+		}
+		else{
+			viewHolder.userNick.setVisibility(View.GONE);
+		}
+
 		String fullName = null;
 		if ( AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, userId) ){
 			viewHolder.userName.setText("???");
+			if ( nickname != null ){
+				viewHolder.userNick.setVisibility(View.GONE);
+				viewHolder.userName.setText(nickname);
+			}
 		}
 		else{
 			fullName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
@@ -176,15 +189,11 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 			}
 			else{
 				viewHolder.userName.setText("???");
+				if ( nickname != null ){
+					viewHolder.userNick.setVisibility(View.GONE);
+					viewHolder.userName.setText(nickname);
+				}
 			}
-		}
-
-		String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
-		if ( nickname != null ){
-			viewHolder.userNick.setText(nickname);
-		}
-		else{
-			viewHolder.userNick.setVisibility(View.GONE);
 		}
 
 		String gender = AkiInternalStorageUtil.getCachedUserGender(context, userId);
@@ -296,6 +305,10 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 					}
 				}.execute();
 			}			
+		}
+		else {
+			Bitmap coverPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_cover);
+			userCoverView.setImageBitmap(coverPlaceholder);
 		}
 		
 		if ( activity != null ){
