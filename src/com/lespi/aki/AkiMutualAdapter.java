@@ -352,6 +352,7 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 			rowView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View view) {
+					((AkiMainActivity) activity).stopPeriodicLocationUpdates();
 					Intent intent = new Intent(activity, AkiPrivateChatActivity.class);
 					AkiInternalStorageUtil.setLastPrivateMessageSender(context, userId);
 					activity.startActivity(intent);
