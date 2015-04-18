@@ -89,16 +89,16 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 		RelativeLayout background = (RelativeLayout) findViewById(R.id.com_lespi_aki_main_background);
 		background.setVisibility(View.VISIBLE);
-		
+
 		if ( extras != null ){
 			boolean seenSplash = extras.getBoolean("seenSplash", false);
 			chatFragment.setSeenSplash(seenSplash);
-			
+
 			if ( seenSplash ){
 				background.setVisibility(View.GONE);
 			}
 		}
-		
+
 		getSupportFragmentManager()
 		.beginTransaction()
 		.replace(R.id.aki_chat_frame, chatFragment)
@@ -116,7 +116,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		.beginTransaction()
 		.replace(R.id.aki_mutual_interest_frame, mutualsFragment)
 		.commit();
-		
+
 		slidingMenu = super.getSlidingMenu();
 		slidingMenu.setShadowWidthRes(R.dimen.shadow_width);
 		slidingMenu.setShadowDrawable(R.drawable.shadow_left);
@@ -131,7 +131,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		slidingMenu.setSecondaryMenu(R.layout.aki_mutual_interest_frame);
 		slidingMenu.setContentFadeEnabled(true);
 		slidingMenu.setContentFadeDegree(0.25f);
-		
+
 		slidingMenu.setOnOpenedListener(new OnOpenedListener() {
 			@Override
 			public void onOpened() {
@@ -167,7 +167,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 				@Override
 				public void onSuccess(Object response) {
-					
+
 					String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
 					AkiServerUtil.leaveChatRoom(context, currentUserId);
 
@@ -178,11 +178,19 @@ LocationClient.OnRemoveGeofencesResultListener {
 					.setSmallIcon(R.drawable.notification_icon)
 					.setContentTitle(contentTitle)
 					.setContentText(contentText)
+					.setTicker(contentTitle)
 					.setContentIntent(PendingIntent.getActivity(AkiMainActivity.this, 0, new Intent(), 0))
+					.setOnlyAlertOnce(true)
 					.setAutoCancel(true);
+					Notification.InboxStyle notifyBigBuilder = new Notification.InboxStyle(notifyBuilder);
+					String[] contentLines = contentText.split("\n");
+					for ( int i=0; i<contentLines.length; i++ ){
+						notifyBigBuilder.addLine(contentLines[i]);
+					}
+					notifyBigBuilder.setBigContentTitle(contentTitle);
 
 					NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-					notificationManager.notify(AkiApplication.EXITED_ROOM_NOTIFICATION_ID, notifyBuilder.build());
+					notificationManager.notify(AkiApplication.EXITED_ROOM_NOTIFICATION_ID, notifyBigBuilder.build());
 				}
 
 				@Override
@@ -367,7 +375,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		if ( AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
 			return;
 		}
-		
+
 		boolean sendPresence = false;
 
 		final AkiLocation oldLocation = AkiInternalStorageUtil.getCachedUserLocation(context, currentUserId);
@@ -386,7 +394,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 						chatFragment.onResume();
 					}
 					else if ( AkiApplication.LOGGED_IN ){
-						
+
 						JsonObject responseJSON = (JsonObject) response;
 						final JsonValue newChatRoomId = responseJSON.get("chat_room");
 						String currentChatRoomId = AkiInternalStorageUtil.getCurrentChatRoom(context);
@@ -490,9 +498,9 @@ LocationClient.OnRemoveGeofencesResultListener {
 	public void onAddGeofencesResult(int statusCode, String[] geofenceRequestIds) {
 		if (LocationStatusCodes.SUCCESS == statusCode) {
 			if ( geofenceRequestIds.length > 1 ){
-//				for ( int i=1; i<geofenceRequestIds.length; i++ ){
-//					Log.w(AkiMainActivity.TAG, "Multiple geofences detected: " + geofenceRequestIds[i]);
-//				}
+				//				for ( int i=1; i<geofenceRequestIds.length; i++ ){
+				//					Log.w(AkiMainActivity.TAG, "Multiple geofences detected: " + geofenceRequestIds[i]);
+				//				}
 			}
 		} else {
 			/*
@@ -534,7 +542,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 		final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 	}
-	
+
 	public SlidingMenu getSlidingMenu(){
 		return slidingMenu;
 	}

@@ -64,13 +64,28 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 			++AkiApplication.INCOMING_MESSAGES_COUNTER;
 			
 			String contentTitle = context.getString(R.string.com_lespi_aki_notif_new_message_title);
-			String contentText = context.getString(R.string.com_lespi_aki_notif_new_message_text);
+			String contentTicker = context.getString(R.string.com_lespi_aki_notif_new_message_ticker);
 			
 			if ( AkiApplication.INCOMING_MESSAGES_COUNTER > 1 ){
 				contentTitle = String.format(context.getString(R.string.com_lespi_aki_notif_new_messages_title),
 						AkiApplication.INCOMING_MESSAGES_COUNTER);
-				contentText = String.format(context.getString(R.string.com_lespi_aki_notif_new_messages_text),
+				contentTicker = String.format(context.getString(R.string.com_lespi_aki_notif_new_messages_ticker),
 						AkiApplication.INCOMING_MESSAGES_COUNTER);
+			}
+			
+			String identifier = AkiInternalStorageUtil.getCachedUserFirstName(context, from);
+			if ( identifier == null || AkiInternalStorageUtil.getAnonymousSetting(context, from) ){
+				identifier = AkiInternalStorageUtil.getCachedUserNickname(context, from);
+				if ( identifier == null){
+					identifier = from;
+				}
+			}
+
+			if ( AkiApplication.INCOMING_MESSAGES_CACHE.trim().isEmpty() ){
+				AkiApplication.INCOMING_MESSAGES_CACHE = identifier + ": " + message.trim();
+			}
+			else {
+				AkiApplication.INCOMING_MESSAGES_CACHE += "\n" + identifier + ": " + message.trim();
 			}
 			
 			Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -78,15 +93,21 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 			Notification.Builder notifyBuilder = new Notification.Builder(context)
 			        .setSmallIcon(R.drawable.notification_icon)
 			        .setContentTitle(contentTitle)
-			        .setContentText(contentText)
-			        .setNumber(AkiApplication.INCOMING_MESSAGES_COUNTER)
+			        .setTicker(contentTicker)
+			        .setSubText(contentTicker)
 			        .setSound(alarmSound)
 			        .setAutoCancel(true);
+			Notification.InboxStyle notifyBigBuilder = new Notification.InboxStyle(notifyBuilder);
+			String[] contentLines = AkiApplication.INCOMING_MESSAGES_CACHE.split("\n");
+			for ( int i=0; i<contentLines.length; i++ ){
+				notifyBigBuilder.addLine(contentLines[i]);
+			}
+			notifyBigBuilder.setBigContentTitle(contentTitle);
 			PendingIntent pending = PendingIntent.getActivity(context, 0, intent, 0);
 			notifyBuilder.setContentIntent(pending);
 			
 			NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-			notificationManager.notify(AkiApplication.INCOMING_MESSAGE_NOTIFICATION_ID, notifyBuilder.build());
+			notificationManager.notify(AkiApplication.INCOMING_MESSAGE_NOTIFICATION_ID, notifyBigBuilder.build());
 		}
 	}
 }

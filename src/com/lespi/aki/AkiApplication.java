@@ -24,6 +24,8 @@ public class AkiApplication extends Application {
 	public static boolean SERVER_DOWN = false;
 	
 	public static int INCOMING_MESSAGES_COUNTER = 0;
+	public static String INCOMING_MESSAGES_CACHE = "";
+	
 	public static final int INCOMING_MESSAGE_NOTIFICATION_ID = 1011;
 	public static final int EXITED_ROOM_NOTIFICATION_ID = 1012;
 	public static final int NEW_MATCH_NOTIFICATION_ID = 1013;
@@ -80,6 +82,7 @@ public class AkiApplication extends Application {
 	public static void isNowInForeground() {
 		IN_BACKGROUND = false;
 		INCOMING_MESSAGES_COUNTER = 0;
+		INCOMING_MESSAGES_CACHE = "";
 		Log.wtf(AkiApplication.TAG, "IN FOREGROUND NOW!!"); //TODO remove this
 	}
 	

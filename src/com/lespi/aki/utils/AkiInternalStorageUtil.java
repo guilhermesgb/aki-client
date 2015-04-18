@@ -733,7 +733,8 @@ public class AkiInternalStorageUtil {
 			}
 
 			matches.add(userId);
-			PushService.subscribe(context, AkiServerUtil.buildPrivateChatId(context, userId), AkiMainActivity.class);
+			String chatRoomId = AkiServerUtil.buildPrivateChatId(context, userId);
+			PushService.subscribe(context, chatRoomId, AkiMainActivity.class);
 			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
 					context.getString(R.string.com_lespi_aki_data_matches), Context.MODE_PRIVATE));
 			oos.writeObject(matches);
@@ -742,22 +743,32 @@ public class AkiInternalStorageUtil {
 			if ( notify ){
 				Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-				String contentTitle = context.getString(R.string.com_lespi_aki_notif_new_match_title);
+				String contentTicker = context.getString(R.string.com_lespi_aki_notif_new_match_ticker);
 				String identifier = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
-				if ( identifier == null ){
+				if ( identifier == null || AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, chatRoomId, userId) ){
 					identifier = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
 					if ( identifier == null){
 						identifier = userId;
 					}
 				}
+				String contentTitle = context.getString(R.string.com_lespi_aki_notif_new_match_title) + " " + identifier;
 				String contentText = identifier + " " + context.getString(R.string.com_lespi_aki_notif_new_match_text);
 
 				Notification.Builder notifyBuilder = new Notification.Builder(context)
 					.setSmallIcon(R.drawable.notification_icon)
 					.setContentTitle(contentTitle)
 					.setContentText(contentText)
+					.setTicker(contentTicker)
+					.setSubText(contentTicker)
 					.setSound(alarmSound)
+					.setOnlyAlertOnce(true)
 					.setAutoCancel(true);
+				Notification.InboxStyle notifyBigBuilder = new Notification.InboxStyle(notifyBuilder);
+				String[] contentLines = contentText.split("\n");
+				for ( int i=0; i<contentLines.length; i++ ){
+					notifyBigBuilder.addLine(contentLines[i]);
+				}
+				notifyBigBuilder.setBigContentTitle(contentTitle);
 				Intent intent = new Intent();
 				intent.setClass(context, AkiMainActivity.class);
 				intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -765,7 +776,7 @@ public class AkiInternalStorageUtil {
 				notifyBuilder.setContentIntent(pending);
 				
 				NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-				notificationManager.notify(AkiApplication.NEW_MATCH_NOTIFICATION_ID, notifyBuilder.build());
+				notificationManager.notify(AkiApplication.NEW_MATCH_NOTIFICATION_ID, notifyBigBuilder.build());
 			}
 
 		} catch (IOException e) {

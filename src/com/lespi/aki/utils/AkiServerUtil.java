@@ -710,7 +710,7 @@ public class AkiServerUtil {
 			chatAdapter.notifyDataSetChanged();
 			payload.add("message", message);
 
-			AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+userId, payload, new AsyncCallback() {
+			AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+currentUserId+"/"+userId, payload, new AsyncCallback() {
 				@Override
 				public void onSuccess(Object response) {
 					AkiInternalStorageUtil.resetTimeout(context, chatRoom);
@@ -731,7 +731,7 @@ public class AkiServerUtil {
 			});
 		}
 		else {
-			AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+userId, payload, null);
+			AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+currentUserId+"/"+userId, payload, null);
 		}
 	}
 
@@ -854,15 +854,15 @@ public class AkiServerUtil {
 		@Override
 		public void run() {
 
-			final String currentUser = AkiInternalStorageUtil.getCurrentUser(context);
+			final String currentUserId = AkiInternalStorageUtil.getCurrentUser(context);
 
-			if ( chatRoom == null || currentUser == null ){
+			if ( chatRoom == null || currentUserId == null ){
 				Log.e(AkiServerUtil.TAG, "GetMessages runnable stopped as either the current chat_room or current_user is missing!");
 				return;
 			}
 
 			String lastServerTimestamp = AkiInternalStorageUtil.getLastServerTimestamp(context, chatRoom);
-			String targetEndpoint = "/private_message/"+userId+"?next=" + lastServerTimestamp;
+			String targetEndpoint = "/private_message/"+currentUserId+"/"+userId+"?next=" + lastServerTimestamp;
 
 			final Runnable self = this;
 			AkiHttpRequestUtil.doGETHttpRequest(context, targetEndpoint, new AsyncCallback() {

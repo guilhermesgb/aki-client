@@ -74,11 +74,19 @@ public class AkiIncomingTransitionsIntentService extends IntentService {
 									.setSmallIcon(R.drawable.notification_icon)
 									.setContentTitle(contentTitle)
 									.setContentText(contentText)
+									.setTicker(contentTitle)
 									.setSound(alarmSound)
+									.setOnlyAlertOnce(true)
 									.setAutoCancel(true);
-
+									Notification.InboxStyle notifyBigBuilder = new Notification.InboxStyle(notifyBuilder);
+									String[] contentLines = contentText.split("\n");
+									for ( int i=0; i<contentLines.length; i++ ){
+										notifyBigBuilder.addLine(contentLines[i]);
+									}
+									notifyBigBuilder.setBigContentTitle(contentTitle);
+									
 									NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-									notificationManager.notify(AkiApplication.EXITED_ROOM_NOTIFICATION_ID, notifyBuilder.build());
+									notificationManager.notify(AkiApplication.EXITED_ROOM_NOTIFICATION_ID, notifyBigBuilder.build());
 								}
 							}
 
