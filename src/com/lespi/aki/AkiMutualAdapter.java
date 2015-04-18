@@ -306,10 +306,6 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 				}.execute();
 			}			
 		}
-		else {
-			Bitmap coverPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_cover);
-			userCoverView.setImageBitmap(coverPlaceholder);
-		}
 		
 		if ( activity != null ){
 			

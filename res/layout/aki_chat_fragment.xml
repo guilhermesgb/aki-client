@@ -264,7 +264,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="0dp"
-                android:contentDescription="@string/com_lespi_aki_main_chat_send_hint"
+                android:contentDescription="@string/com_lespi_aki_main_chat_input_hint"
                 android:padding="10dp"
                 android:src="@drawable/icon_send"
                 android:textColor="#e5e5e5"

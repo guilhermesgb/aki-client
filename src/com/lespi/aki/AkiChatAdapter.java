@@ -635,13 +635,6 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		}
 		else {
 
-//TODO TAKE THIS OUT SO THAT ANONYMOUS vs. ANONYMOUS AND ANONYMOUS vs. IDENTIFIED CAN ALSO LIKE EACH OTHER
-//			if (AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
-//					|| AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId())){
-//				viewHolder.senderLiked.setVisibility(View.GONE);
-//				return rowView;
-//			}
-
 			final GestureDetector mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
@@ -734,24 +727,28 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 					viewHolder.senderLiked.startAnimation(jumpAnimation);
 				}
 			}else{
-				if ( viewHolder.senderLiked.getVisibility() != View.INVISIBLE ){
-					Animation fadeOutAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_out);
-					fadeOutAnimation.setAnimationListener(new AnimationListener() {
-
-						@Override
-						public void onAnimationStart(Animation animation) {}
-
-						@Override
-						public void onAnimationRepeat(Animation animation) {}
-
-						@Override
-						public void onAnimationEnd(Animation animation) {
-							viewHolder.senderLiked.setVisibility(View.INVISIBLE);
-						}
-					});
-					viewHolder.senderLiked.setVisibility(View.VISIBLE);
-					viewHolder.senderLiked.startAnimation(fadeOutAnimation);
-				}
+//				if ( viewHolder.senderLiked.getVisibility() != View.INVISIBLE ){
+//					Animation fadeOutAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_out);
+//					fadeOutAnimation.setAnimationListener(new AnimationListener() {
+//
+//						@Override
+//						public void onAnimationStart(Animation animation) {}
+//
+//						@Override
+//						public void onAnimationRepeat(Animation animation) {}
+//
+//						@Override
+//						public void onAnimationEnd(Animation animation) {
+//							viewHolder.senderLiked.setVisibility(View.INVISIBLE);
+//						}
+//					});
+//					viewHolder.senderLiked.setVisibility(View.VISIBLE);
+//					viewHolder.senderLiked.startAnimation(fadeOutAnimation);
+//				}
+				/*
+				 * Replacing all commented above with:
+				 */
+				viewHolder.senderLiked.setVisibility(View.INVISIBLE);
 			}
 		}
 		return rowView;
