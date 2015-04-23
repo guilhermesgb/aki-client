@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
@@ -49,6 +50,7 @@ public abstract class AkiHttpRequestUtil {
 				String payload = params[3];
 
 				HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+				urlConn.setConnectTimeout(5000);
 				try{
 
 					if ( headers != null ){
@@ -112,6 +114,8 @@ public abstract class AkiHttpRequestUtil {
 					urlConn.disconnect();
 				}
 
+			} catch (SocketTimeoutException e) {
+				e.printStackTrace();
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			} catch (IOException e){
