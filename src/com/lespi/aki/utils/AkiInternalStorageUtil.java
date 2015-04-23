@@ -104,7 +104,7 @@ public class AkiInternalStorageUtil {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			Log.e(AkiApplication.TAG, "Could not retrieve the messages in chat room " + chatRoom + ".");
-			e.printStackTrace();			
+			e.printStackTrace();
 		}
 		return messages;
 	}
@@ -190,6 +190,24 @@ public class AkiInternalStorageUtil {
 		}
 	}
 
+	public static synchronized void clearTemporaryMessages(Context context, String chatRoom) {
+
+		try {
+			PriorityQueue<JsonObject> messages = retrieveMessages(context, chatRoom);
+			for ( JsonObject temporaryMessage : messages ){
+				if ( Boolean.valueOf(temporaryMessage.get("is_temporary").asString()) ){
+					messages.remove(temporaryMessage);
+				}
+			}
+			ObjectOutputStream oos = new ObjectOutputStream(context.openFileOutput(
+					context.getString(R.string.com_lespi_aki_data_chat_messages)+chatRoom, Context.MODE_PRIVATE));
+			oos.writeObject(messages);
+			oos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static synchronized Set<String> retrieveTimestamps(Context context, String chatRoom) {
 

@@ -320,6 +320,7 @@ public class AkiServerUtil {
 					" has address {" + currentChatRoom + "}.");
 			PushService.subscribe(context, newChatRoom, AkiMainActivity.class);
 			Log.i(AkiServerUtil.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
+			AkiInternalStorageUtil.clearTemporaryMessages(context, newChatRoom);
 			return;
 		}
 		else{
