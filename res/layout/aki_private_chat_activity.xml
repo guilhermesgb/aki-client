@@ -56,7 +56,10 @@
         android:gravity="center"
         android:textColor="#FFF3E7"
         android:textSize="12sp"
-        android:textStyle="bold|italic" />
+        android:textStyle="bold|italic"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:maxLength="25" />
 
     <ListView
         android:id="@+id/com_lespi_aki_private_messages_list"

@@ -41,7 +41,9 @@
         android:layout_toEndOf="@+id/com_lespi_aki_mutual_interest_user_picture"
         android:textColor="#ffffff"
         android:textSize="@dimen/settings_fullname_size"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:maxLines="2"
+        android:ellipsize="end" />
 
     <TextView
         android:id="@+id/com_lespi_aki_mutual_interest_user_nick"
@@ -56,7 +58,10 @@
         android:layout_marginStart="50dp"
         android:textColor="#ffffff"
         android:textSize="@dimen/mutual_panel_nick_size"
-        android:textStyle="italic" />
+        android:textStyle="italic"
+        android:maxLines="1"
+        android:maxLength="14"
+        android:ellipsize="end" />
 
     <ImageView
         android:id="@+id/com_lespi_aki_mutual_interest_user_gender"
