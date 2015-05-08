@@ -35,6 +35,7 @@ import android.widget.TextView;
 
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
+import com.squareup.picasso.Picasso;
 
 public class AkiMutualAdapter extends ArrayAdapter<String> {
 
@@ -102,6 +103,7 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 		public ImageView userGender;
 		public TextView userUnreadCounter;
 		public ImageButton userRemoveMatch;
+		public ImageView userCover;
 	}
 	
 	@SuppressLint("CutPasteId")
@@ -146,6 +148,8 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 					.findViewById(R.id.com_lespi_aki_mutual_interest_user_unread_counter);
 			viewHolder.userRemoveMatch = (ImageButton) rowView
 					.findViewById(R.id.com_lespi_aki_mutual_interest_delete_match_btn);
+			viewHolder.userCover = (ImageView) rowView
+					.findViewById(R.id.com_lespi_aki_mutual_interest_user_cover);
 			rowView.setTag(viewHolder);
 		}
 
@@ -160,6 +164,9 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 			viewHolder.userPicture.setImageBitmap(getRoundedBitmap(picturePlaceholder));
 			viewHolder.userName.setVisibility(View.GONE);
 			viewHolder.userRemoveMatch.setVisibility(View.GONE);
+//			Bitmap coverPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_cover);
+//			viewHolder.userCover.setImageBitmap(coverPlaceholder);
+			Picasso.with(context).load(R.drawable.no_cover).resize(851, 315).centerCrop().into(viewHolder.userCover);
 			return rowView;
 		}
 
@@ -262,20 +269,20 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 			}
 		}
 
-		final ImageView userCoverView = (ImageView) rowView.findViewById(R.id.com_lespi_aki_mutual_interest_user_cover);
-		userCoverView.setAdjustViewBounds(false);
-		userCoverView.setMinimumWidth(851);
-		userCoverView.setMinimumHeight(315);
-		userCoverView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		viewHolder.userCover.setAdjustViewBounds(false);
+		viewHolder.userCover.setMinimumWidth(851);
+		viewHolder.userCover.setMinimumHeight(315);
+		viewHolder.userCover.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
 		if ( !AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, userId) ){
 			Bitmap cachedCoverPhoto = AkiInternalStorageUtil.getCachedUserCoverPhoto(context, userId);
 			if ( cachedCoverPhoto != null ){
-				userCoverView.setImageBitmap(cachedCoverPhoto);
+				viewHolder.userCover.setImageBitmap(cachedCoverPhoto);
 			}
 			else {
-				Bitmap coverPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_cover);
-				userCoverView.setImageBitmap(coverPlaceholder);
+//				Bitmap coverPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_cover);
+//				viewHolder.userCover.setImageBitmap(coverPlaceholder);
+				Picasso.with(context).load(R.drawable.no_cover).resize(851, 315).centerCrop().into(viewHolder.userCover);
 				new AsyncTask<Void, Void, Bitmap>() {
 					@Override
 					protected Bitmap doInBackground(Void... params) {
@@ -297,7 +304,7 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 					@Override
 					protected void onPostExecute(Bitmap picture) {
 						if ( picture != null ){
-							userCoverView.setImageBitmap(picture);
+							viewHolder.userCover.setImageBitmap(picture);
 						}
 						else{
 							Log.e(AkiApplication.TAG, "A problem happened while trying to query user cover photo from our server.");
