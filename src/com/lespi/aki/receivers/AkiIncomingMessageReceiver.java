@@ -42,9 +42,6 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 		String timestamp = incomingData.get("timestamp").asString();
 		
 		AkiInternalStorageUtil.storePushedMessage(context, chatRoom, from, message, timestamp);
-		
-		intent.setClass(context, AkiMainActivity.class);
-		intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		if ( !AkiApplication.IN_BACKGROUND && AkiServerUtil.isActiveOnServer() ){
 
@@ -104,6 +101,10 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 				notifyBigBuilder.addLine(contentLines[i]);
 			}
 			notifyBigBuilder.setBigContentTitle(contentTitle);
+			intent.setClass(context, AkiMainActivity.class);
+			if ( AkiApplication.IN_BACKGROUND ){
+				intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+			}
 			PendingIntent pending = PendingIntent.getActivity(context, 0, intent, 0);
 			notifyBuilder.setContentIntent(pending);
 			
