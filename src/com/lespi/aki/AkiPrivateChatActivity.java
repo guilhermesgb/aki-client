@@ -40,13 +40,12 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.aki_private_chat_activity);
 
-		final String currentUserId = AkiInternalStorageUtil.getCurrentUser(getApplicationContext());
 
 		String userId = AkiInternalStorageUtil.getLastPrivateMessageSender(getApplicationContext());
-		refreshPrivateChat(currentUserId, userId);
+		refreshPrivateChat(userId);
 	}
 
-	public void refreshPrivateChat(final String currentUserId, final String userId){
+	public void refreshPrivateChat(final String userId){
 
 		final Context context = getApplicationContext();
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -60,6 +59,8 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		AkiApplication.setCurrentPrivateId(userId);
 		AkiApplication.isNowInForeground();
 
+		final String currentUserId = AkiInternalStorageUtil.getCurrentUser(getApplicationContext());
+		
 		final String privateChatRoom = AkiServerUtil.buildPrivateChatId(context, userId);
 
 		AkiInternalStorageUtil.setPrivateChatRoomUnreadCounter(context, privateChatRoom, 0);
@@ -239,8 +240,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 
 		String userId = AkiInternalStorageUtil.getLastPrivateMessageSender(getApplicationContext());
 		if ( userId != null ){
-			final String currentUserId = AkiInternalStorageUtil.getCurrentUser(getApplicationContext());
-			refreshPrivateChat(userId, currentUserId);
+			refreshPrivateChat(userId);
 		}
 		
 		super.onStart();
@@ -254,8 +254,7 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 
 		String userId = AkiInternalStorageUtil.getLastPrivateMessageSender(getApplicationContext());
 		if ( userId != null ){
-			final String currentUserId = AkiInternalStorageUtil.getCurrentUser(getApplicationContext());
-			refreshPrivateChat(userId, currentUserId);
+			refreshPrivateChat(userId);
 		}
 		
 		super.onStart();

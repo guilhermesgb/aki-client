@@ -178,7 +178,7 @@ public abstract class AkiHttpRequestUtil {
 		}
 
 		HttpRequestExecutor executor = (HttpRequestExecutor) new HttpRequestExecutor(callback);
-		executor.execute(method, "https://" + API_LOCATION + url,
+		executor.execute(method, "http://" + API_LOCATION + url,
 				headers != null ? headers.toString().trim() : null,
 						payload != null ? payload.toString().trim() : null);
 	}
@@ -219,7 +219,7 @@ public abstract class AkiHttpRequestUtil {
 
 		HttpRequestExecutor executor = (HttpRequestExecutor) new HttpRequestExecutor(callback);
 		try {
-			return executor.execute(method, "https://" + API_LOCATION + url,
+			return executor.execute(method, "http://" + API_LOCATION + url,
 					headers != null ? headers.toString().trim() : null,
 							payload != null ? payload.toString().trim() : null).get();
 		} catch (InterruptedException e) {
