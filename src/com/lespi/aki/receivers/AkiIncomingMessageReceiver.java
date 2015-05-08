@@ -20,6 +20,7 @@ import com.lespi.aki.R;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
+import com.lespi.aki.utils.AkiServerUtil;
 
 public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 
@@ -45,7 +46,7 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 		intent.setClass(context, AkiMainActivity.class);
 		intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-		if ( !AkiApplication.IN_BACKGROUND ){
+		if ( !AkiApplication.IN_BACKGROUND && AkiServerUtil.isActiveOnServer() ){
 
 			AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
 			List<JsonObject> messages = AkiChatAdapter.toJsonObjectList(AkiInternalStorageUtil.retrieveMessages(context,

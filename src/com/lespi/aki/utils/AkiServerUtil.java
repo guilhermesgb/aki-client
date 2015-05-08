@@ -311,6 +311,7 @@ public class AkiServerUtil {
 
 			@Override
 			public void onSuccess(Object response) {
+				setActiveOnServer(false);
 				JsonObject responseJSON = (JsonObject) response;
 				String responseCode = responseJSON.get("code").asString();
 				if ( responseCode.equals("ok") ){
