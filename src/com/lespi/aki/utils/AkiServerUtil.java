@@ -305,7 +305,8 @@ public class AkiServerUtil {
 		});
 	}
 
-	public static void sendStealthPresenceToServer(Context context, String userId, final AsyncCallback callback) {
+	public static void sendStealthPresenceToServer(final Context context, String userId, final AsyncCallback callback) {
+		
 		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/stealth/"+userId, new AsyncCallback() {
 
 			@Override
@@ -314,6 +315,10 @@ public class AkiServerUtil {
 				String responseCode = responseJSON.get("code").asString();
 				if ( responseCode.equals("ok") ){
 					callback.onSuccess(response);
+				}
+				JsonValue updateMutualInterests = responseJSON.get("update_mutual_interests");
+				if ( updateMutualInterests != null ){
+					getMutualInterests(context);
 				}
 			}
 
