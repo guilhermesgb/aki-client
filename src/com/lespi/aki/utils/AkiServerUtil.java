@@ -305,6 +305,32 @@ public class AkiServerUtil {
 		});
 	}
 
+	public static void sendStealthPresenceToServer(Context context, String userId, final AsyncCallback callback) {
+		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/stealth/"+userId, new AsyncCallback() {
+
+			@Override
+			public void onSuccess(Object response) {
+				JsonObject responseJSON = (JsonObject) response;
+				String responseCode = responseJSON.get("code").asString();
+				if ( responseCode.equals("ok") ){
+					callback.onSuccess(response);
+				}
+			}
+
+			@Override
+			public void onFailure(Throwable failure) {
+				Log.e(AkiServerUtil.TAG, "Could not send stealth presence.");
+				callback.onFailure(failure);
+			}
+
+			@Override
+			public void onCancel() {
+				Log.e(AkiServerUtil.TAG, "Endpoint:sendStealthPresenceToServer callback canceled.");
+				callback.onCancel();
+			}
+		});
+	}
+	
 	public static synchronized void enterChatRoom(Context context, String currentUserId,
 			String newChatRoom, boolean shouldBeAnonymous) {
 
@@ -711,7 +737,7 @@ public class AkiServerUtil {
 			chatAdapter.notifyDataSetChanged();
 			payload.add("message", message);
 
-			AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+currentUserId+"/"+userId, payload, new AsyncCallback() {
+			AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+userId, payload, new AsyncCallback() {
 				@Override
 				public void onSuccess(Object response) {
 					AkiInternalStorageUtil.resetTimeout(context, chatRoom);
@@ -732,7 +758,7 @@ public class AkiServerUtil {
 			});
 		}
 		else {
-			AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+currentUserId+"/"+userId, payload, null);
+			AkiHttpRequestUtil.doPOSTHttpRequest(context, "/private_message/"+userId, payload, null);
 		}
 	}
 
