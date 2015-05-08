@@ -96,6 +96,8 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 			status.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_status_pattern), "this match"));
 		}
 
+		refreshReceivedMessages(userId, privateChatRoom);
+		
 		AkiServerUtil.sendStealthPresenceToServer(context, currentUserId, new AsyncCallback() {
 			@Override
 			public void onSuccess(Object response) {
@@ -177,7 +179,6 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 						}
 					}
 				});
-				refreshReceivedMessages(userId, privateChatRoom);
 				AkiServerUtil.getPrivateMessages(context, userId);				
 			}
 			@Override

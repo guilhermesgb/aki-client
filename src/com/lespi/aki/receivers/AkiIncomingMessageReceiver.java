@@ -4,7 +4,6 @@ import java.util.List;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +14,6 @@ import android.util.Log;
 import com.lespi.aki.AkiApplication;
 import com.lespi.aki.AkiChatAdapter;
 import com.lespi.aki.AkiChatFragment;
-import com.lespi.aki.AkiMainActivity;
 import com.lespi.aki.R;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
@@ -94,19 +92,14 @@ public class AkiIncomingMessageReceiver extends BroadcastReceiver {
 			        .setTicker(contentTicker)
 			        .setSubText(contentTicker)
 			        .setSound(alarmSound)
-			        .setAutoCancel(true);
+			        .setAutoCancel(true)
+			        .setOnlyAlertOnce(true);
 			Notification.InboxStyle notifyBigBuilder = new Notification.InboxStyle(notifyBuilder);
 			String[] contentLines = AkiApplication.INCOMING_MESSAGES_CACHE.split("\n");
 			for ( int i=0; i<contentLines.length; i++ ){
 				notifyBigBuilder.addLine(contentLines[i]);
 			}
 			notifyBigBuilder.setBigContentTitle(contentTitle);
-			intent.setClass(context, AkiMainActivity.class);
-			if ( AkiApplication.IN_BACKGROUND ){
-				intent.setFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-			}
-			PendingIntent pending = PendingIntent.getActivity(context, 0, intent, 0);
-			notifyBuilder.setContentIntent(pending);
 			
 			NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.notify(AkiApplication.INCOMING_MESSAGE_NOTIFICATION_ID, notifyBigBuilder.build());
