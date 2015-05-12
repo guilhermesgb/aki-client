@@ -187,6 +187,7 @@ public class AkiChatFragment extends SherlockFragment {
 												chatAdapter.clear();
 
 												clearMembersList(activity);
+												AkiInternalStorageUtil.setAloneSetting(activity.getApplicationContext(), false);
 												
 												String contentTitle = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_title);
 												String contentText = activity.getApplicationContext().getString(R.string.com_lespi_aki_notif_exit_text);
@@ -277,6 +278,7 @@ public class AkiChatFragment extends SherlockFragment {
 												chatAdapter.clear();
 
 												clearMembersList(activity);
+												AkiInternalStorageUtil.setAloneSetting(activity.getApplicationContext(), false);
 												
 												CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_skipped_chat);
 												Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
@@ -324,6 +326,13 @@ public class AkiChatFragment extends SherlockFragment {
 							@Override
 							public void onClick(View view) {
 
+								if ( !AkiInternalStorageUtil.getAloneSetting(activity.getApplicationContext()) ){
+									CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_cannot_be_global);
+									Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
+									toast.show();									
+									return;
+								}
+								
 								final GroupChatMode currentChatMode = AkiApplication.chatState;
 								final GroupChatMode newChatMode = currentChatMode == GroupChatMode.LOCAL ? GroupChatMode.GLOBAL : GroupChatMode.LOCAL;
 								new AlertDialog.Builder(activity)
@@ -370,6 +379,7 @@ public class AkiChatFragment extends SherlockFragment {
 						skipChatBtn.setOnClickListener(skipBtnClickListener);
 						final ImageButton globalChatBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_global_btn);
 						globalChatBtn.setEnabled(false);
+						globalChatBtn.setImageAlpha(128);
 						globalChatBtn.setOnClickListener(globalBtnClickListener);
 						
 						sendMessageBtn.setEnabled(false);
@@ -479,7 +489,6 @@ public class AkiChatFragment extends SherlockFragment {
 
 										exitChatBtn.setEnabled(true);
 										skipChatBtn.setEnabled(true);
-										globalChatBtn.setEnabled(true);
 
 										JsonObject responseJSON = (JsonObject) response;
 										final JsonValue chatRoomId = responseJSON.get("chat_room");
@@ -671,10 +680,6 @@ public class AkiChatFragment extends SherlockFragment {
 
 		AkiInternalStorageUtil.setCurrentUser(activity.getApplicationContext(), currentUserId);
 
-		//		final LinearLayout membersList = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
-		//		membersList.setVisibility(View.VISIBLE);
-		//TODO THIS IS RELATED AS WELL, GUESS CAN TAKE THIS OUT
-
 		RelativeLayout background = (RelativeLayout) activity.findViewById(R.id.com_lespi_aki_main_background);
 		background.setVisibility(View.GONE);
 
@@ -748,7 +753,6 @@ public class AkiChatFragment extends SherlockFragment {
 				listView.setWillNotCacheDrawing(true);
 
 				refreshMembersList(activity, currentUser.getId());
-				//TODO APPARENTLY HAVE TO REMOVE THE OTHER ONE TO AVOID RACE CONDITION
 			}
 		}.execute();
 	}
@@ -784,8 +788,14 @@ public class AkiChatFragment extends SherlockFragment {
 				TextView status = (TextView) activity.findViewById(R.id.com_lespi_aki_main_chat_status);
 				if ( memberIds.size() == 1 ){
 					status.setText(context.getString(R.string.com_lespi_aki_main_chat_status_alone));
+					AkiInternalStorageUtil.setAloneSetting(context, true);
+					final ImageButton globalChatBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_global_btn);
+					globalChatBtn.setEnabled(true);
+					globalChatBtn.setImageAlpha(255);
+					
 				}
 				else {
+					AkiInternalStorageUtil.setAloneSetting(context, false);
 					status.setText(String.format(context.getString(R.string.com_lespi_aki_main_chat_status_pattern),
 						memberIds.size() == 2
 						? context.getString(R.string.com_lespi_aki_main_chat_status_subpattern_single_person)
@@ -870,7 +880,6 @@ public class AkiChatFragment extends SherlockFragment {
 
 				LinearLayout currentMemberIcons = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_chat_members_list);
 				currentMemberIcons.setVisibility(View.VISIBLE);
-				//TODO THIS IS RELATED TO THE OTHER TOODS
 			}
 
 			@Override

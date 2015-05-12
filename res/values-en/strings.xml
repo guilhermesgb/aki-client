@@ -100,6 +100,7 @@
     <string name="com_lespi_aki_data_matches">user-matches</string>
     <string name="com_lespi_aki_data_mandatory_setting_missing">mandatory-setting-missing</string>
     <string name="com_lespi_aki_data_anonymous_setting">anonymous-setting_</string>
+	<string name="com_lespi_aki_data_alone_setting">alone-setting</string>	
     <string name="com_lespi_aki_data_geofence_should_update">geofence-should-update</string>
     <string name="com_lespi_aki_data_geofence_center">geofence-center</string>
     <string name="com_lespi_aki_data_geofence_radius">geofence-radius</string>
@@ -120,5 +121,6 @@
     <string name="com_lespi_aki_toast_nickname_cannot_be_blank">Nickname cannot be blank!</string>
     <string name="com_lespi_aki_toast_nickname_set">Thanks for setting your nickname!</string>
     <string name="com_lespi_aki_toast_anonymous_cannot_be_set">In this group chat room, you cannot be anonymous again!</string>
+    <string name="com_lespi_aki_toast_cannot_be_global">You must be alone in a group chat room to switch to GLOBAL mode!</string>
 
 </resources>

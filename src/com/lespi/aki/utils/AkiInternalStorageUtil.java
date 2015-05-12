@@ -539,6 +539,20 @@ public class AkiInternalStorageUtil {
 		editor.commit();
 	}
 
+	public static boolean getAloneSetting(Context context) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_alone_setting), false);
+	}
+
+	public static synchronized void setAloneSetting(Context context, boolean alone) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_alone_setting), alone);
+		editor.commit();
+	}
+	
 	public static class AkiLocation implements Serializable {
 		private static final long serialVersionUID = 222707456230422059L;
 		public double latitude;
