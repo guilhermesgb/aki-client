@@ -33,6 +33,7 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnClosedListener;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnOpenedListener;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
+import com.lespi.aki.AkiApplication.GroupChatMode;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.services.AkiIncomingTransitionsIntentService;
@@ -321,7 +322,7 @@ LocationClient.OnRemoveGeofencesResultListener {
 	public void onConnected(Bundle extras) {
 		Log.v(AkiMainActivity.TAG, "AkiMAINActivity$onConnected");
 		Log.i(AkiMainActivity.TAG, "Just connected to Location Service!");
-		if ( AkiApplication.LOGGED_IN && locationServicesConnected() ){
+		if ( AkiApplication.LOGGED_IN && locationServicesConnected() && AkiApplication.chatState == GroupChatMode.LOCAL ){
 			startPeriodicLocationUpdates();
 		}
 	}

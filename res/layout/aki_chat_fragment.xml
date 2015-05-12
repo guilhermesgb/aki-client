@@ -105,6 +105,7 @@
                 android:layout_height="@dimen/button_height"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
+                android:gravity="center_horizontal"
                 android:orientation="horizontal" >
 
                 <ImageButton
@@ -112,7 +113,6 @@
                     style="?android:attr/borderlessButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/button_height"
-                    android:layout_marginEnd="20sp"
                     android:contentDescription="@string/com_lespi_aki_main_chat_skip_text"
                     android:src="@drawable/icon_skip" />
 
@@ -121,9 +121,16 @@
                     style="?android:attr/borderlessButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/button_height"
-                    android:layout_marginStart="20sp"
                     android:contentDescription="@string/com_lespi_aki_main_chat_exit_text"
                     android:src="@drawable/icon_exit" />
+
+                <ImageButton
+                    android:id="@+id/com_lespi_aki_main_chat_global_btn"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/button_height"
+                    android:contentDescription="@string/com_lespi_aki_main_chat_exit_text"
+                    android:src="@drawable/icon_global" />
             </LinearLayout>
 
             <ImageButton

@@ -8,6 +8,7 @@ import android.app.Application;
 import android.os.Build;
 import android.util.Log;
 
+import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.PushService;
@@ -34,7 +35,20 @@ public class AkiApplication extends Application {
 	public static final String SYSTEM_SENDER_ID = "System";
 	public static final String SYSTEM_EMPTY_ID = "Empty";
 	
-	public static final float MIN_RADIUS = 0.03f; // In kilometers
+	public static final float MIN_RADIUS = 0.15f; // In kilometers, so 150 meters
+
+	public static final AkiLocation globalLocation = new AkiLocation(-57.719670, -136.896077);
+	
+    public enum GroupChatMode {
+    	LOCAL(R.drawable.icon_local), GLOBAL(R.drawable.icon_global);
+    	
+    	public int icon;
+    	private GroupChatMode(int icon){
+    		this.icon = icon;
+    	}
+    }
+    
+    public static GroupChatMode chatState = GroupChatMode.LOCAL;
 	
     public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
@@ -134,5 +148,12 @@ public class AkiApplication extends Application {
 			Log.wtf(AkiApplication.TAG, "IS SHOWING PRIVATE CHAT WITH {" + userId + "}!!"); //TODO remove this
 		}
 	}
+
+	public static void setGroupChatModeToLocal(){
+		chatState = GroupChatMode.LOCAL;
+	}
 	
+	public static void setGroupChatModeToGlobal(){
+		chatState = GroupChatMode.GLOBAL;
+	}
 }

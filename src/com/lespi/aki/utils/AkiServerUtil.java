@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.lespi.aki.AkiApplication;
+import com.lespi.aki.AkiApplication.GroupChatMode;
 import com.lespi.aki.AkiChatAdapter;
 import com.lespi.aki.AkiChatFragment;
 import com.lespi.aki.AkiMainActivity;
@@ -133,7 +134,13 @@ public class AkiServerUtil {
 
 		boolean anonymous = AkiInternalStorageUtil.getAnonymousSetting(context, userId);
 		payload.add("anonymous", anonymous);
-		AkiLocation location = AkiInternalStorageUtil.getCachedUserLocation(context, userId);
+		AkiLocation location = null;
+		if ( AkiApplication.chatState == GroupChatMode.LOCAL ){
+			location = AkiInternalStorageUtil.getCachedUserLocation(context, userId);
+		}
+		else {
+			location = AkiApplication.globalLocation;
+		}
 		if ( location != null ){
 			JsonObject locationJSON = new JsonObject();
 			locationJSON.add("lat", location.latitude);
