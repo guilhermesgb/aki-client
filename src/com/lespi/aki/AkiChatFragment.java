@@ -321,7 +321,7 @@ public class AkiChatFragment extends SherlockFragment {
 							}
 						};
 
-						final GroupChatMode currentChatMode = AkiApplication.chatState;
+						final GroupChatMode currentChatMode = AkiApplication.getChatMode(activity.getApplicationContext());
 						final GroupChatMode otherChatMode = currentChatMode == GroupChatMode.LOCAL ? GroupChatMode.GLOBAL : GroupChatMode.LOCAL;
 
 						final OnClickListener globalBtnClickListener = new OnClickListener() {
@@ -329,7 +329,9 @@ public class AkiChatFragment extends SherlockFragment {
 							@Override
 							public void onClick(View view) {
 
-								if ( !AkiInternalStorageUtil.getAloneSetting(activity.getApplicationContext()) ){
+								Context context = activity.getApplicationContext();
+								
+								if ( !AkiInternalStorageUtil.getAloneSetting(context) && AkiApplication.getChatMode(context) == GroupChatMode.LOCAL ){
 									CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_cannot_be_global);
 									Toast toast = Toast.makeText(activity.getApplicationContext(), toastText, Toast.LENGTH_SHORT);
 									toast.show();									
@@ -491,6 +493,10 @@ public class AkiChatFragment extends SherlockFragment {
 
 										exitChatBtn.setEnabled(true);
 										skipChatBtn.setEnabled(true);
+										if ( AkiApplication.getChatMode(activity.getApplicationContext()) == GroupChatMode.GLOBAL ){
+											globalChatBtn.setEnabled(true);
+											globalChatBtn.setImageAlpha(255);
+										}
 
 										JsonObject responseJSON = (JsonObject) response;
 										final JsonValue chatRoomId = responseJSON.get("chat_room");
@@ -514,7 +520,8 @@ public class AkiChatFragment extends SherlockFragment {
 											AkiServerUtil.getMessages(activity.getApplicationContext());
 										}
 
-										if ( activity.locationServicesConnected() && AkiApplication.chatState == GroupChatMode.LOCAL ){
+										if ( activity.locationServicesConnected()
+												&& AkiApplication.getChatMode(activity.getApplicationContext()) == GroupChatMode.LOCAL ){
 											activity.startPeriodicLocationUpdates();
 										}
 									}
@@ -676,7 +683,8 @@ public class AkiChatFragment extends SherlockFragment {
 		installation.put("uid", currentUserId);
 		installation.saveInBackground();
 
-		if ( activity.locationServicesConnected() && AkiApplication.chatState == GroupChatMode.LOCAL ){
+		if ( activity.locationServicesConnected()
+				&& AkiApplication.getChatMode(activity.getApplicationContext()) == GroupChatMode.LOCAL ){
 			activity.startPeriodicLocationUpdates();
 		}
 
@@ -699,13 +707,13 @@ public class AkiChatFragment extends SherlockFragment {
 
 	private void switchGroupChatState(AkiMainActivity activity){
 		final ImageButton globalChatBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_global_btn);
-		if ( AkiApplication.chatState == GroupChatMode.LOCAL ){
-			AkiApplication.setGroupChatModeToGlobal();
+		if ( AkiApplication.getChatMode(activity.getApplicationContext()) == GroupChatMode.LOCAL ){
+			AkiApplication.setGroupChatModeToGlobal(activity.getApplicationContext());
 			activity.stopPeriodicLocationUpdates();
 			globalChatBtn.setImageDrawable(getResources().getDrawable(R.drawable.icon_local));
 		}
 		else {
-			AkiApplication.setGroupChatModeToLocal();
+			AkiApplication.setGroupChatModeToLocal(activity.getApplicationContext());
 			if ( activity.locationServicesConnected() ){
 				activity.startPeriodicLocationUpdates();
 				globalChatBtn.setImageDrawable(getResources().getDrawable(R.drawable.icon_global));
@@ -930,7 +938,13 @@ public class AkiChatFragment extends SherlockFragment {
 		listView.setWillNotCacheDrawing(true);
 
 		refreshMembersList(activity, currentUserId);
-		//TODO APPARENTLY HAVE TO REMOVE TO AVOID RACE CONDITION
+		
+		if ( !AkiInternalStorageUtil.getAloneSetting(activity.getApplicationContext())
+				&& AkiApplication.getChatMode(activity.getApplicationContext()) == GroupChatMode.LOCAL ) {
+			final ImageButton globalChatBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_global_btn);
+			globalChatBtn.setEnabled(false);
+			globalChatBtn.setImageAlpha(128);			
+		}
 	}
 
 	@Override

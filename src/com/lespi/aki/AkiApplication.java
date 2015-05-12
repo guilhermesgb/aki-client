@@ -5,9 +5,11 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
+import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
@@ -47,8 +49,6 @@ public class AkiApplication extends Application {
     	}
     }
     
-    public static GroupChatMode chatState = GroupChatMode.LOCAL;
-	
     public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
     public static final int UPDATE_INTERVAL_IN_SECONDS = 45;
@@ -148,11 +148,15 @@ public class AkiApplication extends Application {
 		}
 	}
 
-	public static void setGroupChatModeToLocal(){
-		chatState = GroupChatMode.LOCAL;
+	public static void setGroupChatModeToLocal(Context context){
+		AkiInternalStorageUtil.setChatModeGlobalEnabled(context, false);
 	}
 	
-	public static void setGroupChatModeToGlobal(){
-		chatState = GroupChatMode.GLOBAL;
+	public static void setGroupChatModeToGlobal(Context context){
+		AkiInternalStorageUtil.setChatModeGlobalEnabled(context, true);
+	}
+
+	public static GroupChatMode getChatMode(Context context) {
+		return AkiInternalStorageUtil.getChatModeGlobalEnabled(context) ? GroupChatMode.GLOBAL : GroupChatMode.LOCAL;
 	}
 }

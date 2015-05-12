@@ -322,7 +322,8 @@ LocationClient.OnRemoveGeofencesResultListener {
 	public void onConnected(Bundle extras) {
 		Log.v(AkiMainActivity.TAG, "AkiMAINActivity$onConnected");
 		Log.i(AkiMainActivity.TAG, "Just connected to Location Service!");
-		if ( AkiApplication.LOGGED_IN && locationServicesConnected() && AkiApplication.chatState == GroupChatMode.LOCAL ){
+		if ( AkiApplication.LOGGED_IN && locationServicesConnected()
+				&& AkiApplication.getChatMode(getApplicationContext()) == GroupChatMode.LOCAL ){
 			startPeriodicLocationUpdates();
 		}
 	}

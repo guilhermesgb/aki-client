@@ -552,6 +552,20 @@ public class AkiInternalStorageUtil {
 		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_alone_setting), alone);
 		editor.commit();
 	}
+
+	public static boolean getChatModeGlobalEnabled(Context context) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		return sharedPref.getBoolean(context.getString(R.string.com_lespi_aki_data_global_setting), false);
+	}
+
+	public static void setChatModeGlobalEnabled(Context context, boolean globalEnabled) {
+
+		SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.com_lespi_aki_volatile_preferences), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+		editor.putBoolean(context.getString(R.string.com_lespi_aki_data_global_setting), globalEnabled);
+		editor.commit();
+	}
 	
 	public static class AkiLocation implements Serializable {
 		private static final long serialVersionUID = 222707456230422059L;

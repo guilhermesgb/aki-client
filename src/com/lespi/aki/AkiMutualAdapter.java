@@ -273,15 +273,13 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 		viewHolder.userCover.setMinimumWidth(851);
 		viewHolder.userCover.setMinimumHeight(315);
 		viewHolder.userCover.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
+		
 		if ( !AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, userId) ){
 			Bitmap cachedCoverPhoto = AkiInternalStorageUtil.getCachedUserCoverPhoto(context, userId);
 			if ( cachedCoverPhoto != null ){
 				viewHolder.userCover.setImageBitmap(cachedCoverPhoto);
 			}
 			else {
-//				Bitmap coverPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_cover);
-//				viewHolder.userCover.setImageBitmap(coverPlaceholder);
 				Picasso.with(context).load(R.drawable.no_cover).resize(851, 315).centerCrop().into(viewHolder.userCover);
 				new AsyncTask<Void, Void, Bitmap>() {
 					@Override
@@ -312,6 +310,10 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 					}
 				}.execute();
 			}			
+		}
+		else {
+			viewHolder.userGender.setVisibility(View.GONE);
+			Picasso.with(context).load(R.drawable.no_cover).resize(851, 315).centerCrop().into(viewHolder.userCover);
 		}
 		
 		if ( activity != null ){

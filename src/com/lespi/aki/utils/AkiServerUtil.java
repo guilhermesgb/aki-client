@@ -135,7 +135,7 @@ public class AkiServerUtil {
 		boolean anonymous = AkiInternalStorageUtil.getAnonymousSetting(context, userId);
 		payload.add("anonymous", anonymous);
 		AkiLocation location = null;
-		if ( AkiApplication.chatState == GroupChatMode.LOCAL ){
+		if ( AkiApplication.getChatMode(context) == GroupChatMode.LOCAL ){
 			location = AkiInternalStorageUtil.getCachedUserLocation(context, userId);
 		}
 		else {
@@ -397,13 +397,13 @@ public class AkiServerUtil {
 			Log.w(AkiServerUtil.TAG, "Just gave a 'you've been redirected' message");
 			AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
 					String.format(context.getResources().getString(R.string.com_lespi_aki_message_system_redirected_to_new_chat_room,
-							AkiApplication.chatState.toString())));
+							AkiApplication.getChatMode(context).toString())));
 		}
 		else{
 			Log.w(AkiServerUtil.TAG, "Just gave a 'you've joined chat' message");
 			AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
 					String.format(context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room),
-							AkiApplication.chatState.toString()));
+							AkiApplication.getChatMode(context).toString()));
 		}
 
 		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);
