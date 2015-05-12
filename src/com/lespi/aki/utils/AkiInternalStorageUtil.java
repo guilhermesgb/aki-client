@@ -350,12 +350,12 @@ public class AkiInternalStorageUtil {
 	public static void cacheLikeMutualInterests(Context context) {
 
 		Set<String> matches = retrieveMatches(context);
-		Set<String> currentChatMembers = getCurrentChatMembers(context);
+//		Set<String> currentChatMembers = getCurrentChatMembers(context); // No need to only cache like users currently in the chat room
 		for ( String userId : matches ){
-			if ( currentChatMembers.contains(userId) ){
+//			if ( currentChatMembers.contains(userId) ){
 				AkiServerUtil.sendLikeToServer(context, userId);
 				cacheLikeUser(context, userId);
-			}
+//			}
 		}
 	}
 
