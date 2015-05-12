@@ -40,7 +40,6 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.aki_private_chat_activity);
 
-
 		String userId = AkiInternalStorageUtil.getLastPrivateMessageSender(getApplicationContext());
 		refreshPrivateChat(userId);
 	}
@@ -82,18 +81,19 @@ public class AkiPrivateChatActivity extends SherlockActivity {
 			anonymousBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_identified));
 		}
 
-		TextView headerView = (TextView) findViewById(R.id.com_lespi_aki_private_chat_header);
-		headerView.setText(context.getString(R.string.com_lespi_aki_private_chat_header_text));
 		String headerName = AkiInternalStorageUtil.getCachedUserFullName(context, userId);
 		if ( AkiInternalStorageUtil.viewGetPrivateChatRoomAnonymousSetting(context, privateChatRoom, userId) ){
 			headerName = AkiInternalStorageUtil.getCachedUserNickname(context, userId);
-		}		
+		}
+		TextView headerView = (TextView) findViewById(R.id.com_lespi_aki_private_chat_header);
 		TextView status = (TextView) findViewById(R.id.com_lespi_aki_private_chat_status);
 		if ( headerName != null ){
+			headerView.setText(headerName);
 			status.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_status_pattern), headerName));
 		}
 		else{
-			status.setText(String.format(context.getString(R.string.com_lespi_aki_private_chat_status_pattern), "this match"));
+			headerView.setText(context.getString(R.string.com_lespi_aki_private_chat_header_text));
+			status.setText(context.getString(R.string.com_lespi_aki_private_chat_status_pattern_unknown));
 		}
 
 		refreshReceivedMessages(userId, privateChatRoom);

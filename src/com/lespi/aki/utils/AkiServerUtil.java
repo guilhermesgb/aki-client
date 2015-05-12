@@ -396,12 +396,14 @@ public class AkiServerUtil {
 		if ( redirectedToNewChat ){
 			Log.w(AkiServerUtil.TAG, "Just gave a 'you've been redirected' message");
 			AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
-					context.getResources().getString(R.string.com_lespi_aki_message_system_redirected_to_new_chat_room));
+					String.format(context.getResources().getString(R.string.com_lespi_aki_message_system_redirected_to_new_chat_room,
+							AkiApplication.chatState.toString())));
 		}
 		else{
 			Log.w(AkiServerUtil.TAG, "Just gave a 'you've joined chat' message");
 			AkiInternalStorageUtil.storeSystemMessage(context, newChatRoom,
-					context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room));
+					String.format(context.getResources().getString(R.string.com_lespi_aki_message_system_joined_new_chat_room),
+							AkiApplication.chatState.toString()));
 		}
 
 		AkiChatAdapter chatAdapter = AkiChatAdapter.getInstance(context);

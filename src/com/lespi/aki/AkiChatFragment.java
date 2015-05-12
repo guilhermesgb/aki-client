@@ -321,6 +321,9 @@ public class AkiChatFragment extends SherlockFragment {
 							}
 						};
 
+						final GroupChatMode currentChatMode = AkiApplication.chatState;
+						final GroupChatMode otherChatMode = currentChatMode == GroupChatMode.LOCAL ? GroupChatMode.GLOBAL : GroupChatMode.LOCAL;
+
 						final OnClickListener globalBtnClickListener = new OnClickListener() {
 
 							@Override
@@ -333,12 +336,10 @@ public class AkiChatFragment extends SherlockFragment {
 									return;
 								}
 								
-								final GroupChatMode currentChatMode = AkiApplication.chatState;
-								final GroupChatMode newChatMode = currentChatMode == GroupChatMode.LOCAL ? GroupChatMode.GLOBAL : GroupChatMode.LOCAL;
 								new AlertDialog.Builder(activity)
-								.setIcon(newChatMode.icon)
-								.setTitle(String.format(getResources().getString(R.string.com_lespi_aki_main_chat_global_confirm_title), newChatMode.toString()))
-								.setMessage(String.format(getResources().getString(R.string.com_lespi_aki_main_chat_global_confirm_text), newChatMode.toString()))
+								.setIcon(otherChatMode.icon)
+								.setTitle(String.format(getResources().getString(R.string.com_lespi_aki_main_chat_global_confirm_title), otherChatMode.toString()))
+								.setMessage(String.format(getResources().getString(R.string.com_lespi_aki_main_chat_global_confirm_text), otherChatMode.toString()))
 								.setPositiveButton(R.string.com_lespi_aki_confirm_yes, new DialogInterface.OnClickListener() {
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
@@ -379,6 +380,7 @@ public class AkiChatFragment extends SherlockFragment {
 						skipChatBtn.setOnClickListener(skipBtnClickListener);
 						final ImageButton globalChatBtn = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_chat_global_btn);
 						globalChatBtn.setEnabled(false);
+						globalChatBtn.setImageDrawable(getResources().getDrawable(otherChatMode.icon));
 						globalChatBtn.setImageAlpha(128);
 						globalChatBtn.setOnClickListener(globalBtnClickListener);
 						

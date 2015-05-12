@@ -41,7 +41,6 @@ public class AkiApplication extends Application {
 	
     public enum GroupChatMode {
     	LOCAL(R.drawable.icon_local), GLOBAL(R.drawable.icon_global);
-    	
     	public int icon;
     	private GroupChatMode(int icon){
     		this.icon = icon;

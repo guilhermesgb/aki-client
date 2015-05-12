@@ -53,6 +53,7 @@
     <string name="com_lespi_aki_private_chat_talk_label">Talk privately</string>
     <string name="com_lespi_aki_private_chat_back_hint">Go back to group chat</string>
     <string name="com_lespi_aki_private_chat_status_pattern">"Engage in a private chat with %s"</string>
+    <string name="com_lespi_aki_private_chat_status_pattern_unknown">Engage in a private chat with this match</string>
     <string name="com_lespi_aki_confirm_yes">Yes</string>
     <string name="com_lespi_aki_confirm_no">No</string>
     <string name="com_lespi_aki_message_system_nickname_change_male">has changed his nickname to:</string>
@@ -61,9 +62,9 @@
     <string name="com_lespi_aki_message_system_realname_reveal_male">has revealed he\'s called:</string>
     <string name="com_lespi_aki_message_system_realname_reveal_female">has revealed she\'s called:</string>
     <string name="com_lespi_aki_message_system_realname_reveal_other">has revealed that is called:</string>
-    <string name="com_lespi_aki_message_system_joined_new_chat_room">You have joined a chat room</string>
+    <string name="com_lespi_aki_message_system_joined_new_chat_room">"You have joined a %s chat room"</string>
     <string name="com_lespi_aki_message_system_skipped_into_new_chat_room">You have skipped from another chat room into this one</string>
-    <string name="com_lespi_aki_message_system_redirected_to_new_chat_room">You have been redirected to this chat room</string>
+    <string name="com_lespi_aki_message_system_redirected_to_new_chat_room">"You have been redirected to this %s chat room"</string>
     <string name="com_lespi_aki_message_system_user_arrived_to_chat_room">has joined this chat room</string>
     <string name="com_lespi_aki_message_system_user_left_chat_room">left this chat room</string>
     <string name="com_lespi_aki_notif_new_message_title">"New message"</string>
@@ -121,6 +122,6 @@
     <string name="com_lespi_aki_toast_nickname_cannot_be_blank">Nickname cannot be blank!</string>
     <string name="com_lespi_aki_toast_nickname_set">Thanks for setting your nickname!</string>
     <string name="com_lespi_aki_toast_anonymous_cannot_be_set">In this group chat room, you cannot be anonymous again!</string>
-    <string name="com_lespi_aki_toast_cannot_be_global">You must be alone in a group chat room to switch to GLOBAL mode!</string>
+    <string name="com_lespi_aki_toast_cannot_be_global">Cannot switch group chat mode!</string>
 
 </resources>
