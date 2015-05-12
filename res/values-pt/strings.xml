@@ -52,8 +52,8 @@
     <string name="com_lespi_aki_private_chat_header_text">Conversa privada</string>
     <string name="com_lespi_aki_private_chat_talk_label">Conversar de forma privada</string>
     <string name="com_lespi_aki_private_chat_back_hint">Voltar para chat em grupo</string>
-    <string name="com_lespi_aki_private_chat_status_pattern">"Converse de forma privada com %s"</string>
-    <string name="com_lespi_aki_private_chat_status_pattern_unknown">Converse de forma privada com este interesse mútuo</string>
+    <string name="com_lespi_aki_private_chat_status_pattern">"Converse de forma privada com %s."</string>
+    <string name="com_lespi_aki_private_chat_status_pattern_unknown">Converse de forma privada com este interesse mútuo.</string>
     <string name="com_lespi_aki_confirm_yes">Sim</string>
     <string name="com_lespi_aki_confirm_no">Não</string>
     <string name="com_lespi_aki_message_system_nickname_change_male">mudou o apelido dele para:</string>
