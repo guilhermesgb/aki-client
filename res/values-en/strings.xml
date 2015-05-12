@@ -51,8 +51,8 @@
     <string name="com_lespi_aki_private_chat_talk_label">Talk privately</string>
     <string name="com_lespi_aki_private_chat_back_hint">Go back to group chat</string>
     <string name="com_lespi_aki_private_chat_status_pattern">"Engage in a private chat with %s"</string>
-    <string name="com_lespi_aki_confirm_yes">Yes!</string>
-    <string name="com_lespi_aki_confirm_no">No!</string>
+    <string name="com_lespi_aki_confirm_yes">Yes</string>
+    <string name="com_lespi_aki_confirm_no">No</string>
     <string name="com_lespi_aki_message_system_nickname_change_male">has changed his nickname to:</string>
     <string name="com_lespi_aki_message_system_nickname_change_female">has changed her nickname to:</string>
     <string name="com_lespi_aki_message_system_nickname_change_other">has changed the nickname to:</string>

@@ -60,7 +60,6 @@
         android:textSize="@dimen/mutual_panel_nick_size"
         android:textStyle="italic"
         android:maxLines="1"
-        android:maxLength="14"
         android:ellipsize="end" />
 
     <ImageView
