@@ -17,7 +17,6 @@ import com.lespi.aki.AkiApplication;
 import com.lespi.aki.AkiApplication.GroupChatMode;
 import com.lespi.aki.AkiChatAdapter;
 import com.lespi.aki.AkiChatFragment;
-import com.lespi.aki.AkiMainActivity;
 import com.lespi.aki.AkiMutualAdapter;
 import com.lespi.aki.AkiPrivateChatAdapter;
 import com.lespi.aki.R;
@@ -26,7 +25,7 @@ import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 import com.parse.ParseInstallation;
-import com.parse.PushService;
+import com.parse.ParsePush;
 import com.parse.internal.AsyncCallback;
 
 public class AkiServerUtil {
@@ -357,7 +356,7 @@ public class AkiServerUtil {
 		else if ( currentChatRoom.equals(newChatRoom) ){
 			Log.i(AkiServerUtil.TAG, "No need to update current chat room, which" +
 					" has address {" + currentChatRoom + "}.");
-			PushService.subscribe(context, newChatRoom, AkiMainActivity.class);
+			ParsePush.subscribeInBackground(newChatRoom);
 			Log.i(AkiServerUtil.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
 			AkiInternalStorageUtil.clearTemporaryMessages(context, newChatRoom);
 			return;
@@ -373,8 +372,9 @@ public class AkiServerUtil {
 			toast.show();
 		}
 
-		if ( !PushService.getSubscriptions(context).contains(newChatRoom) ){
-			PushService.subscribe(context, newChatRoom, AkiMainActivity.class);
+		List<String> subscriptions = ParseInstallation.getCurrentInstallation().getList("channels");
+		if ( !subscriptions.contains(newChatRoom) ){
+			ParsePush.subscribeInBackground(newChatRoom);
 			Log.i(AkiServerUtil.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
 		}
 		AkiInternalStorageUtil.setCurrentChatRoom(context, newChatRoom);
@@ -429,7 +429,7 @@ public class AkiServerUtil {
 		else{
 			AkiInternalStorageUtil.wipeCurrentChatMembers(context);
 			AkiInternalStorageUtil.clearTimestamps(context, currentChatRoom);
-			PushService.unsubscribe(context, currentChatRoom);
+			ParsePush.unsubscribeInBackground(currentChatRoom);
 			AkiInternalStorageUtil.setCurrentChatRoom(context, null);
 			Log.i(AkiServerUtil.TAG, "Unsubscribed from chat room address {" + currentChatRoom + "}.");
 			AkiInternalStorageUtil.removeCachedMessages(context, currentChatRoom);
@@ -440,9 +440,10 @@ public class AkiServerUtil {
 			privateChatIds.add(buildPrivateChatId(context, userId));
 		}
 
-		for ( String remainingChatRoom : PushService.getSubscriptions(context) ){
+		List<String> subscriptions = ParseInstallation.getCurrentInstallation().getList("channels");
+		for ( String remainingChatRoom : subscriptions ){
 			if ( !privateChatIds.contains(remainingChatRoom) ){
-				PushService.unsubscribe(context, remainingChatRoom);
+				ParsePush.unsubscribeInBackground(remainingChatRoom);
 				Log.e(AkiServerUtil.TAG, "Cleanup -> unsubscribing from chat room address: {" + remainingChatRoom + "}.");
 			}
 		}

@@ -13,7 +13,6 @@ import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
-import com.parse.PushService;
 
 
 public class AkiApplication extends Application {
@@ -86,9 +85,7 @@ public class AkiApplication extends Application {
 
 		Parse.initialize(this, "62IWkJFCtqyCkyRajF25oAK8ocitulaV2jjpCzZY",
 				"AmKpgc2r0KHmochB1sEsW0IbELp7cC32HKZxDPAF");
-		PushService.setDefaultPushCallback(this, AkiMainActivity.class);
 		Log.i(TAG, "Parse Push notification service initialized");
-
 		ParseInstallation.getCurrentInstallation().saveInBackground();
 	}
 
