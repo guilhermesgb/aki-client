@@ -214,6 +214,7 @@ public class AkiMutualAdapter extends ArrayAdapter<String> {
 			viewHolder.userGender.setImageBitmap(genderPlaceholder);
 		}
 		viewHolder.userGender.setImageAlpha(255);
+		viewHolder.userGender.setVisibility(View.VISIBLE);
 
 		viewHolder.userUnreadCounter.setVisibility(View.GONE);
 		int unreadCounter = AkiInternalStorageUtil.getPrivateChatRoomUnreadCounter(context, privateChatRoom);
