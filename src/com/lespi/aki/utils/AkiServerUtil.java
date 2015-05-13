@@ -373,7 +373,7 @@ public class AkiServerUtil {
 		}
 
 		List<String> subscriptions = ParseInstallation.getCurrentInstallation().getList("channels");
-		if ( !subscriptions.contains(newChatRoom) ){
+		if ( subscriptions == null || !subscriptions.contains(newChatRoom) ){
 			ParsePush.subscribeInBackground(newChatRoom);
 			Log.i(AkiServerUtil.TAG, "Subscribed to chat room address {" + newChatRoom + "}.");
 		}
@@ -441,10 +441,12 @@ public class AkiServerUtil {
 		}
 
 		List<String> subscriptions = ParseInstallation.getCurrentInstallation().getList("channels");
-		for ( String remainingChatRoom : subscriptions ){
-			if ( !privateChatIds.contains(remainingChatRoom) ){
-				ParsePush.unsubscribeInBackground(remainingChatRoom);
-				Log.e(AkiServerUtil.TAG, "Cleanup -> unsubscribing from chat room address: {" + remainingChatRoom + "}.");
+		if ( subscriptions != null ){
+			for ( String remainingChatRoom : subscriptions ){
+				if ( !privateChatIds.contains(remainingChatRoom) ){
+					ParsePush.unsubscribeInBackground(remainingChatRoom);
+					Log.e(AkiServerUtil.TAG, "Cleanup -> unsubscribing from chat room address: {" + remainingChatRoom + "}.");
+				}
 			}
 		}
 	}
@@ -1051,7 +1053,9 @@ public class AkiServerUtil {
 
 	public static synchronized void uploadCoverPhoto(final Context context, final String userId, AsyncCallback callback){
 		Bitmap imageBitmap = AkiInternalStorageUtil.getCachedUserCoverPhoto(context, userId);
-		AkiHttpUploadUtil.doHttpUpload(context, context.getString(R.string.com_lespi_aki_data_user_coverphoto)+userId, imageBitmap, callback);
+		if ( imageBitmap != null ){
+			AkiHttpUploadUtil.doHttpUpload(context, context.getString(R.string.com_lespi_aki_data_user_coverphoto)+userId, imageBitmap, callback);
+		}
 	}
 
 	public static synchronized void makeSureCoverPhotoIsUploaded(final Context context, final String userId){
@@ -1106,7 +1110,9 @@ public class AkiServerUtil {
 
 	public static synchronized void uploadUserPicture(final Context context, final String userId, AsyncCallback callback){
 		Bitmap imageBitmap = AkiInternalStorageUtil.getCachedUserPicture(context, userId);
-		AkiHttpUploadUtil.doHttpUpload(context, context.getString(R.string.com_lespi_aki_data_user_picture)+userId, imageBitmap, callback);
+		if ( imageBitmap != null ){
+			AkiHttpUploadUtil.doHttpUpload(context, context.getString(R.string.com_lespi_aki_data_user_picture)+userId, imageBitmap, callback);
+		}
 	}
 
 	public static synchronized void makeSureUserPictureIsUploaded(final Context context, final String userId){
