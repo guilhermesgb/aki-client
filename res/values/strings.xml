@@ -33,10 +33,10 @@
     <string name="com_lespi_aki_main_settings_privacy_identify_yourself">Revelar sua identidade?</string>
     <string name="com_lespi_aki_main_settings_privacy_no_longer_anonymous">Você não está mais anônimo</string>
     <string name="com_lespi_aki_main_settings_privacy_still_disabled">Desativado até que você escolha um apelido</string>
-	<string name="com_lespi_aki_main_settings_privacy_info_text">No contexto da sala de bate-papo em grupo</string>
-	<string name="com_lespi_aki_main_settings_privacy_will_identify_title">Mostre nome e foto</string>
-	<string name="com_lespi_aki_main_settings_privacy_will_identify_message">Pronto para revelar sua identidade?\nSeu nome e foto de perfil estarão visíveis para aqueles que também ativaram esta opção.\nVocê não poderá voltar atrás enquanto estiver nessa sala de bate-papo em grupo.</string>
-	<string name="com_lespi_aki_main_settings_nonickname_text">Você deve escolher um apelido!</string>
+    <string name="com_lespi_aki_main_settings_privacy_info_text">No contexto da sala de bate-papo em grupo</string>
+    <string name="com_lespi_aki_main_settings_privacy_will_identify_title">Mostre nome e foto</string>
+    <string name="com_lespi_aki_main_settings_privacy_will_identify_message">Pronto para revelar sua identidade?\nSeu nome e foto de perfil estarão visíveis para aqueles que também ativaram esta opção.\nVocê não poderá voltar atrás enquanto estiver nessa sala de bate-papo em grupo.</string>
+    <string name="com_lespi_aki_main_settings_nonickname_text">Você deve escolher um apelido!</string>
     <string name="com_lespi_aki_main_settings_anonymous_setting_hint">Anônimo/Identificado</string>
     <string name="com_lespi_aki_main_mutual_info_text">Seus interesses mútuos</string>
     <string name="com_lespi_aki_message_sender_picture_hint">Pequena foto</string>
@@ -67,7 +67,7 @@
     <string name="com_lespi_aki_message_system_skipped_into_new_chat_room">Você pulou de outra sala de bate-papo para esta aqui</string>
     <string name="com_lespi_aki_message_system_redirected_to_new_chat_room">"Você foi redirecionado para esta sala de bate-papo %s"</string>
     <string name="com_lespi_aki_message_system_user_arrived_to_chat_room">entrou na sala de bate-papo</string>
-	<string name="com_lespi_aki_message_system_user_left_chat_room">saiu da sala de bate-papo</string>
+    <string name="com_lespi_aki_message_system_user_left_chat_room">saiu da sala de bate-papo</string>
     <string name="com_lespi_aki_notif_new_message_title">"Nova mensagem"</string>
     <string name="com_lespi_aki_notif_new_message_ticker">"Você recebeu uma nova mensagem no bate-papo"</string>
     <string name="com_lespi_aki_notif_new_messages_title">"%d mensagens novas"</string>
@@ -102,14 +102,15 @@
     <string name="com_lespi_aki_data_matches">user-matches</string>
     <string name="com_lespi_aki_data_mandatory_setting_missing">mandatory-setting-missing</string>
     <string name="com_lespi_aki_data_anonymous_setting">anonymous-setting_</string>
-    	<string name="com_lespi_aki_data_alone_setting">alone-setting</string>	
+    <string name="com_lespi_aki_data_alone_setting">alone-setting</string>
+    <string name="com_lespi_aki_data_global_setting">global-setting</string>
     <string name="com_lespi_aki_data_geofence_should_update">geofence-should-update</string>
     <string name="com_lespi_aki_data_geofence_center">geofence-center</string>
     <string name="com_lespi_aki_data_geofence_radius">geofence-radius</string>
     <string name="com_lespi_aki_data_last_timeout">last-timeout</string>
     <string name="com_lespi_aki_data_private_chat_room_unread_counter">private-chat-room-unread-counter_</string>
     <string name="com_lespi_aki_data_private_chat_room_anonymous_setting">private-chat-room-anonymous-setting_</string>
-	<string name="com_lespi_aki_data_private_chat_room_last_seen">private-chat-room-last-seen</string>
+    <string name="com_lespi_aki_data_private_chat_room_last_seen">private-chat-room-last-seen</string>
     <string name="com_lespi_aki_toast_no_internet_connection">Não há conexão com a Internet!</string>
     <string name="com_lespi_aki_toast_cannot_determine_location">Não é possível determinar sua localização atual!</string>
     <string name="com_lespi_aki_toast_please_enable_gps">Por favor, habilite o sensor de GPS!</string>
@@ -123,6 +124,6 @@
     <string name="com_lespi_aki_toast_nickname_cannot_be_blank">O apelido não pode ser vazio!</string>
     <string name="com_lespi_aki_toast_nickname_set">Obrigado por escolher um apelido!</string>
     <string name="com_lespi_aki_toast_anonymous_cannot_be_set">Você não pode mais ficar anônimo nessa sala de bate-papo!</string>
-	<string name="com_lespi_aki_toast_cannot_be_global">Não pode alternar modo de chat!</string>
+    <string name="com_lespi_aki_toast_cannot_be_global">Não pode alternar modo de chat!</string>
 
 </resources>
