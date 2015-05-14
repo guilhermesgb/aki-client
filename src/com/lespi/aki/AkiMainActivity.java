@@ -308,7 +308,14 @@ LocationClient.OnRemoveGeofencesResultListener {
 			if (dialog != null) {
 				ErrorDialogFragment errorFragment = new ErrorDialogFragment();
 				errorFragment.setDialog(dialog);
-				errorFragment.show(getSupportFragmentManager(), AkiMainActivity.TAG);
+				try{
+					errorFragment.show(getSupportFragmentManager(), AkiMainActivity.TAG);
+				}
+				catch (IllegalArgumentException e){
+					Toast toast = Toast.makeText(getApplicationContext(),
+							"Cannot use mandatory Google Play Services!", Toast.LENGTH_LONG);
+					toast.show();
+				}
 			}
 			/*
 			 * TODO: Google Play Services is not available, handle this!
@@ -566,7 +573,13 @@ LocationClient.OnRemoveGeofencesResultListener {
 		if (errorDialog != null) {
 			ErrorDialogFragment errorFragment = new ErrorDialogFragment();
 			errorFragment.setDialog(errorDialog);
-			errorFragment.show(getSupportFragmentManager(), AkiMainActivity.TAG);
+			try{
+				errorFragment.show(getSupportFragmentManager(), AkiMainActivity.TAG);
+			} catch ( IllegalArgumentException e ){
+				Toast toast = Toast.makeText(getApplicationContext(),
+						"Cannot use mandatory Google Play Services!", Toast.LENGTH_LONG);
+				toast.show();
+			}
 		}
 	}
 
