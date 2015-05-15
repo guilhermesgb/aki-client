@@ -73,8 +73,8 @@
     <string name="com_lespi_aki_notif_new_messages_ticker">"You've received %d new messages in the group chat"</string>
     <string name="com_lespi_aki_notif_exit_title">You just left that chat room</string>
     <string name="com_lespi_aki_notif_exit_text">You chose to leave that chat room.\nTo go to another, just start up the app again.</string>
-    <string name="com_lespi_aki_notif_exit_text_abort">You were kicked out of that chat room\nbecause the app was aborted. </string>
-    <string name="com_lespi_aki_notif_exit_title_walking">You were kicked out of that chat room\nbecause you got too far from it.</string>
+    <string name="com_lespi_aki_notif_exit_text_abort">You left the chat room because\nthe app was closed. </string>
+    <string name="com_lespi_aki_notif_exit_title_walking">You left the chat room because\nyou got too far from it.</string>
     <string name="com_lespi_aki_notif_new_match_ticker">We found you a mutual interest</string>
     <string name="com_lespi_aki_notif_new_match_title">New match with </string>
     <string name="com_lespi_aki_notif_new_match_text">is also interested on getting\nto know you better!</string>

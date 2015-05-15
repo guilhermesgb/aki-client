@@ -73,8 +73,8 @@
     <string name="com_lespi_aki_notif_new_messages_ticker">"Você recebeu %d novas mensagens no bate-papo"</string>
     <string name="com_lespi_aki_notif_exit_title">Você saiu daquela sala de bate-papo</string>
     <string name="com_lespi_aki_notif_exit_text">Você escolheu sair daquela sala de bate-papo.\nPara ir para outra, abra o app novamente.</string>
-    <string name="com_lespi_aki_notif_exit_text_abort">Você foi expulso daquela sala de bate-papo\nporque o app foi abortado.</string>
-    <string name="com_lespi_aki_notif_exit_title_walking">Você foi expulso daquela sala de bate-papo\nporque você se distanciou demais dela.</string>
+    <string name="com_lespi_aki_notif_exit_text_abort">Você saiu da sala de bate-papo porque\no app encerrou.</string>
+    <string name="com_lespi_aki_notif_exit_title_walking">Você saiu da sala de bate-papo porque\nvocê se distanciou demais dela.</string>
     <string name="com_lespi_aki_notif_new_match_ticker">Achamos um interesse mútuo para você</string>
     <string name="com_lespi_aki_notif_new_match_title">Novo match com </string>
     <string name="com_lespi_aki_notif_new_match_text">também está interessado\nem te conhecer melhor!</string>
