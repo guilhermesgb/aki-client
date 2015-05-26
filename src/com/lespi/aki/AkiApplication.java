@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
+import com.facebook.FacebookSdk;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
 import com.parse.Parse;
@@ -87,6 +88,8 @@ public class AkiApplication extends Application {
 				"AmKpgc2r0KHmochB1sEsW0IbELp7cC32HKZxDPAF");
 		Log.i(TAG, "Parse Push notification service initialized");
 		ParseInstallation.getCurrentInstallation().saveInBackground();
+		
+		FacebookSdk.sdkInitialize(getApplicationContext());
 	}
 
 	public static void isNowInForeground() {

@@ -17,9 +17,10 @@
     <string name="com_lespi_aki_main_chat_skip_confirm_text">Tem certeza que deseja sair desse chat e ir para outro?</string>
     <string name="com_lespi_aki_main_chat_global_confirm_title">"Alternar para modo de chat %s"</string>
     <string name="com_lespi_aki_main_chat_global_confirm_text">"Tem certeza que deseja alternar para o modo de chat %s?"</string>
-    <string name="com_lespi_aki_main_chat_warning_no_internet_connection_available">Não há conexão com a Internet!</string>
-    <string name="com_lespi_aki_main_chat_warning_internet_needed_to_start_using">Você precisa de Internet pra conversar!</string>
-    <string name="com_lespi_aki_main_chat_warning_gps_needed_to_start_using">Você precisa de GPS pra conversar!</string>
+	<string name="com_lespi_aki_main_chat_logout_confirm_title">Deslogar do aplicativo</string>
+	<string name="com_lespi_aki_main_chat_logout_confirm_text">Tem certeza que deseja deslogar com sua conta do Facebook?</string>
+	<string name="com_lespi_aki_main_chat_warning_no_internet_connection_available">Não há conexão com a Internet!</string>
+    <string name="com_lespi_aki_main_chat_warning_internet_and_gps_needed">Você precisa de Internet e GPS!</string>
     <string name="com_lespi_aki_main_chat_warning_server_down">O servidor está indisponível!</string>
     <string name="com_lespi_aki_main_chat_status_alone">Você está sozinho nessa sala de bate-papo em grupo!</string>
     <string name="com_lespi_aki_main_chat_status_pattern">"Você está numa sala de bate-papo em grupo %s"</string>

@@ -17,10 +17,10 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.RelativeLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.Session;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -88,15 +88,17 @@ LocationClient.OnRemoveGeofencesResultListener {
 
 		setContentView(R.layout.aki_chat_fragment);
 
-		RelativeLayout background = (RelativeLayout) findViewById(R.id.com_lespi_aki_main_background);
-		background.setVisibility(View.VISIBLE);
-
 		if ( extras != null ){
 			boolean seenSplash = extras.getBoolean("seenSplash", false);
 			chatFragment.setSeenSplash(seenSplash);
-
-			if ( seenSplash ){
+			boolean loggedIn = extras.getBoolean("loggedIn", false);
+			if ( loggedIn ){
+				ImageView background = (ImageView) findViewById(R.id.com_lespi_aki_main_background);
 				background.setVisibility(View.GONE);
+				ImageView backgroundLogo = (ImageView) findViewById(R.id.com_lespi_aki_main_background_logo);
+				backgroundLogo.setVisibility(View.GONE);
+				TextView backgroundWarningText = (TextView) findViewById(R.id.com_lespi_aki_main_background_text);
+				backgroundWarningText.setVisibility(View.GONE);
 			}
 		}
 
@@ -286,10 +288,11 @@ LocationClient.OnRemoveGeofencesResultListener {
 				Log.e(AkiMainActivity.TAG, "Cannot use mandatory Google Play Services!");
 				break;
 			}
+			break;
 
 		default:
+
 			super.onActivityResult(requestCode, resultCode, data);
-			Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
 			break;
 		}
 	}

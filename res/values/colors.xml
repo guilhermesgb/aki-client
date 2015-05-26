@@ -3,7 +3,8 @@
     <color name="com_lespi_aki_message_box_color">#59e5e5e5</color>
     <color name="com_lespi_aki_message_text_color">#e5e5e5</color>
     <color name="com_lespi_aki_message_text_color_system">#e5e5e5</color>
-    <color name="com_lespi_aki_splash_color">#343f4f</color>
+    <color name="com_lespi_aki_blue">#343f4f</color>
+    <color name="com_lespi_aki_orange">#956134</color>
     <color name="com_lespi_aki_message_text_color_0">#90666600</color>
     <color name="com_lespi_aki_message_text_color_1">#90483658</color>
     <color name="com_lespi_aki_message_text_color_2">#9022401e</color>

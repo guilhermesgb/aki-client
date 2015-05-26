@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Random;
 
+import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -40,11 +42,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
-import com.facebook.Request;
-import com.facebook.Response;
-import com.facebook.Session;
-import com.facebook.model.GraphUser;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
@@ -56,8 +57,8 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 	private final Context context;
 	private final List<JsonObject> messages;
-	private GraphUser currentUser = null;
-	private Session currentSession = null;
+	private JSONObject currentUser = null;
+	private AccessToken currentSession = null;
 	private FragmentActivity activity = null;
 
 	private final int[] COLORS = new int[] {
@@ -100,14 +101,14 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		userToColorMapping = new HashMap<String, Integer>();
 	}
 
-	public void setCurrentUser(GraphUser currentUser) {
+	public void setCurrentUser(JSONObject currentUser) {
 		this.currentUser = currentUser;
-		if ( userToColorMapping.get(currentUser.getId()) == null ) {
-			userToColorMapping.put(currentUser.getId(), new Random().nextInt(COLORS.length));
+		if ( userToColorMapping.get(currentUser.optString("id")) == null ) {
+			userToColorMapping.put(currentUser.optString("id"), new Random().nextInt(COLORS.length));
 		}
 	}
 
-	public void setCurrentSession(Session currentSession) {
+	public void setCurrentSession(AccessToken currentSession) {
 		this.currentSession = currentSession;
 	}
 
@@ -203,10 +204,10 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		boolean canReuse = false;
 
 		final String senderId = newViewData.get("sender").asString();
-		assignColor(senderId, currentUser.getId());
+		assignColor(senderId, currentUser.optString("id"));
 
 		int rowLayout = R.layout.aki_chat_message_you;
-		if (senderId.equals(currentUser.getId())) {
+		if (senderId.equals(currentUser.optString("id"))) {
 			rowLayout = R.layout.aki_chat_message_me;
 		} else if (senderId.equals(AkiApplication.SYSTEM_SENDER_ID)) {
 			rowLayout = R.layout.aki_chat_message_system;
@@ -223,15 +224,15 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 							.equals(AkiApplication.SYSTEM_SENDER_ID))) {
 				canReuse = false;
 			} else if (senderIdView.getText() != null
-					&& senderIdView.getText().equals(currentUser.getId())) {
-				if (senderId.equals(currentUser.getId())) {
+					&& senderIdView.getText().equals(currentUser.optString("id"))) {
+				if (senderId.equals(currentUser.optString("id"))) {
 					canReuse = true;
 				} else {
 					rowLayout = R.layout.aki_chat_message_you;
 				}
 			} else if (senderIdView.getText() != null
-					&& !senderIdView.getText().equals(currentUser.getId())) {
-				if (!senderId.equals(currentUser.getId())) {
+					&& !senderIdView.getText().equals(currentUser.optString("id"))) {
+				if (!senderId.equals(currentUser.optString("id"))) {
 					canReuse = true;
 				} else {
 					rowLayout = R.layout.aki_chat_message_me;
@@ -278,7 +279,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 
 		Integer color = findColor(senderId);
 		color = COLORS[color != null ? color : android.R.color.white];
-		if (senderId.equals(currentUser.getId())) {
+		if (senderId.equals(currentUser.optString("id"))) {
 			RelativeLayout rl = (RelativeLayout) rowView.findViewById(R.id.com_lespi_aki_message_me_layout);
 			rl.setBackgroundColor(rowView.getResources().getColor(color));
 			if ( newViewData.get("is_temporary").asString().equals("true") ){
@@ -290,7 +291,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			rl.setBackgroundColor(rowView.getResources().getColor(color));
 		}
 
-		if (senderId.equals(currentUser.getId())) {
+		if (senderId.equals(currentUser.optString("id"))) {
 
 			if (AkiInternalStorageUtil.getAnonymousSetting(context, senderId)) {
 				String nickname = AkiInternalStorageUtil.getCachedUserNickname(
@@ -304,12 +305,12 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 					viewHolder.senderName.setText(senderId);
 				}
 			} else {
-				viewHolder.senderName.setText(currentUser.getFirstName());
+				viewHolder.senderName.setText(currentUser.optString("first_name"));
 			}
 			AkiInternalStorageUtil.cacheUserFirstName(context, senderId,
-					currentUser.getFirstName());
+					currentUser.optString("first_name"));
 			AkiInternalStorageUtil.cacheUserFullName(context,
-					currentUser.getId(), currentUser.getName());
+					currentUser.optString("id"), currentUser.optString("name"));
 		} else {
 
 			String firstName = AkiInternalStorageUtil.getCachedUserFirstName(
@@ -318,7 +319,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				if (AkiInternalStorageUtil.getAnonymousSetting(context,
 						senderId)
 						|| AkiInternalStorageUtil.getAnonymousSetting(context,
-								currentUser.getId())) {
+								currentUser.optString("id"))) {
 
 					String nickname = AkiInternalStorageUtil
 							.getCachedUserNickname(context, senderId);
@@ -335,9 +336,9 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				}
 			} else {
 
-				new Request(currentSession, "/" + senderId, null,
-						HttpMethod.GET, new Request.Callback() {
-					public void onCompleted(Response response) {
+				new GraphRequest(currentSession, "/" + senderId, null,
+						HttpMethod.GET, new GraphRequest.Callback() {
+					public void onCompleted(GraphResponse response) {
 						if (response.getError() == null) {
 
 							JsonObject information = JsonValue
@@ -357,7 +358,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 											|| AkiInternalStorageUtil
 											.getAnonymousSetting(
 													context,
-													currentUser.getId())) {
+													currentUser.optString("id"))) {
 
 								String nickname = AkiInternalStorageUtil
 										.getCachedUserNickname(context,
@@ -389,7 +390,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 											|| AkiInternalStorageUtil
 											.getAnonymousSetting(
 													context,
-													currentUser.getId())) {
+													currentUser.optString("id"))) {
 
 								String nickname = AkiInternalStorageUtil
 										.getCachedUserNickname(context,
@@ -426,7 +427,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 			//			} else {
 			//
 			//				AkiLocation currentLocation = AkiInternalStorageUtil
-			//						.getCachedUserLocation(context, currentUser.getId());
+			//						.getCachedUserLocation(context, currentUser.optString("id"));
 			//				if (currentLocation == null) {
 			//					Log.d(AkiApplication.TAG, "Cannot calculate distance to "
 			//							+ senderId
@@ -476,9 +477,9 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		String gender = AkiInternalStorageUtil.getCachedUserGender(context,
 				senderId);
 		if (gender == null) {
-			new Request(currentSession, "/" + senderId, null, HttpMethod.GET,
-					new Request.Callback() {
-				public void onCompleted(Response response) {
+			new GraphRequest(currentSession, "/" + senderId, null, HttpMethod.GET,
+					new GraphRequest.Callback() {
+				public void onCompleted(GraphResponse response) {
 					if (response.getError() == null) {
 
 						JsonObject information = JsonValue.readFrom(
@@ -526,15 +527,15 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 		viewHolder.senderGender.setImageBitmap(genderPlaceholder);
 		if (AkiInternalStorageUtil.getAnonymousSetting(context, senderId)
 				|| AkiInternalStorageUtil.getAnonymousSetting(context,
-						currentUser.getId())) {
+						currentUser.optString("id"))) {
 			viewHolder.senderGender.setImageAlpha(0);
 		} else {
 			viewHolder.senderGender.setImageAlpha(255);
 		}
 
 		if (!(AkiInternalStorageUtil.getAnonymousSetting(context, senderId) || AkiInternalStorageUtil
-				.getAnonymousSetting(context, currentUser.getId()))
-				|| currentUser.getId().equals(senderId)) {
+				.getAnonymousSetting(context, currentUser.optString("id")))
+				|| currentUser.optString("id").equals(senderId)) {
 
 			Bitmap picture = AkiInternalStorageUtil.getCachedUserPicture(
 					context, senderId);
@@ -547,9 +548,9 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				params.putBoolean("redirect", false);
 				params.putString("width", "143");
 				params.putString("height", "143");
-				new Request(currentSession, "/" + senderId + "/picture",
-						params, HttpMethod.GET, new Request.Callback() {
-					public void onCompleted(Response response) {
+				new GraphRequest(currentSession, "/" + senderId + "/picture",
+						params, HttpMethod.GET, new GraphRequest.Callback() {
+					public void onCompleted(GraphResponse response) {
 						if (response.getError() != null
 								|| JsonValue
 								.readFrom(
@@ -623,14 +624,14 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 				}).executeAsync();
 			}
 			if (AkiInternalStorageUtil.getAnonymousSetting(context,
-					currentUser.getId())) {
+					currentUser.optString("id"))) {
 				viewHolder.senderPicture.setImageAlpha(128);
 			} else {
 				viewHolder.senderPicture.setImageAlpha(255);
 			}
 		}
 
-		if ( currentUser.getId().equals(senderId) || senderId.equals(AkiApplication.SYSTEM_SENDER_ID) ){
+		if ( currentUser.optString("id").equals(senderId) || senderId.equals(AkiApplication.SYSTEM_SENDER_ID) ){
 			viewHolder.senderLiked.setVisibility(View.GONE);
 		}
 		else {
@@ -689,7 +690,7 @@ public class AkiChatAdapter extends ArrayAdapter<JsonObject> {
 						
 						String privateChatId = AkiServerUtil.buildPrivateChatId(context, senderId);
 						AkiInternalStorageUtil.setPrivateChatRoomAnonymousSetting(context, privateChatId,
-								currentUser.getId(), AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()));
+								currentUser.optString("id"), AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.optString("id")));
 						AkiServerUtil.sendPrivateMessage(context, null, senderId, null);
 					}
 					return true;

@@ -3,16 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/com_lespi_aki_splash_color"
+    android:background="@color/com_lespi_aki_blue"
     tools:context="com.lespi.aki.AkiSplashActivity"
     tools:ignore="MergeRootFrame" >
 
      <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="162dp"
+		android:layout_centerInParent="true"
         android:contentDescription="@string/com_lespi_aki_splash_logo_hint"
         android:src="@drawable/logo" />
     

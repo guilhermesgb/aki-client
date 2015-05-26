@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.json.JSONObject;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -17,6 +20,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -25,17 +29,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
-import com.facebook.Request;
-import com.facebook.Response;
-import com.facebook.Session;
-import com.facebook.model.GraphUser;
-import com.facebook.widget.LoginButton;
+import com.facebook.login.LoginManager;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiServerUtil;
+import com.parse.ParseInstallation;
 import com.parse.internal.AsyncCallback;
 
 public class AkiSettingsFragment extends SherlockFragment {
@@ -44,15 +48,111 @@ public class AkiSettingsFragment extends SherlockFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		View view = inflater.inflate(R.layout.aki_settings_fragment, container, false);
-		LoginButton logoutButton = (LoginButton) view.findViewById(R.id.com_lespi_aki_main_settings_logout_btn);
-		logoutButton.setFragment(this);
+		
+		Button logoutButton = (Button) view.findViewById(R.id.com_lespi_aki_main_settings_logout_btn);
+		logoutButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				
+				new AlertDialog.Builder(getActivity())
+				.setIcon(R.drawable.icon_exit)
+				.setTitle(R.string.com_lespi_aki_main_chat_logout_confirm_title)
+				.setMessage(R.string.com_lespi_aki_main_chat_logout_confirm_text)
+				.setPositiveButton(R.string.com_lespi_aki_confirm_yes, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						LoginManager.getInstance().logOut();
+						
+						final AkiMainActivity activity = (AkiMainActivity) getActivity();
+						
+						if ( activity.locationServicesConnected() ){
+							activity.stopPeriodicLocationUpdates();
+							activity.removeGeofence();
+						}
+
+						Log.wtf("PULL MAN!", "Stopping getMessages runnable!");
+						AkiServerUtil.stopGettingMessages(activity.getApplicationContext());
+
+						final Context context = activity.getApplicationContext();
+						final String currentUserId = AkiInternalStorageUtil.getCurrentUser(activity.getApplicationContext());
+						
+						if ( AkiApplication.LOGGED_IN ){
+
+							AkiServerUtil.sendExitToServer(context, new AsyncCallback() {
+
+								@Override
+								public void onSuccess(Object response) {
+									AkiServerUtil.leaveChatRoom(context, currentUserId);
+									AkiInternalStorageUtil.wipeMatches(context);
+									String chatId = AkiInternalStorageUtil.getCurrentChatRoom(context);
+									if ( chatId != null ){
+										AkiInternalStorageUtil.removeCachedMessages(context, chatId);
+									}
+									AkiInternalStorageUtil.clearVolatileStorage(context);
+									AkiInternalStorageUtil.wipeCachedUserLocation(context, new AsyncCallback() {
+
+										@Override
+										public void onSuccess(Object response) {
+											AkiInternalStorageUtil.setCurrentUser(context, null);
+										}
+
+										@Override
+										public void onFailure(Throwable failure) {
+											Log.e(AkiChatFragment.TAG, "Could not wipe cached user location.");
+											failure.printStackTrace();
+											AkiInternalStorageUtil.setCurrentUser(context, null);
+										}
+
+										@Override
+										public void onCancel() {
+											Log.e(AkiChatFragment.TAG, "Wipe cached user location callback canceled.");
+										}
+									});
+
+									CharSequence toastText = activity.getApplicationContext().getText(R.string.com_lespi_aki_toast_exited_chat);
+									Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+									toast.show();
+									AkiApplication.isNotLoggedIn();
+								}
+
+								@Override
+								public void onFailure(Throwable failure) {
+									Log.e(AkiChatFragment.TAG, "A problem happened while exiting chat room!");
+									failure.printStackTrace();
+								}
+
+								@Override
+								public void onCancel() {
+									Log.e(AkiChatFragment.TAG, "Exiting chat room canceled.");
+								}
+							});
+						}
+
+						ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+						installation.put("uid", "not_logged");
+						installation.saveInBackground();
+
+						Intent intent = new Intent(activity, AkiLoginActivity.class);
+						activity.startActivity(intent);
+						activity.overridePendingTransition(R.anim.hold, R.anim.fade_in);
+						activity.finish();
+						activity.overridePendingTransition(R.anim.hold, R.anim.fade_out);
+					}
+				})
+				.setNegativeButton(R.string.com_lespi_aki_confirm_no, new DialogInterface.OnClickListener(){
+					@Override
+					public void onClick(DialogInterface dialog, int which) {}
+				})
+				.show();
+			}
+		});
 		final EditText nicknameBox = (EditText) view.findViewById(R.id.com_lespi_aki_main_settings_nickname);
 		nicknameBox.clearFocus();
 		return view;
 	}
 
-	public synchronized void refreshSettings(final AkiMainActivity activity, final Session currentSession,
-			final GraphUser currentUser, final AsyncCallback callback) {
+	public synchronized void refreshSettings(final AkiMainActivity activity, final AccessToken currentSession,
+			final JSONObject currentUser, final AsyncCallback callback) {
 
 		if ( activity == null || currentUser == null ){
 			return;
@@ -64,17 +164,17 @@ public class AkiSettingsFragment extends SherlockFragment {
 			AkiInternalStorageUtil.aMandatorySettingIsMissing(context, true);
 
 			TextView settingsFullname = (TextView) activity.findViewById(R.id.com_lespi_aki_main_settings_fullname);
-			settingsFullname.setText(currentUser.getName());
-			AkiInternalStorageUtil.cacheUserFullName(context, currentUser.getId(), currentUser.getName());
-			AkiInternalStorageUtil.cacheUserFirstName(context, currentUser.getId(), currentUser.getFirstName());
+			settingsFullname.setText(currentUser.optString("name"));
+			AkiInternalStorageUtil.cacheUserFullName(context, currentUser.optString("id"), currentUser.optString("name"));
+			AkiInternalStorageUtil.cacheUserFirstName(context, currentUser.optString("id"), currentUser.optString("first_name"));
 			
 			final EditText nicknameBox = (EditText) activity.findViewById(R.id.com_lespi_aki_main_settings_nickname);
-			String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, currentUser.getId());
+			String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, currentUser.optString("id"));
 
 			final LinearLayout anonymousSection = (LinearLayout) activity.findViewById(R.id.com_lespi_aki_main_settings_anonymous_section);
 			final ImageButton anonymousCheck = (ImageButton) activity.findViewById(R.id.com_lespi_aki_main_settings_anonymous_btn);
 			final TextView anonymousInfo = (TextView) activity.findViewById(R.id.com_lespi_aki_main_settings_anonymous_text);
-			if ( AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
+			if ( AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.optString("id")) ){
 				anonymousCheck.setImageDrawable(activity.getApplicationContext().getResources().getDrawable(R.drawable.icon_anonymous));
 				anonymousInfo.setText(activity.getApplicationContext().getString(R.string.com_lespi_aki_main_settings_privacy_identify_yourself));
 			}
@@ -97,7 +197,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				CharSequence toastText = context.getText(R.string.com_lespi_aki_toast_nickname_required);
 				Toast toast = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
 				toast.show();
-				AkiInternalStorageUtil.wipeCachedUserLocation(context, currentUser.getId());
+				AkiInternalStorageUtil.wipeCachedUserLocation(context, currentUser.optString("id"));
 			}
 			else{
 				AkiInternalStorageUtil.aMandatorySettingIsMissing(context, false);
@@ -114,7 +214,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				@Override
 				public void onClick(View view) {
 					String newNickname = nicknameBox.getText().toString();
-					String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, currentUser.getId());
+					String nickname = AkiInternalStorageUtil.getCachedUserNickname(context, currentUser.optString("id"));
 					if ( nickname != null ){
 						nicknameBox.setText(nickname);
 					}
@@ -126,7 +226,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 						toast.show();
 						return;
 					}
-					AkiInternalStorageUtil.cacheUserNickname(context, currentUser.getId(), newNickname);
+					AkiInternalStorageUtil.cacheUserNickname(context, currentUser.optString("id"), newNickname);
 					nicknameBox.setText(newNickname);
 					if ( AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
 						SlidingMenu slidingMenu = activity.getSlidingMenu();
@@ -161,7 +261,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 				@Override
 				public void onClick(View view) {
 					if ( !AkiInternalStorageUtil.isMandatorySettingMissing(context) ){
-						if ( AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.getId()) ){
+						if ( AkiInternalStorageUtil.getAnonymousSetting(context, currentUser.optString("id")) ){
 							new AlertDialog.Builder(activity)
 							.setIcon(R.drawable.icon_identified)
 							.setTitle(R.string.com_lespi_aki_main_settings_privacy_will_identify_title)
@@ -171,8 +271,8 @@ public class AkiSettingsFragment extends SherlockFragment {
 								public void onClick(DialogInterface dialog, int which) {
 									anonymousCheck.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_identified));
 									anonymousInfo.setText(activity.getApplicationContext().getString(R.string.com_lespi_aki_main_settings_privacy_no_longer_anonymous));
-									AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.getId(), false);
-									AkiServerUtil.sendPresenceToServer(context, currentUser.getId(), new AsyncCallback() {
+									AkiInternalStorageUtil.setAnonymousSetting(context, currentUser.optString("id"), false);
+									AkiServerUtil.sendPresenceToServer(context, currentUser.optString("id"), new AsyncCallback() {
 										@Override
 										public void onSuccess(Object response) {
 											AkiChatFragment.getInstance().externalRefreshAll();
@@ -209,9 +309,9 @@ public class AkiSettingsFragment extends SherlockFragment {
 			final ImageView settingsPicture = (ImageView) activity.findViewById(R.id.com_lespi_aki_main_settings_picture);
 
 			Bitmap placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_unknown_gender);
-			String gender = currentUser.asMap().get("gender").toString();
+			String gender = currentUser.optString("gender");
 			if ( gender != null ){
-				AkiInternalStorageUtil.cacheUserGender(context, currentUser.getId(), gender);
+				AkiInternalStorageUtil.cacheUserGender(context, currentUser.optString("id"), gender);
 				if ( gender.equals("male") ){
 					placeholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_picture_male);
 				}
@@ -221,10 +321,10 @@ public class AkiSettingsFragment extends SherlockFragment {
 			}
 			settingsPicture.setImageBitmap(AkiChatAdapter.getRoundedBitmap(placeholder));
 
-			Bitmap cachedPicture = AkiInternalStorageUtil.getCachedUserPicture(context, currentUser.getId());
+			Bitmap cachedPicture = AkiInternalStorageUtil.getCachedUserPicture(context, currentUser.optString("id"));
 			if ( cachedPicture != null ){
 				settingsPicture.setImageBitmap(cachedPicture);
-				AkiServerUtil.makeSureUserPictureIsUploaded(context, currentUser.getId());
+				AkiServerUtil.makeSureUserPictureIsUploaded(context, currentUser.optString("id"));
 			}
 			else{
 
@@ -232,9 +332,9 @@ public class AkiSettingsFragment extends SherlockFragment {
 				params.putBoolean("redirect", false);
 				params.putString("width", "143");
 				params.putString("height", "143");
-				new Request(currentSession, "/"+currentUser.getId()+"/picture", params, HttpMethod.GET,
-						new Request.Callback() {
-					public void onCompleted(Response response) {
+				new GraphRequest(currentSession, "/"+currentUser.optString("id")+"/picture", params, HttpMethod.GET,
+						new GraphRequest.Callback() {
+					public void onCompleted(GraphResponse response) {
 						if ( response.getError() != null ||
 								JsonValue.readFrom(response.getRawResponse())
 								.asObject().get("data") == null ){
@@ -260,7 +360,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 									Bitmap picture = AkiChatAdapter.getRoundedBitmap(BitmapFactory.
 											decodeStream(picture_address.openConnection().getInputStream()));
 
-									AkiInternalStorageUtil.cacheUserPicture(context, currentUser.getId(), picture);
+									AkiInternalStorageUtil.cacheUserPicture(context, currentUser.optString("id"), picture);
 									return picture;
 
 								} catch (MalformedURLException e) {
@@ -301,10 +401,10 @@ public class AkiSettingsFragment extends SherlockFragment {
 			Bitmap coverPlaceholder = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_cover);
 			settingsCover.setImageBitmap(coverPlaceholder);
 
-			Bitmap cachedCover = AkiInternalStorageUtil.getCachedUserCoverPhoto(context, currentUser.getId());
+			Bitmap cachedCover = AkiInternalStorageUtil.getCachedUserCoverPhoto(context, currentUser.optString("id"));
 			if ( cachedCover != null ){
 				settingsCover.setImageBitmap(cachedCover);
-				AkiServerUtil.makeSureCoverPhotoIsUploaded(context, currentUser.getId());
+				AkiServerUtil.makeSureCoverPhotoIsUploaded(context, currentUser.optString("id"));
 			}
 			else{
 				Bundle params = new Bundle();
@@ -312,8 +412,8 @@ public class AkiSettingsFragment extends SherlockFragment {
 				params.putString("width", "851");
 				params.putString("height", "315");
 				params.putString("fields", "cover");
-				new Request(currentSession, "/"+currentUser.getId(), params, HttpMethod.GET, new Request.Callback() {
-					public void onCompleted(Response response) {
+				new GraphRequest(currentSession, "/"+currentUser.optString("id"), params, HttpMethod.GET, new GraphRequest.Callback() {
+					public void onCompleted(GraphResponse response) {
 						if ( response.getError() != null ||
 								JsonValue.readFrom(response.getRawResponse()).asObject().get("cover") == null ){
 
@@ -332,7 +432,7 @@ public class AkiSettingsFragment extends SherlockFragment {
 									URL picture_address = new URL(params[0]);
 									Bitmap picture = BitmapFactory.decodeStream(picture_address.openConnection().getInputStream());
 
-									AkiInternalStorageUtil.cacheUserCoverPhoto(context, currentUser.getId(), picture);
+									AkiInternalStorageUtil.cacheUserCoverPhoto(context, currentUser.optString("id"), picture);
 									return picture;
 
 								} catch (MalformedURLException e) {
