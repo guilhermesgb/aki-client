@@ -809,7 +809,7 @@ public class AkiChatFragment extends SherlockFragment {
 					status.setText(String.format(context.getString(R.string.com_lespi_aki_main_chat_status_pattern),
 						memberIds.size() == 2
 						? context.getString(R.string.com_lespi_aki_main_chat_status_subpattern_single_person)
-						: String.format(context.getString(R.string.com_lespi_aki_main_chat_status_subpattern_more_people), memberIds.size())
+						: String.format(context.getString(R.string.com_lespi_aki_main_chat_status_subpattern_more_people), memberIds.size() - 1)
 					));
 				}
 
