@@ -635,7 +635,7 @@ public class AkiServerUtil {
 
 	public static synchronized void removeMutualInterest(final Context context, final String userId) {
 
-		AkiHttpRequestUtil.doDELETEHttpRequest(context, "/mutual/" + userId, new AsyncCallback() {
+		AkiHttpRequestUtil.doPOSTHttpRequest(context, "/mutual/remove/" + userId, new AsyncCallback() {
 
 			@Override
 			public void onSuccess(Object response) {

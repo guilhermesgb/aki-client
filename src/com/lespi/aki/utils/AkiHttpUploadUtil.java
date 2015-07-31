@@ -131,7 +131,7 @@ public abstract class AkiHttpUploadUtil {
 					urlConn.setDoInput(true);
 					urlConn.setDoOutput(true);
 					urlConn.setUseCaches(false);
-					urlConn.setRequestMethod("POST");
+					urlConn.setRequestMethod("PUT");
 
 					StringBuilder uploadHeader = new StringBuilder();
 					uploadHeader.append(twoHyphens + boundary + lineEnd);

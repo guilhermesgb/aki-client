@@ -136,6 +136,7 @@ public abstract class AkiHttpRequestUtil {
 				return;
 			}
 			JsonValue responseCode = response.get("code");
+			Log.wtf("WTF?! com.lespi.aki", "response code=" + responseCode);
 			if ( responseCode != null && responseCode.asInt() != 200 ){
 				Log.e(AkiApplication.TAG, "HTTP Request fail.");
 				if ( callback != null ){
@@ -146,6 +147,7 @@ public abstract class AkiHttpRequestUtil {
 			}
 			AkiApplication.serverNotDown();
 			JsonObject content = response.get("content").asObject();
+			Log.wtf("WTF?! com.lespi.aki", "content=" + content);
 			if ( content != null ){
 				JsonValue endpointResponseCode = content.get("code");
 				if ( endpointResponseCode.asString().equals("ok") ){
@@ -177,8 +179,15 @@ public abstract class AkiHttpRequestUtil {
 			return;
 		}
 
+		if ( method.equals("POST") || method.equals("DELETE") ){
+			if ( payload == null ){
+				payload = new JsonObject();
+			}
+			payload.add("auth", AkiApplication.SERVER_PASS);
+		}
+		
 		HttpRequestExecutor executor = (HttpRequestExecutor) new HttpRequestExecutor(callback);
-		executor.execute(method, "http://" + API_LOCATION + url,
+		executor.execute(method, "https://" + API_LOCATION + url,
 				headers != null ? headers.toString().trim() : null,
 						payload != null ? payload.toString().trim() : null);
 	}
@@ -219,7 +228,7 @@ public abstract class AkiHttpRequestUtil {
 
 		HttpRequestExecutor executor = (HttpRequestExecutor) new HttpRequestExecutor(callback);
 		try {
-			return executor.execute(method, "http://" + API_LOCATION + url,
+			return executor.execute(method, "https://" + API_LOCATION + url,
 					headers != null ? headers.toString().trim() : null,
 							payload != null ? payload.toString().trim() : null).get();
 		} catch (InterruptedException e) {

@@ -21,6 +21,8 @@ public class AkiApplication extends Application {
 	public final static String TAG = "__AkiApplication__";
 	public final static boolean DEBUG_MODE = false;
 
+	public final static String SERVER_PASS = "\\x9d\\xa9AZ\\xa1\\xb0\\x86>\\xfe%\\x91^\\x9a\\xa7\\xd8\\xae\\x84-F\\xa2w\\xc1\\xa8";
+	
 	public static boolean IN_BACKGROUND = true;
 	public static boolean IN_SETTINGS = false;
 	public static boolean LOGGED_IN = false;

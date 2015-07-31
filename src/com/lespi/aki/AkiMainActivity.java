@@ -13,6 +13,8 @@ import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.View;
@@ -36,6 +38,7 @@ import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.lespi.aki.AkiApplication.GroupChatMode;
 import com.lespi.aki.json.JsonObject;
 import com.lespi.aki.json.JsonValue;
+import com.lespi.aki.services.AkiFetchAddressIntentService;
 import com.lespi.aki.services.AkiIncomingTransitionsIntentService;
 import com.lespi.aki.utils.AkiInternalStorageUtil;
 import com.lespi.aki.utils.AkiInternalStorageUtil.AkiLocation;
@@ -61,6 +64,29 @@ LocationClient.OnRemoveGeofencesResultListener {
 	private AkiMutualFragment mutualsFragment;
 	private SlidingMenu slidingMenu;
 
+    class AddressResultReceiver extends ResultReceiver {
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+            // Display the address string
+            // or an error message sent from the intent service.
+            String address = resultData.getString("address");
+
+            // Show a toast message if an address was found.
+            if (resultCode == 0) {
+            	//TODO do something more relevant and useful with it
+            	System.out.println("Current Address: " + address);
+//                Toast.makeText(getApplicationContext(), address, Toast.LENGTH_LONG).show();
+            }
+
+        }
+    }
+	private AddressResultReceiver resultReceiver = new AddressResultReceiver(new Handler());
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -445,6 +471,11 @@ LocationClient.OnRemoveGeofencesResultListener {
 		if ( locationClient.isConnected() ){
 			Log.wtf(AkiMainActivity.TAG, "AkiMAINActivity$startPeriodicLocationUpdates");
 			locationClient.requestLocationUpdates(locationRequest, this);
+			
+	        Intent intent = new Intent(this, AkiFetchAddressIntentService.class);
+	        intent.putExtra("receiver", resultReceiver);
+	        intent.putExtra("location", locationClient.getLastLocation());
+	        startService(intent);
 		}
 	}
 
